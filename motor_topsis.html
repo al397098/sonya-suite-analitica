@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SONYA | Motor CRITIC + TOPSIS</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=snap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class", theme: {
+                extend: {
+                    colors: {
+                        "primary": "#004655", "primary-container": "#005f73", "on-primary": "#ffffff",
+                        "secondary": "#00696c", "on-secondary": "#ffffff", "secondary-container": "#86f0f3",
+                        "tertiary": "#8b3d97", "on-tertiary": "#ffffff",
+                        "error": "#ba1a1a", "error-container": "#ffdad6", "on-error-container": "#93000a",
+                        "surface": "#f6fafe", "on-surface": "#171c1f",
+                        "surface-container-lowest": "#ffffff", "surface-container-low": "#f0f4f8",
+                        "surface-container": "#eaeef2", "surface-container-high": "#e4e9ed", "surface-container-highest": "#dfe3e7",
+                        "outline": "#6f797c", "outline-variant": "#bfc8cc", "on-surface-variant": "#3f484c",
+                        "success": "#10b981"
+                    },
+                    fontFamily: { "headline": ["Manrope", "sans-serif"], "body": ["Inter", "sans-serif"], "mono": ["JetBrains Mono", "monospace"], "label": ["Space Grotesk", "sans-serif"] },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "2xl": "0.75rem", "full": "9999px" },
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --purple: #8b3d97;
+            --teal: #00696c;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f6fafe;
+            color: #171c1f;
+            margin: 0;
+        }
+
+        .font-headline {
+            font-family: 'Manrope', sans-serif;
+        }
+
+        .data-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+            line-height: 1;
+        }
+
+        .fill-icon {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .blueprint-grid {
+            background-color: #f6fafe;
+            background-image: linear-gradient(to right, rgba(0, 70, 85, 0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(0, 70, 85, 0.05) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        .watercolor-wash {
+            background: radial-gradient(circle at 60% 30%, rgba(0, 105, 108, 0.04) 0%, transparent 55%);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeUp 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .toast-wrap {
+            position: fixed;
+            top: 76px;
+            right: 24px;
+            z-index: 900;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: white;
+            border: 1px solid rgba(195, 197, 215, 0.4);
+            border-radius: 12px;
+            padding: 12px 16px;
+            box-shadow: 0 12px 32px rgba(25, 28, 30, 0.08);
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            pointer-events: auto;
+            animation: toastIn 0.3s ease;
+        }
+
+        .toast.removing {
+            animation: toastOut 0.3s ease forwards;
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        @keyframes toastOut {
+            to {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+        }
+
+        #loading {
+            position: fixed;
+            inset: 0;
+            z-index: 999;
+            background: rgba(246, 250, 254, 0.88);
+            backdrop-filter: blur(6px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #loading.show {
+            display: flex;
+        }
+
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid #bfc8cc;
+            border-top-color: var(--teal);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #bfc8cc;
+            border-radius: 10px;
+        }
+
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .no-scrollbar {
+            scrollbar-width: none;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-family: 'Manrope', sans-serif;
+            font-weight: 700;
+            font-size: 12px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #3f484c;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .sidebar-link:hover {
+            background: rgba(0, 105, 108, 0.07);
+            color: var(--teal);
+        }
+
+        .sidebar-link.active {
+            background: rgba(0, 105, 108, 0.12);
+            color: var(--teal);
+        }
+
+        .topsis-tab {
+            display: flex;
+            align-items: center;
+            height: 100%;
+            font-family: 'Manrope', sans-serif;
+            font-weight: 700;
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #6f797c;
+            border: none;
+            border-bottom: 2px solid transparent;
+            background: none;
+            cursor: pointer;
+            padding: 0 2px;
+            transition: all 0.2s;
+        }
+
+        .topsis-tab:hover {
+            color: var(--teal);
+        }
+
+        .topsis-tab.tab-active {
+            color: var(--teal);
+            border-bottom-color: var(--teal);
+        }
+    </style>
+</head>
+
+<body class="flex min-h-screen blueprint-grid">
+
+    <div id="loading">
+        <div
+            class="bg-white p-8 rounded-2xl border border-outline-variant/20 shadow-2xl flex flex-col items-center gap-4">
+            <div class="spinner"></div>
+            <p id="spin-msg" class="text-sm font-bold text-on-surface-variant font-headline">Calculando distancias
+                euclidianas...</p>
+        </div>
+    </div>
+    <div class="toast-wrap" id="toast-wrap"></div>
+
+    <aside
+        class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 z-40 bg-[#f8faff] border-r border-slate-200 overflow-hidden">
+        <div class="p-6">
+            <div class="flex items-center mb-10 cursor-pointer transition-transform hover:scale-105 origin-left"
+                onclick="location.href='index.html'">
+                <img src="logo_sonya.png" alt="SONYA Logo" class="h-10 w-auto object-contain">
+            </div>
+            <nav class="space-y-1">
+                <a href="index.html" class="sidebar-link"><span
+                        class="material-symbols-outlined text-xl">grid_view</span>Dashboard</a>
+                <a href="gestion_bbdd.html" class="sidebar-link"><span
+                        class="material-symbols-outlined text-xl">database</span>BBDD</a>
+                <a href="motor_mrp.html" class="sidebar-link"><span
+                        class="material-symbols-outlined text-xl">analytics</span>Motor MRP</a>
+                <a href="motor_topsis.html" class="sidebar-link active"><span
+                        class="material-symbols-outlined fill-icon text-xl">insights</span>Motor TOPSIS</a>
+            </nav>
+            <div
+                class="mt-8 p-5 bg-gradient-to-br from-white to-teal-50/40 border border-teal-100 rounded-2xl shadow-sm">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="material-symbols-outlined fill-icon text-secondary text-lg">balance</span>
+                    <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-secondary">Lógica
+                        Compensatoria</span>
+                </div>
+                <h4 class="font-headline font-bold text-xs text-slate-900 mb-2">Distancia al Ideal</h4>
+                <p class="text-[11px] leading-relaxed text-slate-600">Un criterio sobresaliente puede compensar uno
+                    deficiente. Evaluación por proximidad euclidiana al vector ideal.</p>
+            </div>
+        </div>
+        <div class="mt-auto p-4 mx-4 mb-4 bg-surface-container rounded-xl border border-outline-variant/20">
+            <p class="font-mono text-[10px] text-outline uppercase tracking-wider mb-1.5">System Status</p>
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-secondary animate-pulse"></div>
+                <span class="text-xs font-medium font-headline">Engine Ready</span>
+            </div>
+        </div>
+        <div class="absolute bottom-0 right-0 pointer-events-none opacity-5">
+            <svg width="140" height="140" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="45" fill="none" stroke="#00696c" stroke-width="0.5" />
+                <path d="M5 50 L95 50 M50 5 L50 95" stroke="#00696c" stroke-width="0.3" />
+                <circle cx="50" cy="50" r="5" fill="#00696c" />
+            </svg>
+        </div>
+    </aside>
+    <!-- MAIN -->
+    <div class="md:ml-64 flex-1 flex flex-col min-h-screen">
+
+        <header
+            class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-outline-variant/30 flex justify-between items-center pr-8 md:pl-[280px] h-16 shadow-sm">
+
+            <nav class="hidden md:flex gap-4 lg:gap-8 h-16 overflow-x-auto no-scrollbar">
+                <button
+                    class="topsis-tab active h-full border-b-[3px] border-[#00696c] text-[#00696c] font-bold text-sm tracking-wide px-2 lg:px-4 transition-all whitespace-nowrap"
+                    onclick="switchTab('ranking', this)">Ranking Global</button>
+                <button
+                    class="topsis-tab h-full border-b-[3px] border-transparent text-slate-500 hover:text-[#00696c] font-semibold text-sm tracking-wide px-2 lg:px-4 transition-all whitespace-nowrap"
+                    onclick="switchTab('sim', this)">Simulación</button>
+                <button
+                    class="topsis-tab h-full border-b-[3px] border-transparent text-slate-500 hover:text-[#00696c] font-semibold text-sm tracking-wide px-2 lg:px-4 transition-all whitespace-nowrap"
+                    onclick="switchTab('math', this)">Matemáticas</button>
+            </nav>
+
+            <div class="flex items-center gap-4 flex-shrink-0 ml-4">
+                <div id="api-badge"
+                    class="flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-full border border-slate-200 shadow-inner">
+                    <div class="w-2 h-2 rounded-full bg-slate-400" id="api-dot"></div>
+                    <span class="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-widest"
+                        id="api-text">Checking API</span>
+                </div>
+            </div>
+        </header>
+        <main class="flex-1 mt-24 p-8 lg:p-10 max-w-7xl mx-auto w-full space-y-10 watercolor-wash">
+            <!-- Page header -->
+            <div>
+                <h1
+                    class="text-4xl font-extrabold font-headline tracking-tighter text-slate-900 mb-1 flex items-center gap-1">
+                    <span class="font-medium text-slate-400">Motor</span> <span class="text-secondary ml-1">CRITIC +
+                        TOPSIS</span>
+                </h1>
+                <div class="h-1 w-10 bg-secondary mt-2 rounded-full opacity-50 mb-3"></div>
+                <p class="text-on-surface-variant text-sm max-w-2xl">Evaluación compensatoria basada en el Coeficiente
+                    de Cercanía (CC) — distancias euclidianas a vectores ideales ponderados por CRITIC.</p>
+                <div class="flex gap-2 mt-3">
+                    <span
+                        class="px-2 py-0.5 bg-teal-100 text-teal-700 font-mono text-[10px] rounded uppercase font-bold">Lógica
+                        Compensatoria</span>
+                    <span
+                        class="px-2 py-0.5 bg-slate-100 text-slate-700 font-mono text-[10px] rounded uppercase font-bold">CC
+                        = D⁻ / (D⁺ + D⁻)</span>
+                </div>
+            </div>
+
+            <!-- ████ TAB: RANKING ████ -->
+            <div id="view-ranking" class="tab-content active space-y-8">
+
+                <!-- KPI -->
+                <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                    <div
+                        class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm relative overflow-hidden group">
+                        <div
+                            class="absolute top-0 right-0 w-24 h-24 bg-surface-container-low -mr-8 -mt-8 rounded-full group-hover:scale-110 transition-transform duration-500 pointer-events-none">
+                        </div>
+                        <p class="text-xs font-mono uppercase tracking-widest text-outline mb-4 relative">Total Actions
+                        </p>
+                        <h3 class="text-5xl font-bold font-headline text-on-surface relative" id="met-total">--</h3>
+                        <div class="mt-4 flex items-center text-[10px] font-mono text-secondary relative"><span
+                                class="material-symbols-outlined text-sm mr-1">analytics</span>DATASET ACTIVO</div>
+                    </div>
+                    <div
+                        class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm relative overflow-hidden group">
+                        <div
+                            class="absolute top-0 right-0 w-24 h-24 bg-green-50 -mr-8 -mt-8 rounded-full group-hover:scale-110 transition-transform duration-500 pointer-events-none">
+                        </div>
+                        <p class="text-xs font-mono uppercase tracking-widest text-outline mb-4 relative">Aprobadas (CC
+                            ≥ 50%)</p>
+                        <h3 class="text-5xl font-bold font-headline text-green-600 relative" id="met-ok">--</h3>
+                        <p class="mt-4 text-[10px] font-mono text-green-600 uppercase relative">Optimal Alignment</p>
+                    </div>
+                    <div
+                        class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm relative overflow-hidden group">
+                        <div
+                            class="absolute top-0 right-0 w-24 h-24 bg-red-50 -mr-8 -mt-8 rounded-full group-hover:scale-110 transition-transform duration-500 pointer-events-none">
+                        </div>
+                        <p class="text-xs font-mono uppercase tracking-widest text-outline mb-4 relative">Descartadas
+                        </p>
+                        <h3 class="text-5xl font-bold font-headline text-error relative" id="met-no">--</h3>
+                        <p class="mt-4 text-[10px] font-mono text-error uppercase relative">Below Threshold</p>
+                    </div>
+                    <div
+                        class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm relative overflow-hidden group">
+                        <div
+                            class="absolute top-0 right-0 w-24 h-24 bg-teal-50 -mr-8 -mt-8 rounded-full group-hover:scale-110 transition-transform duration-500 pointer-events-none">
+                        </div>
+                        <p class="text-xs font-mono uppercase tracking-widest text-outline mb-4 relative">Mejor CC</p>
+                        <h3 class="text-5xl font-bold font-headline text-secondary relative" id="met-top">--</h3>
+                        <p class="mt-4 text-[10px] font-mono text-secondary uppercase relative">Best Action</p>
+                    </div>
+                </section>
+
+                <!-- Weights + Table -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+                    <!-- CRITIC Weights -->
+                    <aside class="lg:col-span-3">
+                        <div
+                            class="bg-surface-container-low p-8 rounded-xl sticky top-24 border border-outline-variant/10">
+                            <h3 class="font-headline font-bold text-lg mb-8 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-secondary">balance</span>Ponderación CRITIC
+                            </h3>
+                            <div class="space-y-6" id="weights-container">
+                                <p class="text-sm text-outline">Calculando...</p>
+                            </div>
+
+                        </div>
+                    </aside>
+
+                    <!-- Ranking Table -->
+                    <div class="lg:col-span-9">
+                        <div class="bg-white rounded-xl overflow-hidden border border-outline-variant/20 shadow-xl">
+                            <div
+                                class="px-6 py-5 border-b border-outline-variant/10 flex justify-between items-center bg-surface-container-low/40">
+                                <h2 class="font-headline font-bold text-xl">Ranking de Priorización Global</h2>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-[10px] font-mono text-outline">CC = D⁻ / (D⁺ + D⁻)</span>
+                                    <button onclick="loadT()"
+                                        class="p-2 hover:bg-surface-container rounded-lg transition-colors"><span
+                                            class="material-symbols-outlined text-sm text-outline">refresh</span></button>
+                                </div>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr
+                                            class="bg-surface-container-low text-[10px] font-mono font-bold text-outline uppercase tracking-widest border-b border-outline-variant/10">
+                                            <th class="px-6 py-4">#</th>
+                                            <th class="px-6 py-4">Acción</th>
+                                            <th class="px-6 py-4 text-center">Tipo</th>
+                                            <th class="px-6 py-4">CC (%)</th>
+                                            <th class="px-6 py-4 text-center">Impactos (Amb / Soc / Eco)</th>
+                                            <th class="px-6 py-4 text-right">Veredicto</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-outline-variant/10" id="ranking-body">
+                                        <tr>
+                                            <td colspan="6" class="p-10 text-center text-outline font-headline">Cargando
+                                                base de datos SONYA...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-sim" class="tab-content space-y-12">
+
+                <section class="space-y-6">
+                    <div class="flex items-center gap-5 mb-2">
+                        <div
+                            class="w-14 h-14 rounded-2xl bg-gradient-to-br from-white to-secondary/10 flex items-center justify-center text-secondary shadow-lg shadow-secondary/10 border border-secondary/20">
+                            <span class="material-symbols-outlined text-3xl"
+                                style="font-variation-settings: 'FILL' 1;">flag</span>
+                        </div>
+                        <div>
+                            <span
+                                class="inline-block px-2 py-1 bg-secondary/10 text-secondary text-[10px] font-black uppercase tracking-widest rounded-md mb-1">Paso
+                                1: Línea Base</span>
+                            <h2
+                                class="text-3xl md:text-4xl font-extrabold font-headline tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-secondary">
+                                Definición Escenario EX-ANTE</h2>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                        <div
+                            class="lg:col-span-8 bg-surface-container-low p-8 rounded-xl shadow-sm border border-transparent">
+                            <div class="space-y-6">
+                                <div>
+                                    <label
+                                        class="block font-mono text-[10px] uppercase tracking-widest text-outline mb-2">Acción
+                                        de Referencia</label>
+                                    <select id="ante-sel"
+                                        onchange="document.getElementById('ante-new').style.display=this.value==='__new__'?'block':'none'"
+                                        class="w-full bg-white border-0 border-b-2 border-outline focus:border-secondary focus:ring-0 font-body text-sm py-3 px-1 transition-colors cursor-pointer"></select>
+                                </div>
+                                <div id="ante-new" class="block mt-6 pt-6 border-t border-slate-100/60">
+                                    <h4
+                                        class="text-sm font-bold text-secondary mb-4 font-headline flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-base">edit_document</span>
+                                        Parámetros de la Nueva Acción
+                                    </h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                        <div class="md:col-span-4">
+                                            <input type="text" id="ante-nom"
+                                                placeholder="Escribe un nombre descriptivo para la acción..."
+                                                class="w-full bg-white border-none rounded-xl p-3.5 font-body text-sm focus:ring-2 focus:ring-secondary/20 transition-shadow">
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-2">Ambiental</label>
+                                            <input type="number" id="ante-amb" placeholder="Valor"
+                                                class="w-full bg-white border-none rounded-xl p-3 pl-4 text-left font-label font-bold focus:ring-2 focus:ring-secondary/20">
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-2">Social</label>
+                                            <input type="number" id="ante-soc" placeholder="Valor"
+                                                class="w-full bg-white border-none rounded-xl p-3 pl-4 text-left font-label font-bold focus:ring-2 focus:ring-secondary/20">
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-2">Económico</label>
+                                            <input type="number" id="ante-eco" placeholder="Valor"
+                                                class="w-full bg-white border-none rounded-xl p-3 pl-4 text-left font-label font-bold focus:ring-2 focus:ring-secondary/20">
+                                        </div>
+                                        <div class="flex items-end pb-1.5 pl-2">
+                                            <label class="flex items-center gap-2.5 cursor-pointer group">
+                                                <input type="checkbox" id="ante-save"
+                                                    class="rounded border-slate-300 text-secondary focus:ring-secondary w-5 h-5 transition-colors">
+                                                <span
+                                                    class="text-xs font-bold text-slate-500 group-hover:text-secondary uppercase tracking-wide font-headline transition-colors">Guardar
+                                                    en BBDD</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div
+                            class="lg:col-span-4 bg-white p-8 rounded-xl shadow-xl border border-outline-variant/10 flex flex-col justify-center items-center text-center">
+                            <label class="block font-mono text-[10px] uppercase tracking-widest text-outline mb-4">Nivel
+                                de Satisfacción Requerido</label>
+                            <div class="relative w-32 h-32 flex items-center justify-center">
+                                <svg class="w-full h-full -rotate-90" viewBox="0 0 128 128">
+                                    <circle class="text-surface-container-low" cx="64" cy="64" fill="transparent" r="56"
+                                        stroke="currentColor" stroke-width="8" />
+                                    <circle id="topsis-sat-arc" class="text-secondary" cx="64" cy="64"
+                                        fill="transparent" r="56" stroke="currentColor" stroke-dasharray="351.86"
+                                        stroke-dashoffset="175.93" stroke-width="8" stroke-linecap="round" />
+                                </svg>
+                                <div class="absolute flex flex-col items-center">
+                                    <input id="ante-sat" type="number" value="50" min="0" max="100"
+                                        class="w-16 text-center border-0 p-0 font-mono text-2xl font-bold focus:ring-0 bg-transparent text-secondary"
+                                        oninput="updateTopsisArc(this.value)" />
+                                    <span class="text-[10px] font-mono text-outline font-bold">%</span>
+                                </div>
+                            </div>
+                            <p class="mt-3 text-xs text-outline italic">Umbral de Referencia TOPSIS</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="space-y-6">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mt-12 mb-6 gap-4">
+                        <div class="flex items-center gap-5">
+                            <div
+                                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-white to-secondary/10 flex items-center justify-center text-secondary shadow-lg shadow-secondary/10 border border-secondary/20">
+                                <span class="material-symbols-outlined text-3xl"
+                                    style="font-variation-settings: 'FILL' 1;">rocket_launch</span>
+                            </div>
+                            <div>
+                                <span
+                                    class="inline-block px-2 py-1 bg-secondary/10 text-secondary text-[10px] font-black uppercase tracking-widest rounded-md mb-1">Paso
+                                    2: Proyección</span>
+                                <h3
+                                    class="text-3xl md:text-4xl font-extrabold font-headline tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-secondary">
+                                    Alternativas EX-POST</h3>
+                            </div>
+                        </div>
+                        <button onclick="addSimRow()"
+                            class="bg-white border-2 border-slate-200 px-5 py-3 rounded-xl text-sm font-extrabold text-slate-600 hover:text-secondary hover:border-secondary/50 hover:bg-secondary/5 transition-all shadow-sm flex items-center gap-2">
+                            <span class="material-symbols-outlined text-lg">add_circle</span> Añadir Escenario
+                        </button>
+                    </div>
+
+                    <div id="expost-list" class="space-y-3"></div>
+
+                    <div class="pt-8 flex justify-between items-center border-t border-outline-variant/20">
+                        <div class="hidden lg:block">
+                            <p class="font-mono text-[10px] text-outline uppercase tracking-wider">Engine Protocol</p>
+                            <p class="font-body text-xs text-on-surface">Algoritmo CRITIC / TOPSIS Euclidean Distance
+                            </p>
+                        </div>
+                        <button onclick="runSim()"
+                            class="flex items-center gap-4 bg-secondary hover:bg-primary-container text-white px-10 py-5 rounded-xl shadow-[0_10px_30px_rgba(0,105,108,0.3)] transition-all active:scale-95 group font-headline font-extrabold text-lg tracking-tight">
+                            Ejecutar Simulación TOPSIS
+                            <span
+                                class="material-symbols-outlined group-hover:translate-x-1 transition-transform">bolt</span>
+                        </button>
+                    </div>
+                </section>
+
+                <div id="sim-res"
+                    class="hidden bg-white rounded-2xl p-8 border border-outline-variant/10 shadow-sm border-t-4 border-t-secondary">
+                </div>
+            </div>
+            <div id="view-math" class="tab-content">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+                    <div class="lg:col-span-8 space-y-6">
+                        <h3
+                            class="text-2xl font-extrabold font-headline tracking-tight text-slate-800 flex items-center gap-2 mb-2">
+                            <span class="material-symbols-outlined text-secondary">data_object</span> Desarrollo
+                            Empírico de la Sesión
+                        </h3>
+                        <div id="math-container">
+                            <div
+                                class="p-12 text-center text-slate-400 bg-white rounded-xl border border-outline-variant/15 shadow-sm">
+                                <span class="material-symbols-outlined text-5xl mb-4 block">functions</span>
+                                <p class="font-headline font-bold">Espera a que cargue el Ranking Global para extraer la
+                                    matriz de decisión.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-4 sticky top-24">
+                        <div
+                            class="bg-slate-900 rounded-[2rem] border border-slate-800 shadow-2xl p-8 md:p-10 relative overflow-hidden group">
+
+                            <div
+                                class="absolute -right-10 -top-10 w-48 h-48 bg-secondary/30 blur-[70px] rounded-full group-hover:bg-secondary/40 transition-colors duration-700 pointer-events-none">
+                            </div>
+                            <div
+                                class="absolute -left-10 -bottom-10 w-48 h-48 bg-teal-500/20 blur-[70px] rounded-full pointer-events-none">
+                            </div>
+
+                            <div class="relative z-10">
+                                <div
+                                    class="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center border border-white/20 mb-6 backdrop-blur-sm shadow-inner">
+                                    <span class="material-symbols-outlined text-white text-3xl"
+                                        style="font-variation-settings: 'FILL' 1;">menu_book</span>
+                                </div>
+
+                                <h3
+                                    class="font-headline font-extrabold text-2xl text-white mb-4 tracking-tight leading-snug">
+                                    Evidencia Científica y Documentación
+                                </h3>
+                                <p class="text-slate-400 font-body text-sm leading-relaxed mb-10">
+                                    Acceso a la demostración matemática completa del algoritmo TOPSIS. Incluye el
+                                    cálculo de distancias euclidianas (PIS/NIS) y la ponderación estadística CRITIC.
+                                </p>
+
+                                <div class="space-y-4">
+                                    <a href="demostracion_topsis.pdf" target="_blank"
+                                        class="w-full flex items-center justify-center gap-3 bg-white hover:bg-surface-container-high text-slate-900 hover:text-secondary px-6 py-4 rounded-xl font-bold font-headline transition-all duration-300 shadow-[0_0_15px_rgba(255,255,255,0.1)] group/btn">
+                                        <span
+                                            class="material-symbols-outlined text-error group-hover/btn:text-secondary transition-colors">picture_as_pdf</span>
+                                        VER WHITEPAPER PDF
+                                    </a>
+
+                                    <a href="demostracion_topsis.pdf" download
+                                        class="w-full flex items-center justify-center gap-2 bg-transparent border-2 border-slate-700 hover:border-slate-500 hover:bg-slate-800 text-white px-6 py-3.5 rounded-xl font-bold font-headline transition-all text-sm">
+                                        Descargar Completa
+                                        <span class="material-symbols-outlined text-base">arrow_forward</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        const API = 'http://localhost:5000';
+        let accC = [], tC = null, ec = 0;
+
+        function updateTopsisArc(v) {
+            const c = Math.min(100, Math.max(0, parseFloat(v) || 0));
+            const r = 56, circ = 2 * Math.PI * r;
+            const el = document.getElementById('topsis-sat-arc');
+            if (el) el.setAttribute('stroke-dashoffset', circ * (1 - c / 100));
+        }
+
+        function msg(txt, type = 'info') {
+            const w = document.getElementById('toast-wrap'), t = document.createElement('div');
+            t.className = 'toast';
+            const c = type === 'err' ? '#ba1a1a' : type === 'ok' ? '#00696c' : '#004655';
+            const ic = type === 'err' ? 'error' : type === 'ok' ? 'check_circle' : 'info';
+            t.innerHTML = `<span class="material-symbols-outlined fill-icon" style="color:${c}">${ic}</span><span style="font-size:13px;font-weight:600;color:#171c1f">${txt}</span>`;
+            w.appendChild(t); setTimeout(() => { t.classList.add('removing'); setTimeout(() => t.remove(), 300); }, 3500);
+        }
+
+        function spin(on, text = 'Calculando...') {
+            document.getElementById('spin-msg').innerText = text;
+            document.getElementById('loading').classList.toggle('show', on);
+        }
+
+        async function api(url, opts = {}) {
+            const r = await fetch(API + url, { headers: { 'Content-Type': 'application/json' }, ...opts });
+            const j = await r.json().catch(() => ({ error: r.statusText }));
+            if (!r.ok) throw new Error(j.error || r.statusText);
+            return j;
+        }
+
+        function switchTab(tab, btn) {
+            // Restablecer todas al color gris, manteniendo el nuevo tamaño y separación
+            document.querySelectorAll('.topsis-tab').forEach(b => b.className = "topsis-tab h-full border-b-[3px] border-transparent text-slate-500 hover:text-[#006a6a] font-semibold text-sm tracking-wide px-2 lg:px-4 transition-all whitespace-nowrap");
+
+            // Poner la activa en Cerceta (Teal) y negrita fuerte
+            btn.className = "topsis-tab active h-full border-b-[3px] border-[#006a6a] text-[#006a6a] font-bold text-sm tracking-wide px-2 lg:px-4 transition-all whitespace-nowrap";
+
+            // Cambiar el contenido
+            document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
+            document.getElementById(`view-${tab}`).classList.add('active');
+            if (tab === 'math') buildMath();
+        }
+
+        const bType = t => t === 'EX-ANTE'
+            ? `<span class="px-2.5 py-1 rounded-lg bg-surface-container-highest text-outline text-[10px] font-bold uppercase">Ante</span>`
+            : `<span class="px-2.5 py-1 rounded-lg bg-secondary/10 text-secondary text-[10px] font-bold uppercase">Post</span>`;
+
+        const bVerd = v => !v ? '--' : v.includes('APROBADA')
+            ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full border border-green-200"><span class="w-1.5 h-1.5 rounded-full bg-green-600"></span>Viable</span>`
+            : v.includes('DESCARTADA')
+                ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-red-100 text-red-700 text-xs font-bold rounded-full border border-red-200"><span class="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse"></span>No Viable</span>`
+                : `<span class="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-[10px] font-bold">Oculta</span>`;
+
+        async function loadT() {
+            spin(true, 'Calculando ponderación estadística CRITIC...');
+            try {
+                if (!accC.length) accC = await api('/acciones');
+                tC = await api('/ranking/topsis');
+
+                const b = document.getElementById('api-badge');
+                b.className = 'flex items-center gap-1.5 px-3 py-1 bg-secondary/10 text-secondary rounded-full border border-secondary/20';
+                b.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span><span class="text-[10px] font-mono font-bold">API ONLINE</span>`;
+
+                const d = tC.ranking;
+                const ok = d.filter(x => x.veredicto?.includes('APROBADA')).length;
+                document.getElementById('met-total').innerText = d.length;
+                document.getElementById('met-ok').innerText = ok;
+                document.getElementById('met-no').innerText = d.length - ok;
+                document.getElementById('met-top').innerText = d.length ? (d[0].cc * 100).toFixed(1) + '%' : '--';
+
+                /* CRITIC Weights */
+                const wC = ['#00696c', '#8b3d97', '#004655'];
+                document.getElementById('weights-container').innerHTML = Object.entries(tC.pesos).map(([k, v], i) => `
+      <div class="space-y-2">
+        <div class="flex justify-between text-sm font-mono font-bold uppercase">
+          <span class="text-on-surface-variant">${k}</span><span style="color:${wC[i % 3]}">${(v * 100).toFixed(1)}%</span>
+        </div>
+        <div class="w-full h-3 bg-white rounded-full overflow-hidden">
+          <div class="h-full rounded-full transition-all duration-700" style="width:${v * 100}%;background:${wC[i % 3]}"></div>
+        </div>
+      </div>
+    `).join('');
+
+                /* Ranking */
+                document.getElementById('ranking-body').innerHTML = d.map((r, i) => `
+      <tr class="hover:bg-surface-container-low/40 transition-colors group">
+        <td class="px-6 py-5 font-mono text-sm text-outline group-hover:text-secondary">
+          ${i === 0 ? `<span class="material-symbols-outlined fill-icon text-yellow-500 text-lg">workspace_premium</span>` : `<span>${String(i + 1).padStart(2, '0')}</span>`}
+        </td>
+        <td class="px-6 py-5">
+          <div class="font-headline font-bold text-on-surface">${r.accion}</div>
+          <div class="data-mono text-[10px] text-outline mt-0.5">${r.tipo || ''}</div>
+        </td>
+        <td class="px-6 py-5 text-center">${bType(r.tipo)}</td>
+        <td class="px-6 py-5">
+          <div class="flex flex-col gap-1.5">
+            <span class="text-base font-extrabold data-mono ${r.cc >= 0.5 ? 'text-secondary' : 'text-error'}">${(r.cc * 100).toFixed(2)}%</span>
+            <div class="h-1.5 w-24 bg-surface-container-highest rounded-full overflow-hidden">
+              <div class="h-full ${r.cc >= 0.5 ? 'bg-secondary' : 'bg-error'} rounded-full transition-all" style="width:${Math.min(r.cc * 100, 100)}%"></div>
+            </div>
+          </div>
+        </td>
+        <td class="px-6 py-5">
+          <div class="flex items-center justify-center gap-2">
+            <span class="bg-surface-container-low border border-outline-variant/30 text-on-surface font-mono text-xs font-bold px-2.5 py-1 rounded-md min-w-[52px] text-center">${r.amb?.toFixed(2) || '--'}</span>
+            <span class="bg-surface-container-low border border-outline-variant/30 text-on-surface font-mono text-xs font-bold px-2.5 py-1 rounded-md min-w-[52px] text-center">${r.soc?.toFixed(2) || '--'}</span>
+            <span class="bg-surface-container-low border border-outline-variant/30 text-on-surface font-mono text-xs font-bold px-2.5 py-1 rounded-md min-w-[52px] text-center">${r.eco?.toFixed(2) || '--'}</span>
+          </div>
+        </td>
+        <td class="px-6 py-5 text-right">${bVerd(r.veredicto)}</td>
+      </tr>
+    `).join('');
+
+                const an = accC.filter(x => x.tipo === 'EX-ANTE').map(x => `<option value="${x.nombre}">${x.nombre}</option>`).join('');
+                document.getElementById('ante-sel').innerHTML = '<option value="__new__">-- Definir Nueva Acción Base --</option>' + an;
+
+            } catch (e) {
+                const b = document.getElementById('api-badge');
+                b.className = 'flex items-center gap-1.5 px-3 py-1 bg-error/8 text-error rounded-full border border-error/20';
+                b.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-error"></span><span class="text-[10px] font-mono font-bold">API OFFLINE</span>`;
+                msg('Error de conexión. Arranca: python sonya_api.py', 'err');
+            }
+            spin(false);
+        }
+        function addSimRow() {
+            ec++; const n = ec; const d = document.createElement('div'); d.id = `ep-${n}`;
+            const opts = accC.filter(x => x.tipo === 'EX-POST').map(x => `<option value="${x.nombre}">${x.nombre}</option>`).join('');
+
+            d.innerHTML = `
+    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative border-l-4 border-l-secondary/60 hover:border-l-secondary transition-colors group">
+        <button onclick="document.getElementById('ep-${n}').remove()" class="absolute top-4 right-4 text-slate-300 hover:text-error transition-colors">
+            <span class="material-symbols-outlined text-xl">cancel</span>
+        </button>
+        
+        <div class="flex items-center gap-2 mb-4">
+            <span class="material-symbols-outlined text-secondary text-sm">auto_awesome</span>
+            <h4 class="font-headline font-bold text-sm text-slate-800">Escenario EX-POST ${n}</h4>
+        </div>
+
+        <div class="flex gap-4 mb-5">
+            <div class="flex-1">
+                <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Origen</label>
+                <select id="ep-sel-${n}" onchange="document.getElementById('ep-new-${n}').style.display=(this.value==='__new__'?'block':'none')" class="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-secondary/20 transition-all">
+                    <option value="__new__">-- Definir Nueva Alternativa --</option>
+                    ${opts}
+                </select>
+            </div>
+            <div class="w-24">
+                <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1 text-center">Sat (%)</label>
+                <input type="number" id="ep-sat-${n}" value="70" class="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-center font-label font-bold text-secondary focus:ring-2 focus:ring-secondary/20 transition-all">
+            </div>
+        </div>
+
+        <div id="ep-new-${n}" class="block pt-5 border-t border-slate-100/80">
+            <div class="grid grid-cols-3 gap-3">
+                <div class="col-span-3">
+                    <input type="text" id="ep-nom-${n}" placeholder="Nombre descriptivo de la mejora..." class="w-full bg-slate-50 border-none rounded-xl p-3 text-sm font-body focus:ring-2 focus:ring-secondary/20 transition-shadow">
+                </div>
+                
+                <div>
+                    <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">Ambiental</label>
+                    <input type="number" id="ep-amb-${n}" placeholder="Valor" class="w-full bg-slate-50 border-none rounded-lg p-2.5 pl-3 text-left font-label font-bold text-sm focus:ring-2 focus:ring-secondary/20">
+                </div>
+
+                <div>
+                    <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">Social</label>
+                    <input type="number" id="ep-soc-${n}" placeholder="Valor" class="w-full bg-slate-50 border-none rounded-lg p-2.5 pl-3 text-left font-label font-bold text-sm focus:ring-2 focus:ring-secondary/20">
+                </div>
+
+                <div>
+                    <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">Económico</label>
+                    <input type="number" id="ep-eco-${n}" placeholder="Valor" class="w-full bg-slate-50 border-none rounded-lg p-2.5 pl-3 text-left font-label font-bold text-sm focus:ring-2 focus:ring-secondary/20">
+                </div>
+
+                <div class="col-span-3 flex items-center justify-end mt-1">
+                    <label class="flex items-center gap-2 cursor-pointer group/chk">
+                        <input type="checkbox" id="ep-save-${n}" class="rounded border-slate-300 text-secondary focus:ring-secondary w-4 h-4 transition-colors">
+                        <span class="text-[10px] font-bold text-slate-400 group-hover/chk:text-secondary uppercase tracking-widest transition-colors">Guardar en BBDD</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    `;
+            document.getElementById('expost-list').appendChild(d);
+        }
+        async function runSim() {
+            const rs = document.getElementById('sim-res'); rs.classList.add('hidden');
+            let a = {};
+            const as = document.getElementById('ante-sel').value;
+            const asat = parseFloat(document.getElementById('ante-sat').value) || 50;
+            if (as === '__new__') {
+                const n = document.getElementById('ante-nom').value; if (!n) return msg('Falta nombre ANTE', 'err');
+                a = { nombre: n, tipo: 'EX-ANTE', eco: parseFloat(document.getElementById('ante-eco').value) || 0, amb: parseFloat(document.getElementById('ante-amb').value) || 0, soc: parseFloat(document.getElementById('ante-soc').value) || 0, sat: asat, nueva: true, guardar: document.getElementById('ante-save').checked };
+            } else { a = { nombre: as, sat: asat, nueva: false }; }
+
+            let eps = [];
+            for (let i = 1; i <= ec; i++) {
+                let el = document.getElementById(`ep-${i}`); if (!el) continue;
+                let s = document.getElementById(`ep-sel-${i}`).value; let sat = parseFloat(document.getElementById(`ep-sat-${i}`).value) || 70;
+                if (s === '__new__') {
+                    let n = document.getElementById(`ep-nom-${i}`).value; if (!n) return msg('Nombre POST vacío', 'err');
+                    eps.push({ nombre: n, tipo: 'EX-POST', eco: parseFloat(document.getElementById(`ep-eco-${i}`).value) || 0, amb: parseFloat(document.getElementById(`ep-amb-${i}`).value) || 0, soc: parseFloat(document.getElementById(`ep-soc-${i}`).value) || 0, sat: sat, nueva: true, guardar: document.getElementById(`ep-save-${i}`).checked });
+                } else { eps.push({ nombre: s, sat: sat, nueva: false }); }
+            }
+            if (!eps.length) return msg('Añade al menos una alternativa EX-POST', 'err');
+
+            spin(true, 'Generando matriz euclidiana y coeficientes relativos...');
+            try {
+                let sA = [...(a.nueva && a.guardar ? [a] : []), ...eps.filter(x => x.nueva && x.guardar)];
+                for (let x of sA) await api('/acciones', { method: 'POST', body: JSON.stringify({ nombre: x.nombre, tipo: x.tipo, eco: x.eco, amb: x.amb, soc: x.soc }) });
+                if (sA.length) { accC = await api('/acciones'); tC = null; msg('Registros persistidos', 'ok'); }
+                const res = await api('/evaluar/topsis', { method: 'POST', body: JSON.stringify({ ex_ante: a.nombre, sat_ante: a.sat, ex_posts: eps.map(x => ({ nombre: x.nombre, sat: x.sat, ...(x.nueva ? { eco: x.eco, amb: x.amb, soc: x.soc } : {}) })) }) });
+                const ok = res.resultado.filter(x => x.cc >= 0.5).length;
+                rs.innerHTML = `
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-xl font-extrabold font-headline tracking-tight">Resultados de Simulación TOPSIS</h3>
+        <div class="bg-surface-container px-4 py-2 rounded-lg"><p class="text-sm font-bold text-secondary font-headline">${ok} de ${res.resultado.length} acciones viables</p></div>
+      </div>
+      <div class="overflow-x-auto"><table class="w-full text-left border-collapse">
+        <thead class="bg-surface-container-low/50"><tr class="text-[10px] font-bold text-outline uppercase tracking-widest border-b border-outline-variant/15">
+          <th class="px-5 py-4">Alternativa</th><th class="px-5 py-4 text-center">CC (%)</th><th class="px-5 py-4 text-right">Veredicto</th>
+        </tr></thead>
+        <tbody class="divide-y divide-outline-variant/10">
+          ${res.resultado.map(x => `<tr class="hover:bg-slate-50 transition-colors">
+            <td class="px-5 py-4 font-bold text-sm text-slate-800">${x.accion}</td>
+            <td class="px-5 py-4 text-center font-mono font-bold text-lg ${x.cc >= 0.5 ? 'text-secondary' : 'text-error'}">${(x.cc * 100).toFixed(2)}%</td>
+            <td class="px-5 py-4 text-right">${bVerd(x.veredicto)}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table></div>`;
+                rs.classList.remove('hidden');
+            } catch (e) { msg(e.message, 'err'); }
+            spin(false);
+        }
+
+        function buildMath() {
+            if (!tC) return;
+            document.getElementById('math-container').innerHTML = `
+    <div class="bg-white p-8 rounded-xl border border-outline-variant/15 shadow-sm">
+      <div class="flex items-center justify-between mb-6 border-b border-outline-variant/20 pb-4">
+        <h2 class="text-2xl font-bold font-headline text-secondary">Fórmula de Ponderación CRITIC</h2>
+        <span class="font-mono text-xs text-outline px-2 py-1 bg-surface-container rounded border border-outline-variant/20">METRIC_V01</span>
+      </div>
+      <div class="flex items-center justify-center p-8 bg-surface-container-low/50 rounded-xl mb-6 font-serif text-xl text-slate-700 italic border border-outline-variant/15">
+        W_j = C_j / Σ(C_j) &nbsp;&nbsp;|&nbsp;&nbsp; C_j = σ_j × Σ(1 − r_ij)
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        ${Object.entries(tC.std || {}).map(([k, v]) => `
+          <div class="bg-surface-container-low p-5 rounded-xl border border-outline-variant/15">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-outline font-headline">Desv. Típica (σ) — ${k}</p>
+            <p class="data-mono text-xl font-bold text-slate-800 mt-2">${v.toFixed(4)}</p>
+          </div>`).join('')}
+      </div>
+    </div>
+    <div class="bg-white p-8 rounded-xl border border-outline-variant/15 shadow-sm">
+      <div class="flex items-center justify-between mb-6 border-b border-outline-variant/20 pb-4">
+        <h2 class="text-2xl font-bold font-headline text-secondary">Distancias Euclidianas al Ideal</h2>
+        <span class="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-[10px] font-bold font-mono border border-secondary/20">CC_i = D⁻ / (D⁺ + D⁻)</span>
+      </div>
+      <div class="overflow-x-auto"><table class="w-full text-left data-mono text-xs border-separate border-spacing-y-2">
+        <thead class="font-headline uppercase tracking-widest text-[10px] text-outline font-bold">
+          <tr><th class="px-4 pb-2">Acción</th><th class="px-4 pb-2 text-center">D⁺ (Dist. PIS)</th><th class="px-4 pb-2 text-center">D⁻ (Dist. NIS)</th><th class="px-4 pb-2 text-right text-secondary">CC (%) Final</th></tr>
+        </thead>
+        <tbody>
+          ${tC.ranking.map(r => `<tr class="hover:bg-slate-50 transition-colors">
+            <td class="px-4 py-3 font-sans font-bold text-sm text-slate-800 bg-white rounded-l-lg border-y border-l border-outline-variant/15">${r.accion}</td>
+            <td class="px-4 py-3 text-center text-slate-500 bg-white border-y border-outline-variant/15">${r.d_plus?.toFixed(6) || '--'}</td>
+            <td class="px-4 py-3 text-center text-slate-500 bg-white border-y border-outline-variant/15">${r.d_minus?.toFixed(6) || '--'}</td>
+            <td class="px-4 py-3 text-right font-bold text-secondary text-sm bg-white rounded-r-lg border-y border-r border-outline-variant/15">${(r.cc * 100).toFixed(4)}%</td>
+          </tr>`).join('')}
+        </tbody>
+      </table></div>
+    </div>
+  `;
+        }
+
+        window.onload = loadT;
+    </script>
+</body>
+
+</html>
