@@ -30,6 +30,10 @@
 
 ---
 
+[Ver Demo en Vivo](https://al397098.github.io/sonya-suite-analitica/)
+
+---
+
 ## Instalación rápida
 1. Clona el repositorio: `git clone https://github.com/al397098/sonya-suite-analitica.git`
 2. Instala dependencias: `pip install -r requirements.txt`
