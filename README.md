@@ -34,6 +34,19 @@
 
 ---
 
+## Detalles del Algoritmo
+
+### Ponderación CRITIC (Criteria Importance Through Intercriteria Correlation)
+A diferencia de otros métodos subjetivos, SONYA utiliza CRITIC para asignar pesos analizando la desviación típica ($\sigma$) y la matriz de correlación ($r_{jk}$) de los datos:
+$$W_j = \frac{C_j}{\sum C_j} \text{ donde } C_j = \sigma_j \sum (1 - r_{jk})$$
+
+### Lógica de Veto (MRP)
+El motor MRP implementa una función de agregación no compensatoria:
+$$SS_i = \min(s_{eco}, s_{amb}, s_{soc})$$
+Esto garantiza que ninguna mejora económica pueda enmascarar un impacto ambiental inaceptable.
+
+---
+
 ## Instalación rápida
 1. Clona el repositorio: `git clone https://github.com/al397098/sonya-suite-analitica.git`
 2. Instala dependencias: `pip install -r requirements.txt`
