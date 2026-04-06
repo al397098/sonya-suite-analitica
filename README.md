@@ -1,3 +1,8 @@
+<p align="center">
+  <img src="logo_sonya.png" width="200" />
+  <h1 align="center">SONYA Suite Analítica</h1>
+</p>
+
 # SONYA Suite Analítica
 > **Decision Support System** basado en algoritmos multicriterio de sostenibilidad fuerte y compensatoria.
 
