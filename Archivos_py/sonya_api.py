@@ -351,6 +351,10 @@ def evaluar_mrp_v2():
     return jsonify(limpia({'resultado': resultados}))
 
 
+import os
+
 if __name__ == '__main__':
-    print("🚀 SONYA API unificada arrancando en http://localhost:5000")
-    app.run(debug=True, port=5000)
+    # Render asigna un puerto dinámico, por eso usamos os.environ.get
+    port = int(os.environ.get("PORT", 5000))
+    # Importante: host '0.0.0.0' para que sea visible externamente
+    app.run(host='0.0.0.0', port=port)
