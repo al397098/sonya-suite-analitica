@@ -837,54 +837,68 @@
             </div>
 
             <div id="tab-math" class="tab-content">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                
-                <div class="lg:col-span-8 space-y-6">
-                    <h3 class="text-2xl font-extrabold font-headline tracking-tight text-slate-800 flex items-center gap-2 mb-2">
-                        <span class="material-symbols-outlined text-primary">data_object</span> Desarrollo Empírico de la Sesión
-                    </h3>
-                    <div id="m-math-container"></div>
-                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
-                <div class="lg:col-span-4 sticky top-24">
-                    <div class="bg-slate-900 rounded-[2rem] border border-slate-800 shadow-2xl p-8 md:p-10 relative overflow-hidden group">
-                        <div class="absolute -right-10 -top-10 w-48 h-48 bg-primary/30 blur-[70px] rounded-full group-hover:bg-primary/40 transition-colors duration-700 pointer-events-none"></div>
-                        <div class="absolute -left-10 -bottom-10 w-48 h-48 bg-secondary/20 blur-[70px] rounded-full pointer-events-none"></div>
+                    <div class="lg:col-span-8 space-y-6">
+                        <h3
+                            class="text-2xl font-extrabold font-headline tracking-tight text-slate-800 flex items-center gap-2 mb-2">
+                            <span class="material-symbols-outlined text-primary">data_object</span> Desarrollo Empírico
+                            de la Sesión
+                        </h3>
+                        <div id="m-math-container"></div>
+                    </div>
 
-                        <div class="relative z-10">
-                            <div class="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center border border-white/20 mb-6 backdrop-blur-sm shadow-inner">
-                                <span class="material-symbols-outlined text-white text-3xl" style="font-variation-settings: 'FILL' 1;">menu_book</span>
+                    <div class="lg:col-span-4 sticky top-24">
+                        <div
+                            class="bg-slate-900 rounded-[2rem] border border-slate-800 shadow-2xl p-8 md:p-10 relative overflow-hidden group">
+                            <div
+                                class="absolute -right-10 -top-10 w-48 h-48 bg-primary/30 blur-[70px] rounded-full group-hover:bg-primary/40 transition-colors duration-700 pointer-events-none">
                             </div>
-                            
-                            <h3 class="font-headline font-extrabold text-2xl text-white mb-4 tracking-tight leading-snug">
-                                Evidencia Científica y Documentación
-                            </h3>
-                            <p class="text-slate-400 font-body text-sm leading-relaxed mb-10">
-                                Acceso a la demostración matemática completa del algoritmo MRP mediante interpolación a tramos y funciones de pertenencia. Incluye la formulación en LaTeX.
-                            </p>
+                            <div
+                                class="absolute -left-10 -bottom-10 w-48 h-48 bg-secondary/20 blur-[70px] rounded-full pointer-events-none">
+                            </div>
 
-                            <div class="space-y-4">
-                                <a href="demostracion_mrp.pdf" target="_blank" class="w-full flex items-center justify-center gap-3 bg-white hover:bg-primary-container text-slate-900 hover:text-primary px-6 py-4 rounded-xl font-bold font-headline transition-all duration-300 shadow-[0_0_15px_rgba(255,255,255,0.1)] group/btn">
-                                    <span class="material-symbols-outlined text-error group-hover/btn:text-primary transition-colors">picture_as_pdf</span>
-                                    VER WHITEPAPER PDF
-                                </a>
-                                
-                                <a href="demostracion_mrp.pdf" download class="w-full flex items-center justify-center gap-2 bg-transparent border-2 border-slate-700 hover:border-slate-500 hover:bg-slate-800 text-white px-6 py-3.5 rounded-xl font-bold font-headline transition-all text-sm">
-                                    Descargar Completa
-                                    <span class="material-symbols-outlined text-base">arrow_forward</span>
-                                </a>
+                            <div class="relative z-10">
+                                <div
+                                    class="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center border border-white/20 mb-6 backdrop-blur-sm shadow-inner">
+                                    <span class="material-symbols-outlined text-white text-3xl"
+                                        style="font-variation-settings: 'FILL' 1;">menu_book</span>
+                                </div>
+
+                                <h3
+                                    class="font-headline font-extrabold text-2xl text-white mb-4 tracking-tight leading-snug">
+                                    Evidencia Científica y Documentación
+                                </h3>
+                                <p class="text-slate-400 font-body text-sm leading-relaxed mb-10">
+                                    Acceso a la demostración matemática completa del algoritmo MRP mediante
+                                    interpolación a tramos y funciones de pertenencia. Incluye la formulación en LaTeX.
+                                </p>
+
+                                <div class="space-y-4">
+                                    <a href="demostracion_mrp.pdf" target="_blank"
+                                        class="w-full flex items-center justify-center gap-3 bg-white hover:bg-primary-container text-slate-900 hover:text-primary px-6 py-4 rounded-xl font-bold font-headline transition-all duration-300 shadow-[0_0_15px_rgba(255,255,255,0.1)] group/btn">
+                                        <span
+                                            class="material-symbols-outlined text-error group-hover/btn:text-primary transition-colors">picture_as_pdf</span>
+                                        VER WHITEPAPER PDF
+                                    </a>
+
+                                    <a href="demostracion_mrp.pdf" download
+                                        class="w-full flex items-center justify-center gap-2 bg-transparent border-2 border-slate-700 hover:border-slate-500 hover:bg-slate-800 text-white px-6 py-3.5 rounded-xl font-bold font-headline transition-all text-sm">
+                                        Descargar Completa
+                                        <span class="material-symbols-outlined text-base">arrow_forward</span>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
+                </div>
             </div>
-        </div>
         </main>
     </div>
 
     <script>
-        const API = 'http://localhost:5000';
+        const API = 'https://sonya-k39g.onrender.com';
         let accC = [], mC = null, ec = 0;
         let mrpAlpha = JSON.parse(localStorage.getItem('sonya_alpha')) || [0, 1, 2.5, 3, 4];
         let mrpLR = parseFloat(localStorage.getItem('sonya_lr') || '1');
