@@ -11,7 +11,7 @@ from flask_cors import CORS
 import numpy as np
 import json as json_lib
 
-from sonya_motor_v3 import (
+from .sonya_motor_v3 import (
     GestorBBDD,
     construir_dataframe_todas_acciones,
     calcular_critic_topsis,
