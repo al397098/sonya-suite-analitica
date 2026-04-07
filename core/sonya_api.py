@@ -351,7 +351,15 @@ def evaluar_mrp_v2():
     return jsonify(limpia({'resultado': resultados}))
 
 
+# Añade esto cerca de los imports iniciales
 import os
+
+# Definir la ruta base del proyecto (un nivel arriba de /core)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA_DIR = os.path.join(BASE_DIR, "data")
+
+# Si tu clase GestorBBDD usa una ruta fija, asegúrate de que apunte a:
+# os.path.join(DATA_DIR, "sonya_acciones.json")
 
 if __name__ == '__main__':
     # Render asigna un puerto dinámico, por eso usamos os.environ.get
