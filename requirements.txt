@@ -3,3 +3,8 @@ flask-cors
 pandas
 numpy
 gunicorn
+flask
+flask-cors
+pandas
+numpy
+gunicorn
