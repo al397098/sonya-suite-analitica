@@ -915,18 +915,23 @@
 
             if (url.startsWith('/evaluar/mrp')) {
                 const req = JSON.parse(opts.body);
-                const ante = DB_LOCAL.find(x => x.nombre === req.ex_ante) ||
-                    { nombre: req.ex_ante, tipo: 'EX-ANTE', eco: 0, amb: 0, soc: 0 };
+                // Buscamos el Ante en la BBDD o usamos los valores del formulario si es nuevo
+                const ante = req.ante_data || DB_LOCAL.find(x => x.nombre === req.ex_ante) || { nombre: req.ex_ante, tipo: 'EX-ANTE', eco: 0, amb: 0, soc: 0 };
+                ante.tipo = 'EX-ANTE'; // Forzamos el tipo para la tabla
+
                 const posts = req.ex_posts.map(ep => {
+                    if (ep.nueva) return { ...ep, tipo: 'EX-POST' };
                     const found = DB_LOCAL.find(x => x.nombre === ep.nombre);
-                    return found || { nombre: ep.nombre, tipo: 'EX-POST', eco: parseFloat(ep.eco) || 0, amb: parseFloat(ep.amb) || 0, soc: parseFloat(ep.soc) || 0 };
+                    return found ? { ...found, tipo: 'EX-POST' } : ep;
                 });
-                // Simular con el conjunto EX-ANTE + EX-POST para calcular umbrales con contexto
+
                 const conjunto = [ante, ...posts];
+                // Ejecutamos el motor matemático
                 const resultado = MotorLocal.procesarMRP(conjunto, req.alpha || [0, 1, 2.5, 3, 4], req.q || {}).ranking;
+
                 return {
                     resultado: resultado.filter(r => r.tipo === 'EX-POST'),
-                    resultado_completo: resultado // Esto envía ANTE + POSTS ordenados por SS
+                    resultado_completo: resultado // Esto es lo que permite ver el ANTE y los POST juntos
                 };
             }
         }
@@ -1153,37 +1158,64 @@
             actualizarFiltroExPost();
         }
         async function runSim() {
-            const rs = document.getElementById('m-sim-res'); rs.classList.add('hidden');
-            let a = {}; const as = document.getElementById('m-ante-sel').value; const asat = parseFloat(document.getElementById('m-ante-sat').value) || 50;
-            if (as === '__new__') {
-                const n = document.getElementById('m-ante-nom').value; if (!n) return msg('Falta nombre ANTE', 'err');
-                a = { nombre: n, tipo: 'EX-ANTE', eco: parseFloat(document.getElementById('m-ante-eco').value) || 0, amb: parseFloat(document.getElementById('m-ante-amb').value) || 0, soc: parseFloat(document.getElementById('m-ante-soc').value) || 0, sat: asat, nueva: true, guardar: document.getElementById('m-ante-save').checked };
-            } else { a = { nombre: as, sat: asat, nueva: false }; }
+            const rs = document.getElementById('m-sim-res');
+            rs.classList.add('hidden');
 
+            // 1. Datos del ANTE
+            let ante_final = {};
+            const as = document.getElementById('m-ante-sel').value;
+            if (as === '__new__') {
+                ante_final = {
+                    nombre: document.getElementById('m-ante-nom').value || 'Nuevo Escenario',
+                    amb: parseFloat(document.getElementById('m-ante-amb').value) || 0,
+                    soc: parseFloat(document.getElementById('m-ante-soc').value) || 0,
+                    eco: parseFloat(document.getElementById('m-ante-eco').value) || 0,
+                    nueva: true
+                };
+            } else {
+                ante_final = { nombre: as, nueva: false };
+            }
+
+            // 2. Datos de los POST
             let eps = [];
             for (let i = 1; i <= ec; i++) {
-                let el = document.getElementById(`ep-${i}`); if (!el) continue;
-                let s = document.getElementById(`ep-sel-${i}`).value; let sat = parseFloat(document.getElementById(`ep-sat-${i}`).value) || 70;
+                let el = document.getElementById(`ep-${i}`);
+                if (!el) continue;
+                let s = document.getElementById(`ep-sel-${i}`).value;
                 if (s === '__new__') {
-                    let n = document.getElementById(`ep-nom-${i}`).value; if (!n) return msg('Nombre POST vacío', 'err');
-                    eps.push({ nombre: n, tipo: 'EX-POST', eco: parseFloat(document.getElementById(`ep-eco-${i}`).value) || 0, amb: parseFloat(document.getElementById(`ep-amb-${i}`).value) || 0, soc: parseFloat(document.getElementById(`ep-soc-${i}`).value) || 0, sat, nueva: true, guardar: document.getElementById(`ep-save-${i}`).checked });
-                } else { eps.push({ nombre: s, sat, nueva: false }); }
+                    eps.push({
+                        nombre: document.getElementById(`ep-nom-${i}`).value || `Mejora ${i}`,
+                        amb: parseFloat(document.getElementById(`ep-amb-${i}`).value) || 0,
+                        soc: parseFloat(document.getElementById(`ep-soc-${i}`).value) || 0,
+                        eco: parseFloat(document.getElementById(`ep-eco-${i}`).value) || 0,
+                        nueva: true
+                    });
+                } else {
+                    eps.push({ nombre: s, nueva: false });
+                }
             }
+
             if (!eps.length) return msg('Añade al menos una alternativa EX-POST', 'err');
 
-            spin(true, 'Procesando Agregación Leontief (MRP)...');
+            spin(true, 'Calculando Matriz Comparativa...');
             try {
-                // Guardar en BBDD local si se marcó el checkbox
-                const sA = [...(a.nueva && a.guardar ? [a] : []), ...eps.filter(x => x.nueva && x.guardar)];
-                for (let x of sA) await api('/acciones', { method: 'POST', body: JSON.stringify({ nombre: x.nombre, tipo: x.tipo, eco: x.eco, amb: x.amb, soc: x.soc }) });
-                if (sA.length) { accC = await api('/acciones'); mC = null; msg('Registros guardados en la sesión', 'ok'); }
+                const res = await api('/evaluar/mrp', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        ex_ante: ante_final.nombre,
+                        ante_data: ante_final.nueva ? ante_final : null,
+                        ex_posts: eps,
+                        alpha: mrpAlpha,
+                        q: mrpQ
+                    })
+                });
 
-                const res = await api('/evaluar/mrp', { method: 'POST', body: JSON.stringify({ ex_ante: a.nombre, sat_ante: a.sat, ex_posts: eps.map(x => ({ nombre: x.nombre, sat: x.sat, ...(x.nueva ? { eco: x.eco, amb: x.amb, soc: x.soc } : {}) })), alpha: mrpAlpha, lr: mrpLR, q: mrpQ }) });
                 const ok = res.resultado.filter(x => x.ss >= mrpLR).length;
 
+                // 3. Dibujar la tabla solicitada
                 rs.innerHTML = `
             <div class="flex items-center justify-between mb-8">
-              <h3 class="text-2xl font-extrabold font-headline text-slate-900">Resultado Comparativo MRP</h3>
+              <h3 class="text-2xl font-extrabold font-headline">Resultado Comparativo MRP</h3>
               <div class="bg-surface-container-high px-4 py-2 rounded-lg text-sm font-bold text-slate-700">${ok} de ${res.resultado.length} mejoras viables</div>
             </div>
             <div class="overflow-x-auto">
@@ -1206,25 +1238,28 @@
                     const mi = vals.indexOf(Math.min(...vals));
                     const cn = ['Amb', 'Soc', 'Eco'];
                     const esAnte = x.tipo === 'EX-ANTE';
-
-                    return `<tr class="hover:bg-slate-50 transition-colors ${esAnte ? 'bg-slate-100/50 font-medium' : ''} ${x.ss < mrpAlpha[1] ? 'bg-error/5' : ''}">
-                        <td class="px-6 py-5">
-                          <span class="px-2 py-0.5 rounded text-[9px] font-bold ${esAnte ? 'bg-primary/10 text-primary' : 'bg-purple-100 text-purple-600'}">${x.tipo}</span>
-                        </td>
-                        <td class="px-6 py-5 font-bold text-slate-800">${x.accion}</td>
-                        <td class="px-4 py-5 text-center font-mono text-xs">${x.s_amb.toFixed(3)}</td>
-                        <td class="px-4 py-5 text-center font-mono text-xs">${x.s_soc.toFixed(3)}</td>
-                        <td class="px-4 py-5 text-center font-mono text-xs">${x.s_eco.toFixed(3)}</td>
-                        <td class="px-4 py-5 text-center font-mono font-bold text-base ${x.ss < mrpAlpha[1] ? 'text-error' : 'text-[#8b3d97]'}">${x.ss.toFixed(4)}</td>
-                        <td class="px-4 py-5 text-center text-[10px] font-bold text-outline uppercase">${cn[mi]}</td>
-                        <td class="px-6 py-5 text-right">${bVerd(x.ss)}</td>
-                      </tr>`;
+                    return `
+                        <tr class="hover:bg-slate-50 transition-colors ${esAnte ? 'bg-slate-100/50' : ''}">
+                          <td class="px-6 py-5">
+                            <span class="px-2 py-0.5 rounded text-[9px] font-bold ${esAnte ? 'bg-primary/10 text-primary' : 'bg-purple-100 text-purple-600'}">${x.tipo}</span>
+                          </td>
+                          <td class="px-6 py-5 font-bold text-slate-800">${x.accion} ${esAnte ? '(Base)' : ''}</td>
+                          <td class="px-4 py-5 text-center font-mono text-xs">${x.s_amb.toFixed(3)}</td>
+                          <td class="px-4 py-5 text-center font-mono text-xs">${x.s_soc.toFixed(3)}</td>
+                          <td class="px-4 py-5 text-center font-mono text-xs">${x.s_eco.toFixed(3)}</td>
+                          <td class="px-4 py-5 text-center font-mono font-bold text-lg ${x.ss < mrpLR ? 'text-error' : 'text-secondary'}">${x.ss.toFixed(4)}</td>
+                          <td class="px-4 py-5 text-center text-[10px] font-bold text-outline uppercase">${cn[mi]}</td>
+                          <td class="px-6 py-5 text-right">${bVerd(x.ss)}</td>
+                        </tr>`;
                 }).join('')}
                 </tbody>
               </table>
             </div>`;
                 rs.classList.remove('hidden');
-            } catch (e) { msg(e.message, 'err'); }
+            } catch (e) {
+                msg('Error: ' + e.message, 'err');
+                console.error(e);
+            }
             spin(false);
         }
 
