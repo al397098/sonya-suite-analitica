@@ -343,16 +343,17 @@
     // ============================================================
     const MotorLocal = {
 
-        // Percentiles para los umbrales q (minimización de impacto negativo)
-        // q0 = máximo (peor), q4 = mínimo (mejor)
-        getPercentiles(arr) {
+        // Le devolvemos el parámetro 'inv' para distinguir si es maximización o minimización
+        getPercentiles(arr, inv) {
             const s = arr.slice().sort((a, b) => a - b);
             const n = s.length;
             if (n === 0) return [0,0,0,0,0].map(v => ({ valor: v }));
             if (n === 1) return [s[0],s[0],s[0],s[0],s[0]].map(v => ({ valor: v }));
             const p = pct => { const i = (n-1)*pct; const l=Math.floor(i), u=Math.ceil(i), w=i-l; return s[l]*(1-w)+s[u]*w; };
-            // Para MINIMIZACIÓN: q0=máximo(peor), q4=mínimo(mejor)
-            return [p(1), p(0.75), p(0.5), p(0.25), p(0)].map(v => ({ valor: v }));
+            
+            let res = [p(0), p(0.25), p(0.5), p(0.75), p(1)]; 
+            if (inv) res.reverse(); // Si inv=true (Ambiental), minimiza. Si no, maximiza.
+            return res.map(v => ({ valor: v }));
         },
 
         // Pesos CRITIC data-driven
@@ -412,13 +413,12 @@
         procesarMRP(datos, alpha, qCustom) {
             let umbrales = {};
             if (qCustom && Object.keys(qCustom).length) {
-                ['Eco','Amb','Soc'].forEach(c => {
-                    umbrales[c] = qCustom[c].map(v => ({ valor: v }));
-                });
+                ['Eco','Amb','Soc'].forEach(c => { umbrales[c] = qCustom[c].map(v => ({ valor: v })); });
             } else {
-                umbrales.Eco = this.getPercentiles(datos.map(d => d.eco));
-                umbrales.Amb = this.getPercentiles(datos.map(d => d.amb));
-                umbrales.Soc = this.getPercentiles(datos.map(d => d.soc));
+                // Eco y Soc en false (Maximizar: más es mejor) | Amb en true (Minimizar: menos es mejor)
+                umbrales.Eco = this.getPercentiles(datos.map(d => d.eco), false);
+                umbrales.Amb = this.getPercentiles(datos.map(d => d.amb), true);
+                umbrales.Soc = this.getPercentiles(datos.map(d => d.soc), false);
             }
             const pesos = this.calcCritic(datos);
             const ranking = datos.map(d => {
