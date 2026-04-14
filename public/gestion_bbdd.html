@@ -306,7 +306,7 @@
             <h1 class="text-4xl font-black tracking-tighter font-headline text-on-surface mb-1 uppercase">Gestión de
               Base de Datos</h1>
             <div class="h-1 w-10 bg-accent-purple rounded-full mt-2 opacity-50"></div>
-            
+
           </div>
           <button onclick="document.getElementById('na-nom').focus()"
             class="flex items-center gap-2 bg-gradient-to-r from-accent-purple to-accent-magenta text-white px-6 py-3 rounded-xl font-headline font-bold shadow-lg shadow-purple-500/25 hover:scale-[1.02] active:scale-95 transition-all">
@@ -475,6 +475,34 @@
       <span class="font-mono text-xs tracking-tight">Motor Local Activo · Datos del proyecto SONYA (UJI · Grupo
         SOGRES)</span>
     </div>
+    <section class="bg-white rounded-2xl border border-outline-variant/10 shadow-lg p-6 space-y-6">
+      <div class="flex items-center gap-3 border-b border-slate-100 pb-4">
+        <span class="material-symbols-outlined text-tertiary">link</span>
+        <h3 class="font-headline font-extrabold text-xl text-slate-800">Vinculación de Escenarios</h3>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+        <div>
+          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Referencia
+            (EX-ANTE)</label>
+          <select id="vinc-ante"
+            class="w-full bg-surface-container-low border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-tertiary/20"></select>
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Asociar Mejora
+            (EX-POST)</label>
+          <select id="vinc-post"
+            class="w-full bg-surface-container-low border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-tertiary/20"></select>
+        </div>
+        <button onclick="establecerVinculo()"
+          class="bg-tertiary text-white h-12 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-[#7a3486] transition-all active:scale-95 shadow-lg shadow-tertiary/20">
+          <span class="material-symbols-outlined text-sm">add_link</span> Crear Vínculo
+        </button>
+      </div>
+
+      <div id="lista-vinculos" class="flex flex-wrap gap-2 mt-4">
+      </div>
+    </section>
   </main>
 
   <script>
@@ -488,6 +516,7 @@
       { nombre: "Fruteria local", tipo: "EX-ANTE", eco: 0.71, amb: 193.53, soc: 481.19 },
       { nombre: "Fruta España", tipo: "EX-POST", eco: 0.92, amb: 261.46, soc: 576.56 }
     ];
+
 
     function msg(txt, type = 'info') {
       const w = document.getElementById('toast-wrap'), t = document.createElement('div');
@@ -514,7 +543,6 @@
     const bType = t => t === 'EX-ANTE'
       ? `<span class="px-2 py-1 rounded-full text-[10px] font-bold bg-secondary/10 text-secondary font-mono">ANTE</span>`
       : `<span class="px-2 py-1 rounded-full text-[10px] font-bold bg-accent-purple/10 text-accent-purple font-mono">POST</span>`;
-
     function loadBBDD() {
       const tA = DB_LOCAL.filter(x => x.tipo === 'EX-ANTE').length;
       const tP = DB_LOCAL.length - tA;
@@ -534,7 +562,10 @@
         return `
       <tr class="hover:bg-surface-container-low/50 transition-colors group">
         <td class="px-5 py-4">${bType(a.tipo)}</td>
-        <td class="px-5 py-4"><div class="font-headline font-semibold text-sm text-on-surface">${a.nombre}</div></td>
+        <td class="px-5 py-4">
+            <div class="font-headline font-semibold text-sm text-on-surface">${a.nombre}</div>
+            ${a.vinculoAnte ? `<div class="flex items-center gap-1 text-[9px] font-bold text-tertiary uppercase mt-1"><span class="material-symbols-outlined text-[12px]">link</span>Ref: ${a.vinculoAnte}</div>` : ''}
+        </td>
         <td class="px-4 py-4 text-center">${fmtVal(a.amb)}</td>
         <td class="px-4 py-4 text-center">${fmtVal(a.soc)}</td>
         <td class="px-4 py-4 text-center">${fmtVal(a.eco)}</td>
@@ -548,16 +579,18 @@
       <tr id="edit-${sid}" class="hidden bg-surface-container-low/30">
         <td colspan="6" class="px-5 py-4">
           <div class="flex flex-wrap gap-4 items-end bg-white p-4 rounded-xl border border-outline-variant/15 shadow-sm">
-            <div class="flex-1 min-w-[90px]"><label class="block text-[10px] font-bold text-outline uppercase font-headline mb-1">Económico</label><input type="number" step="any" id="ee-${sid}" value="${a.eco}" class="w-full bg-surface-container-low border-outline-variant/30 focus:ring-1 focus:ring-accent-purple rounded-lg text-sm p-2 dmono font-bold"/></div>
             <div class="flex-1 min-w-[90px]"><label class="block text-[10px] font-bold text-outline uppercase font-headline mb-1">Ambiental</label><input type="number" step="any" id="ea-${sid}" value="${a.amb}" class="w-full bg-surface-container-low border-outline-variant/30 focus:ring-1 focus:ring-accent-purple rounded-lg text-sm p-2 dmono font-bold"/></div>
             <div class="flex-1 min-w-[90px]"><label class="block text-[10px] font-bold text-outline uppercase font-headline mb-1">Social</label><input type="number" step="any" id="es-${sid}" value="${a.soc}" class="w-full bg-surface-container-low border-outline-variant/30 focus:ring-1 focus:ring-accent-purple rounded-lg text-sm p-2 dmono font-bold"/></div>
+            <div class="flex-1 min-w-[90px]"><label class="block text-[10px] font-bold text-outline uppercase font-headline mb-1">Económico</label><input type="number" step="any" id="ee-${sid}" value="${a.eco}" class="w-full bg-surface-container-low border-outline-variant/30 focus:ring-1 focus:ring-accent-purple rounded-lg text-sm p-2 dmono font-bold"/></div>
             <button onclick="savAccion('${a.nombre}','${sid}')" class="bg-accent-purple text-white px-5 py-2 rounded-lg text-sm font-bold shadow-sm hover:opacity-90 transition-all font-headline h-[38px] flex-shrink-0">Actualizar</button>
           </div>
         </td>
       </tr>`;
       }).join('');
-    }
 
+      // Llamada para refrescar los selectores de vínculos
+      if (typeof refreshVincSelectors === 'function') refreshVincSelectors();
+    }
     function delAccion(nombre) {
       if (!confirm(`¿Eliminar "${nombre}" de la base de datos de esta sesión?`)) return;
       DB_LOCAL = DB_LOCAL.filter(x => x.nombre !== nombre);
