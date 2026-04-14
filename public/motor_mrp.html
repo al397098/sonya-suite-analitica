@@ -870,10 +870,9 @@
                 if (qCustom && Object.keys(qCustom).length) {
                     ['Amb', 'Soc', 'Eco'].forEach(c => { umbrales[c] = qCustom[c].map(v => ({ valor: v })); });
                 } else {
-                    // Eco y Soc en false (Maximizar: más es mejor) | Amb en true (Minimizar: menos es mejor)
-                    umbrales.Eco = this.getPercentiles(datos.map(d => d.eco), false);
+                    umbrales.Eco = this.getPercentiles(datos.map(d => d.eco), true);
                     umbrales.Amb = this.getPercentiles(datos.map(d => d.amb), true);
-                    umbrales.Soc = this.getPercentiles(datos.map(d => d.soc), false);
+                    umbrales.Soc = this.getPercentiles(datos.map(d => d.soc), true);
                 }
                 const pesos = this.calcCritic(datos);
                 const ranking = datos.map(d => {
