@@ -932,6 +932,9 @@
         // UI — Sin cambios respecto al original
         // ============================================================
         let accC = [];
+        let ec = 0;      // <-- ESTO FALTABA (Contador de escenarios)
+        let mC = null;   // <-- ESTO FALTABA (Memoria del motor)
+        
         function refrescarAccionesDesdeBBDD() {
             accC = JSON.parse(localStorage.getItem('sonya_data_bbdd')) || [];
         }
