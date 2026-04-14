@@ -5,8 +5,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SONYA | Gestión de Base de Datos</title>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500&display=swap" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500&display=swap"
+    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+    rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script id="tailwind-config">
     tailwind.config = {
@@ -15,234 +18,585 @@
         extend: {
           colors: {
             "primary": "#004655", "primary-container": "#005f73", "on-primary": "#ffffff",
-            "secondary": "#00696c", "on-secondary": "#ffffff", "secondary-container": "#86f0f3",
-            "tertiary": "#8b3d97", "tertiary-container": "#f3d0f8", "on-tertiary": "#ffffff",
+            "secondary": "#00696c", "on-secondary": "#ffffff", "tertiary": "#735c00",
             "error": "#ba1a1a", "error-container": "#ffdad6", "on-error-container": "#93000a",
             "surface": "#f6fafe", "on-surface": "#171c1f",
             "surface-container-lowest": "#ffffff", "surface-container-low": "#f0f4f8",
-            "surface-container": "#eaeef2", "surface-container-high": "#e4e9ed", "surface-container-highest": "#dfe3e7",
-            "outline": "#6f797c", "outline-variant": "#bfc8cc", "on-surface-variant": "#3f484c"
+            "surface-container": "#eaeef2", "surface-container-high": "#e4e9ed",
+            "surface-container-highest": "#dfe3e7", "outline": "#6f797c", "outline-variant": "#bfc8cc",
+            "on-surface-variant": "#3f484c", "accent-purple": "#9333ea", "accent-magenta": "#d946ef"
           },
           fontFamily: { "headline": ["Manrope", "sans-serif"], "body": ["Inter", "sans-serif"], "mono": ["JetBrains Mono", "monospace"], "label": ["Space Grotesk", "sans-serif"] },
-          borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "2xl": "0.75rem", "3xl": "1rem", "full": "9999px" },
+          borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "2xl": "0.75rem", "full": "9999px" },
         }
       }
     }
   </script>
   <style>
-    :root { --purple: #8b3d97; --teal: #00696c; }
-    body { font-family: 'Inter', sans-serif; background: #f6fafe; color: #171c1f; margin: 0; }
-    .blueprint-grid { background-color: #f6fafe; background-image: radial-gradient(circle, #dfe3e7 1px, transparent 1px); background-size: 24px 24px; }
-    .sidebar-link { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-radius: 12px; font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: #3f484c; transition: all 0.2s; text-decoration: none; }
-    .sidebar-link:hover { background: rgba(139, 61, 151, 0.07); color: var(--purple); }
-    .sidebar-link.active { background: rgba(139, 61, 151, 0.12); color: var(--purple); }
-    .toast-wrap { position: fixed; top: 76px; right: 24px; z-index: 900; display: flex; flex-direction: column; gap: 8px; }
-    .toast { background: white; border: 1px solid rgba(195, 197, 215, 0.4); border-radius: 12px; padding: 12px 16px; box-shadow: 0 12px 32px rgba(25, 28, 30, 0.08); font-size: 13px; display: flex; align-items: center; gap: 10px; animation: toastIn 0.3s ease; }
-    @keyframes toastIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
-    #loading { position: fixed; inset: 0; z-index: 999; background: rgba(246, 250, 254, 0.88); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; }
-    #loading.show { display: flex; }
-    .spinner { width: 36px; height: 36px; border: 3px solid #bfc8cc; border-top-color: var(--purple); border-radius: 50%; animation: spin 0.8s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f6fafe;
+      color: #171c1f;
+      margin: 0;
+    }
+
+    .font-headline {
+      font-family: 'Manrope', sans-serif;
+    }
+
+    .dmono,
+    .data-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      vertical-align: middle;
+    }
+
+    .fill-icon {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    .bp-grid {
+      background-image: radial-gradient(#bfc8cc 0.5px, transparent 0.5px);
+      background-size: 24px 24px;
+    }
+
+    .watercolor {
+      background: radial-gradient(circle at 10% 20%, rgba(147, 51, 234, 0.04) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(0, 110, 112, 0.03) 0%, transparent 40%);
+    }
+
+    .glass {
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
+    .toast-wrap {
+      position: fixed;
+      top: 76px;
+      right: 24px;
+      z-index: 600;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .toast {
+      background: white;
+      border: 1px solid rgba(195, 197, 215, 0.5);
+      border-radius: 12px;
+      padding: 12px 16px;
+      box-shadow: 0 12px 32px rgba(25, 28, 30, 0.08);
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: toastIn 0.3s ease;
+    }
+
+    .toast.removing {
+      animation: toastOut 0.3s ease forwards;
+    }
+
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateX(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    @keyframes toastOut {
+      to {
+        opacity: 0;
+        transform: translateX(20px);
+      }
+    }
+
+    #loading {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      background: rgba(246, 250, 254, 0.85);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #loading.show {
+      display: flex;
+    }
+
+    .spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid #bfc8cc;
+      border-top-color: #9333ea;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #bfc8cc;
+      border-radius: 10px;
+    }
+
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .snav-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+      border-radius: 12px;
+      font-family: 'Manrope', sans-serif;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #424752;
+      transition: all 0.18s;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .snav-link:hover {
+      background: rgba(147, 51, 234, 0.06);
+      color: #9333ea;
+    }
+
+    .snav-link.active {
+      background: rgba(147, 51, 234, 0.1);
+      color: #9333ea;
+    }
+
+    .val-optimal {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: #dcfce7;
+      color: #166534;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid #bbf7d0;
+    }
+
+    .val-critical {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: #fee2e2;
+      color: #991b1b;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid #fecaca;
+    }
+
+    .val-normal {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      color: #374151;
+    }
   </style>
 </head>
 
-<body class="flex min-h-screen blueprint-grid">
-  <div id="loading"><div class="bg-white p-8 rounded-2xl shadow-2xl flex flex-col items-center gap-4"><div class="spinner"></div><p id="spin-msg" class="text-sm font-bold font-headline">Sincronizando...</p></div></div>
+<body class="antialiased flex min-h-screen">
+
+  <div id="loading">
+    <div class="bg-white p-8 rounded-2xl border border-outline-variant/30 shadow-2xl flex flex-col items-center gap-5">
+      <div class="spinner"></div>
+      <p id="spin-msg" class="text-sm font-bold text-slate-600 font-headline">Procesando...</p>
+    </div>
+  </div>
   <div class="toast-wrap" id="toast-wrap"></div>
 
-  <aside class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 z-40 bg-[#f8faff] border-r border-slate-200">
-    <div class="p-6">
-      <div class="flex items-center mb-10 cursor-pointer" onclick="location.href='../index.html'">
-        <img src="logo_sonya.png" alt="SONYA Logo" class="h-10 w-auto object-contain">
+  <!-- SIDEBAR -->
+  <aside
+    class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-[#f8faff] border-r border-slate-200/70 z-40">
+    <div class="p-6 flex flex-col h-full">
+      <div class="mb-10 cursor-pointer transition-transform hover:scale-105 origin-left"
+        onclick="location.href='../index.html'">
+        <img src="logo_sonya.png" alt="SONYA Suite Analítica" class="h-10 w-auto object-contain">
       </div>
-      <nav class="space-y-1">
-        <a href="../index.html" class="sidebar-link"><span class="material-symbols-outlined text-xl">grid_view</span>Dashboard</a>
-        <a href="gestion_bbdd.html" class="sidebar-link active"><span class="material-symbols-outlined text-xl">database</span>BBDD</a>
-        <a href="motor_mrp.html" class="sidebar-link"><span class="material-symbols-outlined text-xl">analytics</span>Motor MRP</a>
-        <a href="motor_topsis.html" class="sidebar-link"><span class="material-symbols-outlined text-xl">insights</span>Motor TOPSIS</a>
+      <nav class="space-y-1.5 flex-1">
+        <a href="../index.html" class="snav-link"><span
+            class="material-symbols-outlined text-xl">grid_view</span>Dashboard</a>
+        <a href="gestion_bbdd.html" class="snav-link active"><span
+            class="material-symbols-outlined fill-icon text-xl">database</span>BBDD</a>
+        <a href="motor_mrp.html" class="snav-link"><span class="material-symbols-outlined text-xl">analytics</span>Motor
+          MRP</a>
+        <a href="motor_topsis.html" class="snav-link"><span
+            class="material-symbols-outlined text-xl">insights</span>Motor TOPSIS</a>
       </nav>
-    </div>
-    <div class="mt-auto p-4 mx-4 mb-4 bg-surface-container rounded-xl border border-outline-variant/20">
-      <div class="flex items-center gap-2">
-        <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-        <span class="text-xs font-medium font-headline">Motor Local Activo</span>
+      <div class="mt-6 p-5 bg-gradient-to-br from-white to-purple-50/40 border border-purple-100 rounded-2xl shadow-sm">
+        <div class="flex items-center gap-2 mb-3 text-purple-600/80">
+          <span class="material-symbols-outlined fill-icon text-lg">database</span>
+          <span class="text-[10px] font-mono font-bold uppercase tracking-widest">CRUD Repositorio</span>
+        </div>
+        <h4 class="font-headline font-bold text-xs text-slate-900 mb-2">Datos de Sesión</h4>
+        <p class="text-[11px] leading-relaxed text-slate-600">Añadir, editar o eliminar acciones recalcula los pesos
+          CRITIC y umbrales MRP dinámicamente. Los cambios son locales a esta sesión.</p>
+      </div>
+      <!-- Status local -->
+      <div class="mt-4 p-4 bg-green-50 border border-green-200 rounded-xl">
+        <p class="font-mono text-[10px] text-green-600 uppercase tracking-wider mb-1.5 font-bold">Motor Local</p>
+        <div class="flex items-center gap-2">
+          <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_6px_rgba(34,197,94,0.5)]"></div>
+          <span class="text-xs font-medium font-headline text-green-700">Sin API · 0 latencia</span>
+        </div>
       </div>
     </div>
   </aside>
 
-  <main class="md:ml-64 flex-1 p-8 lg:p-10 max-w-7xl mx-auto w-full space-y-10">
-    <div class="flex justify-between items-start">
-      <div>
-        <h1 class="text-4xl font-extrabold font-headline tracking-tighter text-slate-900 mb-1">Gestión de Base de Datos</h1>
-        <p class="text-on-surface-variant text-sm">Administración de escenarios y alternativas de impacto.</p>
+  <!-- MAIN -->
+  <main class="md:ml-64 flex-1 flex flex-col min-h-screen">
+    <header
+      class="sticky top-0 z-30 w-full h-14 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 flex justify-between items-center px-8 shadow-sm">
+      <h2 class="font-headline font-extrabold text-lg tracking-tighter text-on-surface">Gestión de Base de Datos</h2>
+      <div
+        class="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 text-green-700 rounded-full border border-green-200">
+        <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+        <span class="text-[10px] font-mono font-bold">MOTOR LOCAL ACTIVO</span>
       </div>
-      <button onclick="document.getElementById('form-nueva-accion').scrollIntoView({behavior:'smooth'})" class="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-xl font-bold hover:bg-primary-container transition-all shadow-lg shadow-primary/20">
-        <span class="material-symbols-outlined text-lg">add</span> Añadir Registro
-      </button>
-    </div>
+    </header>
 
-    <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div class="bg-white p-6 rounded-2xl border border-outline-variant/10 shadow-sm">
-        <p class="text-[10px] font-mono uppercase tracking-widest text-outline mb-2">Total Acciones</p>
-        <h3 class="text-4xl font-bold font-headline text-on-surface" id="stat-total">0</h3>
-      </div>
-      <div class="bg-white p-6 rounded-2xl border border-outline-variant/10 shadow-sm border-l-4 border-l-primary">
-        <p class="text-[10px] font-mono uppercase tracking-widest text-outline mb-2">Acciones EX-ANTE</p>
-        <h3 class="text-4xl font-bold font-headline text-primary" id="stat-ante">0</h3>
-      </div>
-      <div class="bg-white p-6 rounded-2xl border border-outline-variant/10 shadow-sm border-l-4 border-l-secondary">
-        <p class="text-[10px] font-mono uppercase tracking-widest text-outline mb-2">Acciones EX-POST</p>
-        <h3 class="text-4xl font-bold font-headline text-secondary" id="stat-post">0</h3>
-      </div>
-    </section>
+    <div class="flex-1 bp-grid watercolor min-h-screen">
+      <div class="p-8 lg:p-10 max-w-7xl mx-auto w-full space-y-10">
 
-    <section class="bg-white rounded-2xl border border-outline-variant/20 shadow-xl overflow-hidden">
-      <div class="px-6 py-5 border-b border-outline-variant/10 flex justify-between items-center bg-surface-container-low/40">
-        <h4 class="font-headline font-bold text-xl flex items-center gap-2">
-          <span class="material-symbols-outlined text-primary">list_alt</span> Repositorio Maestro
-        </h4>
-        <button onclick="loadBBDD()" class="p-2 hover:bg-surface-container rounded-lg transition-colors">
-          <span class="material-symbols-outlined text-outline">refresh</span>
-        </button>
-      </div>
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-          <thead>
-            <tr class="bg-surface-container-low text-[10px] font-mono font-bold text-outline uppercase tracking-widest border-b border-outline-variant/10">
-              <th class="px-6 py-4">Tipo</th>
-              <th class="px-6 py-4">Acción</th>
-              <th class="px-6 py-4 text-center">Amb</th>
-              <th class="px-6 py-4 text-center">Soc</th>
-              <th class="px-6 py-4 text-center">Eco</th>
-              <th class="px-6 py-4 text-right">Acciones</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-outline-variant/10" id="bbdd-table-body"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <section id="form-nueva-accion" class="bg-white rounded-3xl p-10 border border-outline-variant/10 shadow-2xl relative overflow-hidden">
-      <div class="absolute top-0 right-0 p-8 opacity-10"><span class="material-symbols-outlined text-9xl">add_box</span></div>
-      <h3 class="text-2xl font-extrabold font-headline mb-8">Nueva Acción</h3>
-      <form onsubmit="crearAccion(event)" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
-        <div class="md:col-span-2">
-          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Nombre de la Acción</label>
-          <input type="text" id="na-nom" required class="w-full bg-surface-container-low border-none rounded-2xl p-4 font-body text-sm focus:ring-2 focus:ring-primary/20">
-        </div>
-        <div class="md:col-span-2">
-          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Tipo de Impacto</label>
-          <select id="na-tipo" class="w-full bg-surface-container-low border-none rounded-2xl p-4 font-body text-sm focus:ring-2 focus:ring-primary/20">
-            <option value="EX-POST">EX-POST (Mejora propuesta)</option>
-            <option value="EX-ANTE">EX-ANTE (Referencia base)</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-[10px] font-bold text-teal-600 uppercase tracking-widest mb-2 ml-1">AMB</label>
-          <input type="number" step="0.01" id="na-amb" value="0.00" class="w-full bg-surface-container-low border-none rounded-2xl p-4 font-mono font-bold focus:ring-2 focus:ring-teal-500/20 text-teal-700">
-        </div>
-        <div>
-          <label class="block text-[10px] font-bold text-purple-600 uppercase tracking-widest mb-2 ml-1">SOC</label>
-          <input type="number" step="0.01" id="na-soc" value="0.00" class="w-full bg-surface-container-low border-none rounded-2xl p-4 font-mono font-bold focus:ring-2 focus:ring-purple-500/20 text-purple-700">
-        </div>
-        <div>
-          <label class="block text-[10px] font-bold text-primary uppercase tracking-widest mb-2 ml-1">ECO</label>
-          <input type="number" step="0.01" id="na-eco" value="0.00" class="w-full bg-surface-container-low border-none rounded-2xl p-4 font-mono font-bold focus:ring-2 focus:ring-primary/20 text-primary">
-        </div>
-        <div class="flex items-end">
-          <button type="submit" class="w-full bg-slate-900 text-white p-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-slate-800 transition-all active:scale-95">
-            Guardar en Repositorio <span class="material-symbols-outlined text-sm">arrow_forward</span>
+        <!-- Page header -->
+        <div class="relative flex justify-between items-end">
+          <div>
+            <div class="absolute -left-4 top-0 w-1 h-full bg-accent-purple/30 rounded-full"></div>
+            <h1 class="text-4xl font-black tracking-tighter font-headline text-on-surface mb-1 uppercase">Gestión de
+              Base de Datos</h1>
+            <div class="h-1 w-10 bg-accent-purple rounded-full mt-2 opacity-50"></div>
+            
+          </div>
+          <button onclick="document.getElementById('na-nom').focus()"
+            class="flex items-center gap-2 bg-gradient-to-r from-accent-purple to-accent-magenta text-white px-6 py-3 rounded-xl font-headline font-bold shadow-lg shadow-purple-500/25 hover:scale-[1.02] active:scale-95 transition-all">
+            <span class="material-symbols-outlined">add</span> Añadir Registro
           </button>
         </div>
-      </form>
-      <div class="mt-8 pt-6 border-t border-slate-100 flex items-center gap-2 text-slate-400">
-        <span class="material-symbols-outlined text-sm">info</span>
-        <p class="text-[10px] font-medium uppercase tracking-tight">Sincronización Automática: Los cambios se guardan permanentemente en tu navegador con punto decimal.</p>
+
+        <!-- KPI Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div
+            class="bg-surface-container-lowest p-6 rounded-xl shadow-sm flex flex-col justify-between border-b-2 border-accent-purple/30 relative overflow-hidden group">
+            <div
+              class="absolute top-0 right-0 w-24 h-24 bg-purple-50 -mr-8 -mt-8 rounded-full group-hover:scale-110 transition-transform duration-500">
+            </div>
+            <div class="flex justify-between items-start relative"><span
+                class="font-mono text-xs text-on-surface-variant tracking-widest uppercase">Total Acciones</span><span
+                class="material-symbols-outlined text-accent-purple">analytics</span></div>
+            <div class="mt-4 relative"><span class="text-5xl font-bold font-headline text-on-surface"
+                id="metric-total">--</span>
+              <p class="text-xs text-on-surface-variant/60 mt-1">Base de datos activa</p>
+            </div>
+          </div>
+          <div
+            class="bg-surface-container-lowest p-6 rounded-xl shadow-sm flex flex-col justify-between border-b-2 border-secondary/30 relative overflow-hidden group">
+            <div
+              class="absolute top-0 right-0 w-24 h-24 bg-teal-50 -mr-8 -mt-8 rounded-full group-hover:scale-110 transition-transform duration-500">
+            </div>
+            <div class="flex justify-between items-start relative"><span
+                class="font-mono text-xs text-secondary/80 tracking-widest uppercase">Acciones EX-ANTE</span><span
+                class="bg-secondary/10 px-2 py-0.5 rounded-full text-[9px] font-bold text-secondary font-mono">BASE</span>
+            </div>
+            <div class="mt-4 relative"><span class="text-5xl font-bold font-headline text-secondary"
+                id="metric-ante">--</span>
+              <p class="text-xs text-secondary/60 mt-1">Escenario de Referencia</p>
+            </div>
+          </div>
+          <div
+            class="bg-surface-container-lowest p-6 rounded-xl shadow-sm flex flex-col justify-between border-b-2 border-primary/30 relative overflow-hidden group">
+            <div
+              class="absolute top-0 right-0 w-24 h-24 bg-blue-50 -mr-8 -mt-8 rounded-full group-hover:scale-110 transition-transform duration-500">
+            </div>
+            <div class="flex justify-between items-start relative"><span
+                class="font-mono text-xs text-primary/80 tracking-widest uppercase">Acciones EX-POST</span><span
+                class="bg-primary/10 px-2 py-0.5 rounded-full text-[9px] font-bold text-primary font-mono">MEJORA</span>
+            </div>
+            <div class="mt-4 relative"><span class="text-5xl font-bold font-headline text-primary"
+                id="metric-post">--</span>
+              <p class="text-xs text-primary/60 mt-1">Alternativas Propuestas</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main workspace -->
+        <div class="flex flex-col xl:flex-row gap-8">
+          <!-- Repository table -->
+          <div class="xl:w-8/12 space-y-4">
+            <div class="flex items-center justify-between px-1">
+              <h2 class="font-headline font-bold text-xl text-on-surface flex items-center gap-2"><span
+                  class="material-symbols-outlined text-accent-purple">list_alt</span>Repositorio Maestro</h2>
+            </div>
+            <div
+              class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm border border-outline-variant/10">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-surface-container-low border-b border-outline-variant/30">
+                    <th class="px-6 py-4 font-label text-xs uppercase tracking-widest text-on-surface-variant">Tipo</th>
+                    <th class="px-6 py-4 font-label text-xs uppercase tracking-widest text-on-surface-variant">Acción
+                    </th>
+                    <th
+                      class="px-4 py-4 font-label text-xs uppercase tracking-widest text-on-surface-variant text-center">
+                      Amb</th>
+                    <th
+                      class="px-4 py-4 font-label text-xs uppercase tracking-widest text-on-surface-variant text-center">
+                      Soc</th>
+                    <th
+                      class="px-4 py-4 font-label text-xs uppercase tracking-widest text-on-surface-variant text-center">
+                      Eco</th>
+                    <th
+                      class="px-6 py-4 font-label text-xs uppercase tracking-widest text-on-surface-variant text-right">
+                      Acciones</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-surface-container" id="bbdd-table">
+                  <tr>
+                    <td colspan="6" class="p-10 text-center text-outline font-headline">Cargando base de datos...</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div
+                class="bg-surface-container-low p-4 flex justify-between items-center px-6 border-t border-outline-variant/10">
+                <span class="text-xs font-mono text-on-surface-variant" id="bbdd-count">REPOSITORIO MAESTRO</span>
+                <span class="text-[10px] font-mono text-green-600 font-bold">● DATOS DE SESIÓN LOCAL</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Form Panel -->
+          <div class="xl:w-4/12">
+            <div class="glass p-8 rounded-xl shadow-lg border border-outline-variant/20 sticky top-20">
+              <div class="mb-7 flex items-center gap-3">
+                <div class="p-2 bg-accent-purple/10 rounded-lg"><span
+                    class="material-symbols-outlined fill-icon text-accent-purple">add_box</span></div>
+                <h2 class="font-headline font-bold text-xl text-on-surface">Nueva Acción</h2>
+              </div>
+              <form onsubmit="crearAccion(event)" class="space-y-6">
+                <div>
+                  <label
+                    class="block font-label text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">Nombre
+                    de la Acción</label>
+                  <input id="na-nom" type="text"
+                    class="w-full bg-surface-container-low border-0 border-b-2 border-outline focus:ring-0 focus:border-accent-purple font-body text-sm px-4 py-3 transition-all"
+                    placeholder="Ej. Restauración" required />
+                </div>
+                <div>
+                  <label
+                    class="block font-label text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">Tipo de
+                    Impacto</label>
+                  <select id="na-tipo"
+                    class="w-full bg-surface-container-low border-0 border-b-2 border-outline focus:ring-0 focus:border-accent-purple font-body text-sm px-4 py-3 appearance-none cursor-pointer transition-all">
+                    <option value="EX-POST">EX-POST (Mejora propuesta)</option>
+                    <option value="EX-ANTE">EX-ANTE (Referencia base)</option>
+                  </select>
+                </div>
+                <div class="grid grid-cols-3 gap-4">
+                  <div><label
+                      class="block font-label text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">ECO</label><input
+                      id="na-eco" type="number" step="any" value="0.00"
+                      class="w-full bg-surface-container-low border-0 border-b-2 border-outline focus:ring-0 focus:border-accent-purple font-mono text-center py-3 transition-all"
+                      required /></div>
+                  <div><label
+                      class="block font-label text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">AMB</label><input
+                      id="na-amb" type="number" step="any" value="0.00"
+                      class="w-full bg-surface-container-low border-0 border-b-2 border-outline focus:ring-0 focus:border-accent-purple font-mono text-center py-3 transition-all"
+                      required /></div>
+                  <div><label
+                      class="block font-label text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">SOC</label><input
+                      id="na-soc" type="number" step="any" value="0.00"
+                      class="w-full bg-surface-container-low border-0 border-b-2 border-outline focus:ring-0 focus:border-accent-purple font-mono text-center py-3 transition-all"
+                      required /></div>
+                </div>
+                <div class="pt-4">
+                  <button type="submit"
+                    class="w-full bg-slate-900 hover:bg-accent-purple text-white py-4 rounded-xl font-headline font-extrabold uppercase tracking-widest transition-all shadow-md active:scale-[0.98] flex items-center justify-center gap-2">
+                    Guardar en Repositorio <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                  </button>
+                </div>
+                <div class="bg-amber-50 p-4 rounded-xl flex gap-3 items-start border border-amber-200/60">
+                  <span
+                    class="material-symbols-outlined fill-icon text-amber-600 text-[18px] flex-shrink-0 mt-0.5">info</span>
+                  <p class="text-[11px] text-amber-800 leading-relaxed"><strong>Sesión local:</strong> Los cambios se
+                    mantienen mientras la pestaña esté abierta. Al recargar la página se restauran los datos originales
+                    del proyecto SONYA.</p>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
       </div>
-    </section>
+    </div>
+
+    <!-- Status bar -->
+    <div
+      class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-full flex items-center gap-4 shadow-2xl z-50">
+      <div class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+      <span class="font-mono text-xs tracking-tight">Motor Local Activo · Datos del proyecto SONYA (UJI · Grupo
+        SOGRES)</span>
+    </div>
   </main>
 
   <script>
-    const SONYA_STORAGE_KEY = 'sonya_data_bbdd';
-
-    const DATOS_INICIALES = [
-        { nombre: "Microbus", tipo: "EX-ANTE", eco: 5920.13, amb: 68.38, soc: 960377.53 },
-        { nombre: "Telematico", tipo: "EX-POST", eco: 431.63, amb: 5.73, soc: 77257.43 },
-        { nombre: "Fruteria local", tipo: "EX-ANTE", eco: 0.71, amb: 193.53, soc: 481.19 },
-        { nombre: "Fruta España", tipo: "EX-POST", eco: 0.92, amb: 261.46, soc: 576.56 }
+    // ============================================================
+    // BASE DE DATOS LOCAL — Datos reales del proyecto SONYA
+    // Fuente: sonya_acciones.json (UJI · Grupo SOGRES · Horizon Europe)
+    // ============================================================
+    let DB_LOCAL = [
+      { nombre: "Microbus", tipo: "EX-ANTE", eco: 5920.13, amb: 68.38, soc: 960377.53 },
+      { nombre: "Telematico", tipo: "EX-POST", eco: 431.63, amb: 5.73, soc: 77257.43 },
+      { nombre: "Fruteria local", tipo: "EX-ANTE", eco: 0.71, amb: 193.53, soc: 481.19 },
+      { nombre: "Fruta España", tipo: "EX-POST", eco: 0.92, amb: 261.46, soc: 576.56 }
     ];
-
-    function obtenerBBDD() {
-        const guardados = localStorage.getItem(SONYA_STORAGE_KEY);
-        if (guardados) return JSON.parse(guardados);
-        localStorage.setItem(SONYA_STORAGE_KEY, JSON.stringify(DATOS_INICIALES));
-        return DATOS_INICIALES;
-    }
-
-    let DB_LOCAL = obtenerBBDD();
 
     function msg(txt, type = 'info') {
       const w = document.getElementById('toast-wrap'), t = document.createElement('div');
       t.className = 'toast';
-      const c = type === 'err' ? '#ba1a1a' : '#00696c';
-      const ic = type === 'err' ? 'error' : 'check_circle';
-      t.innerHTML = `<span class="material-symbols-outlined" style="color:${c}">${ic}</span><span style="font-weight:600">${txt}</span>`;
+      const col = type === 'err' ? '#ba1a1a' : type === 'ok' ? '#00696c' : '#9333ea';
+      const icon = type === 'err' ? 'error' : type === 'ok' ? 'check_circle' : 'info';
+      t.innerHTML = `<span class="material-symbols-outlined fill-icon" style="color:${col};font-size:18px">${icon}</span><p style="font-size:13px;font-weight:600;color:#171c1f">${txt}</p>`;
       w.appendChild(t);
-      setTimeout(() => t.remove(), 3000);
+      setTimeout(() => { t.classList.add('removing'); setTimeout(() => t.remove(), 300); }, 3200);
     }
 
-    function loadBBDD() {
-      const body = document.getElementById('bbdd-table-body');
-      body.innerHTML = '';
-      
-      DB_LOCAL.forEach((r, idx) => {
-        const fila = `
-          <tr class="hover:bg-surface-container-low/50 transition-colors">
-            <td class="px-6 py-5">
-              <span class="px-2 py-1 rounded text-[10px] font-bold ${r.tipo === 'EX-ANTE' ? 'bg-primary/10 text-primary' : 'bg-secondary/10 text-secondary'}">${r.tipo}</span>
-            </td>
-            <td class="px-6 py-5 font-bold text-on-surface">${r.nombre}</td>
-            <td class="px-6 py-5 text-center data-mono text-sm">${r.amb.toFixed(2)}</td>
-            <td class="px-6 py-5 text-center data-mono text-sm">${r.soc.toFixed(2)}</td>
-            <td class="px-6 py-5 text-center data-mono text-sm">${r.eco.toFixed(2)}</td>
-            <td class="px-6 py-5 text-right">
-              <button onclick="delAccion('${r.nombre}')" class="text-error hover:scale-110 transition-transform">
-                <span class="material-symbols-outlined">delete</span>
-              </button>
-            </td>
-          </tr>`;
-        body.insertAdjacentHTML('beforeend', fila);
-      });
+    function spin(on, text = 'Procesando...') {
+      document.getElementById('spin-msg').innerText = text;
+      document.getElementById('loading').classList.toggle('show', on);
+    }
 
-      document.getElementById('stat-total').innerText = DB_LOCAL.length;
-      document.getElementById('stat-ante').innerText = DB_LOCAL.filter(x => x.tipo === 'EX-ANTE').length;
-      document.getElementById('stat-post').innerText = DB_LOCAL.filter(x => x.tipo === 'EX-POST').length;
+    function fmtVal(v) {
+      const n = parseFloat(v);
+      if (n >= 100000) return `<span class="val-optimal">${n.toLocaleString('es-ES', { maximumFractionDigits: 2 })}</span>`;
+      if (n <= 1) return `<span class="val-normal" style="color:#374151">${n.toFixed(2)}</span>`;
+      return `<span class="val-normal">${n.toLocaleString('es-ES', { maximumFractionDigits: 2 })}</span>`;
+    }
+
+    const bType = t => t === 'EX-ANTE'
+      ? `<span class="px-2 py-1 rounded-full text-[10px] font-bold bg-secondary/10 text-secondary font-mono">ANTE</span>`
+      : `<span class="px-2 py-1 rounded-full text-[10px] font-bold bg-accent-purple/10 text-accent-purple font-mono">POST</span>`;
+
+    function loadBBDD() {
+      const tA = DB_LOCAL.filter(x => x.tipo === 'EX-ANTE').length;
+      const tP = DB_LOCAL.length - tA;
+      document.getElementById('metric-total').innerText = DB_LOCAL.length;
+      document.getElementById('metric-ante').innerText = tA;
+      document.getElementById('metric-post').innerText = tP;
+      document.getElementById('bbdd-count').innerText = `${DB_LOCAL.length} REGISTROS EN BASE DE DATOS`;
+
+      const tb = document.getElementById('bbdd-table');
+      if (!DB_LOCAL.length) {
+        tb.innerHTML = '<tr><td colspan="6" class="p-10 text-center text-outline font-headline">BBDD vacía. Añade el primer registro.</td></tr>';
+        return;
+      }
+
+      tb.innerHTML = DB_LOCAL.map((a, idx) => {
+        const sid = 'r' + idx;
+        return `
+      <tr class="hover:bg-surface-container-low/50 transition-colors group">
+        <td class="px-5 py-4">${bType(a.tipo)}</td>
+        <td class="px-5 py-4"><div class="font-headline font-semibold text-sm text-on-surface">${a.nombre}</div></td>
+        <td class="px-4 py-4 text-center">${fmtVal(a.amb)}</td>
+        <td class="px-4 py-4 text-center">${fmtVal(a.soc)}</td>
+        <td class="px-4 py-4 text-center">${fmtVal(a.eco)}</td>
+        <td class="px-5 py-4 text-right">
+          <div class="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button onclick="document.getElementById('edit-${sid}').classList.toggle('hidden')" class="p-1.5 hover:bg-accent-purple/10 text-accent-purple rounded-lg transition-colors"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+            <button onclick="delAccion('${a.nombre}')" class="p-1.5 hover:bg-error/10 text-error rounded-lg transition-colors"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+          </div>
+        </td>
+      </tr>
+      <tr id="edit-${sid}" class="hidden bg-surface-container-low/30">
+        <td colspan="6" class="px-5 py-4">
+          <div class="flex flex-wrap gap-4 items-end bg-white p-4 rounded-xl border border-outline-variant/15 shadow-sm">
+            <div class="flex-1 min-w-[90px]"><label class="block text-[10px] font-bold text-outline uppercase font-headline mb-1">Económico</label><input type="number" step="any" id="ee-${sid}" value="${a.eco}" class="w-full bg-surface-container-low border-outline-variant/30 focus:ring-1 focus:ring-accent-purple rounded-lg text-sm p-2 dmono font-bold"/></div>
+            <div class="flex-1 min-w-[90px]"><label class="block text-[10px] font-bold text-outline uppercase font-headline mb-1">Ambiental</label><input type="number" step="any" id="ea-${sid}" value="${a.amb}" class="w-full bg-surface-container-low border-outline-variant/30 focus:ring-1 focus:ring-accent-purple rounded-lg text-sm p-2 dmono font-bold"/></div>
+            <div class="flex-1 min-w-[90px]"><label class="block text-[10px] font-bold text-outline uppercase font-headline mb-1">Social</label><input type="number" step="any" id="es-${sid}" value="${a.soc}" class="w-full bg-surface-container-low border-outline-variant/30 focus:ring-1 focus:ring-accent-purple rounded-lg text-sm p-2 dmono font-bold"/></div>
+            <button onclick="savAccion('${a.nombre}','${sid}')" class="bg-accent-purple text-white px-5 py-2 rounded-lg text-sm font-bold shadow-sm hover:opacity-90 transition-all font-headline h-[38px] flex-shrink-0">Actualizar</button>
+          </div>
+        </td>
+      </tr>`;
+      }).join('');
     }
 
     function delAccion(nombre) {
-      if (!confirm(`¿Eliminar "${nombre}"?`)) return;
+      if (!confirm(`¿Eliminar "${nombre}" de la base de datos de esta sesión?`)) return;
       DB_LOCAL = DB_LOCAL.filter(x => x.nombre !== nombre);
-      localStorage.setItem(SONYA_STORAGE_KEY, JSON.stringify(DB_LOCAL));
-      msg(`"${nombre}" eliminada`, 'info');
+      msg(`"${nombre}" eliminado de la sesión`, 'ok');
+      loadBBDD();
+    }
+
+    function savAccion(nombre, sid) {
+      const idx = DB_LOCAL.findIndex(x => x.nombre === nombre);
+      if (idx === -1) return msg('Acción no encontrada', 'err');
+      DB_LOCAL[idx].eco = parseFloat(document.getElementById(`ee-${sid}`).value) || DB_LOCAL[idx].eco;
+      DB_LOCAL[idx].amb = parseFloat(document.getElementById(`ea-${sid}`).value) || DB_LOCAL[idx].amb;
+      DB_LOCAL[idx].soc = parseFloat(document.getElementById(`es-${sid}`).value) || DB_LOCAL[idx].soc;
+      msg(`"${nombre}" actualizado correctamente`, 'ok');
       loadBBDD();
     }
 
     function crearAccion(e) {
       e.preventDefault();
       const n = document.getElementById('na-nom').value.trim();
+      if (!n) return msg('El nombre es obligatorio', 'err');
+      if (DB_LOCAL.find(x => x.nombre.toLowerCase() === n.toLowerCase())) return msg(`La acción "${n}" ya existe`, 'err');
+
       const eco = parseFloat(document.getElementById('na-eco').value) || 0;
       const amb = parseFloat(document.getElementById('na-amb').value) || 0;
       const soc = parseFloat(document.getElementById('na-soc').value) || 0;
+      if (eco < 0 || amb < 0 || soc < 0) return msg('Los valores no pueden ser negativos', 'err');
 
       DB_LOCAL.push({ nombre: n, tipo: document.getElementById('na-tipo').value, eco, amb, soc });
-      localStorage.setItem(SONYA_STORAGE_KEY, JSON.stringify(DB_LOCAL));
-      
-      e.target.reset();
-      msg(`"${n}" guardada con éxito`, 'ok');
+      document.getElementById('na-nom').value = '';
+      document.getElementById('na-eco').value = '0.00';
+      document.getElementById('na-amb').value = '0.00';
+      document.getElementById('na-soc').value = '0.00';
+      msg(`"${n}" registrado en la sesión`, 'ok');
       loadBBDD();
     }
 
     window.onload = loadBBDD;
   </script>
 </body>
+
 </html>
