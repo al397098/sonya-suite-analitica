@@ -357,28 +357,54 @@
         },
 
         // Pesos CRITIC data-driven
+// Pesos CRITIC data-driven (CORREGIDO CON NORMALIZACIÓN)
         calcCritic(data) {
             const n = data.length;
             if (n < 2) return { Eco: 1/3, Amb: 1/3, Soc: 1/3 };
             const ks = ['eco','amb','soc'];
+            
+            // 1. NORMALIZACIÓN (Min-Max) para evitar que variables grandes aplasten a las pequeñas
+            const mins = {}, maxs = {};
+            ks.forEach(k => {
+                const vals = data.map(d => d[k]);
+                mins[k] = Math.min(...vals);
+                maxs[k] = Math.max(...vals);
+            });
+
+            const normData = data.map(d => {
+                let nd = {};
+                ks.forEach(k => {
+                    const range = maxs[k] - mins[k];
+                    nd[k] = range === 0 ? 0 : (d[k] - mins[k]) / range;
+                });
+                return nd;
+            });
+
+            // 2. Cálculos estadísticos sobre la data NORMALIZADA
             const m = {}, std = {};
             ks.forEach(k => {
-                m[k] = data.reduce((s,r) => s+r[k], 0) / n;
-                std[k] = Math.sqrt(data.reduce((s,r) => s+Math.pow(r[k]-m[k],2), 0) / (n-1));
+                m[k] = normData.reduce((s,r) => s+r[k], 0) / n;
+                std[k] = Math.sqrt(normData.reduce((s,r) => s+Math.pow(r[k]-m[k],2), 0) / (n-1));
             });
+            
             const C = {eco:0, amb:0, soc:0};
             let sumC = 0;
             ks.forEach(k1 => {
                 let sumR = 0;
                 ks.forEach(k2 => {
                     if (k1===k2) return;
-                    const cov = data.reduce((s,r) => s+(r[k1]-m[k1])*(r[k2]-m[k2]), 0) / (n-1);
+                    const cov = normData.reduce((s,r) => s+(r[k1]-m[k1])*(r[k2]-m[k2]), 0) / (n-1);
                     const denom = (std[k1]*std[k2]) || 1;
-                    sumR += (1 - cov/denom);
+                    // Coeficiente de correlación r
+                    let r_pearson = cov / denom;
+                    // Limitar entre -1 y 1 por errores de coma flotante en JS
+                    r_pearson = Math.max(-1, Math.min(1, r_pearson)); 
+                    sumR += (1 - r_pearson);
                 });
                 C[k1] = std[k1] * sumR;
                 sumC += C[k1];
             });
+            
             if (sumC === 0) return { Eco: 1/3, Amb: 1/3, Soc: 1/3 };
             return { Eco: C.eco/sumC, Amb: C.amb/sumC, Soc: C.soc/sumC };
         },
