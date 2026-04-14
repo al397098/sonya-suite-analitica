@@ -358,12 +358,13 @@
 
         // Pesos CRITIC data-driven
 // Pesos CRITIC data-driven (CORREGIDO CON NORMALIZACIÓN)
+// Pesos CRITIC data-driven (CORREGIDO CON NORMALIZACIÓN)
         calcCritic(data) {
             const n = data.length;
             if (n < 2) return { Eco: 1/3, Amb: 1/3, Soc: 1/3 };
             const ks = ['eco','amb','soc'];
             
-            // 1. NORMALIZACIÓN (Min-Max) para evitar que variables grandes aplasten a las pequeñas
+            // 1. NORMALIZACIÓN (Min-Max) para igualar escalas
             const mins = {}, maxs = {};
             ks.forEach(k => {
                 const vals = data.map(d => d[k]);
@@ -375,6 +376,7 @@
                 let nd = {};
                 ks.forEach(k => {
                     const range = maxs[k] - mins[k];
+                    // Si el rango es 0 (todos los valores son iguales), la normalización es 0
                     nd[k] = range === 0 ? 0 : (d[k] - mins[k]) / range;
                 });
                 return nd;
