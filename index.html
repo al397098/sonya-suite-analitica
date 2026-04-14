@@ -67,10 +67,11 @@
                 </div>
             </div>
             <div class="flex items-center gap-4">
-                <div class="flex flex-col items-end gap-0.5">
-                    <span id="api-status-text" class="font-label text-[10px] uppercase tracking-widest text-outline">API
-                        Desconectada</span>
-                    <div id="api-status-dot" class="w-2 h-2 rounded-full bg-slate-300 self-end"></div>
+                <div class="flex items-center gap-2 px-3 py-1.5 bg-green-50 rounded-full border border-green-200">
+                    <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_6px_rgba(34,197,94,0.5)]">
+                    </div>
+                    <span class="font-label text-[10px] uppercase tracking-widest text-green-700 font-bold">Motor Local
+                        Activo</span>
                 </div>
                 <img src="public/logo_sogres.png" alt="SOGRES"
                     class="w-9 h-9 rounded-full object-cover border-2 border-primary/20 shadow-sm">
@@ -344,7 +345,7 @@
                 </div>
                 <p class="font-label text-[10px] uppercase tracking-widest text-slate-400">
                     © 2024 UJI Institutional Branding · SONYA Proyecto Horizonte Europa · <span id="footer-status"
-                        class="text-slate-400">STATUS: CHECKING</span>
+                        class="text-green-600 font-bold">STATUS: MOTOR_LOCAL_ACTIVO</span>
                 </p>
             </div>
             <div class="flex flex-col items-end gap-4">
@@ -360,22 +361,6 @@
             </div>
         </div>
     </footer>
-
-    <script>
-        const API = 'https://sonya-k39g.onrender.com';
-        window.onload = async () => {
-            try {
-                const response = await fetch(API + '/acciones', { signal: AbortSignal.timeout(3000) });
-                if (response.ok) {
-                    document.getElementById('api-status-dot').className = 'w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] animate-pulse self-end';
-                    document.getElementById('api-status-text').innerText = 'API Operativa';
-                    document.getElementById('api-status-text').style.color = '#15803d';
-                    document.getElementById('footer-status').innerText = 'STATUS: SYSTEM_READY';
-                    document.getElementById('footer-status').className = 'text-green-600 font-bold';
-                }
-            } catch (e) { console.warn("API SONYA no detectada. Ejecuta: python sonya_api.py"); }
-        };
-    </script>
 </body>
 
 </html>
