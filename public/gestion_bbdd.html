@@ -538,12 +538,54 @@
       document.getElementById('spin-msg').innerText = text;
       document.getElementById('loading').classList.toggle('show', on);
     }
-    async function api(url, opts = {}) {
-      const r = await fetch(API + url, { headers: { 'Content-Type': 'application/json' }, ...opts });
-      const j = await r.json().catch(() => ({ error: r.statusText }));
-      if (!r.ok) throw new Error(j.error || r.statusText);
-      return j;
-    }
+    // ==========================================
+        // GESTOR DE BASE DE DATOS LOCAL (Sin Render)
+        // ==========================================
+        const SONYA_STORAGE_KEY = 'sonya_data_bbdd';
+
+        function obtenerDatosDeBBDD() {
+            const datos = localStorage.getItem(SONYA_STORAGE_KEY);
+            return datos ? JSON.parse(datos) : [];
+        }
+
+        // Reemplazamos las llamadas a Render por llamadas a la memoria del navegador
+        async function api(url, opts = {}) {
+            await new Promise(r => setTimeout(r, 150)); // Simula un poquito de carga
+            let DB_LOCAL = obtenerDatosDeBBDD();
+
+            // 1. LEER TODAS LAS ACCIONES (GET)
+            if (url === '/acciones' && (!opts.method || opts.method === 'GET')) {
+                return DB_LOCAL;
+            }
+
+            // 2. CREAR NUEVA ACCIÓN (POST)
+            if (url === '/acciones' && opts.method === 'POST') {
+                const nuevaAccion = JSON.parse(opts.body);
+                DB_LOCAL.push(nuevaAccion);
+                localStorage.setItem(SONYA_STORAGE_KEY, JSON.stringify(DB_LOCAL));
+                return { msg: "ok" };
+            }
+
+            // 3. EDITAR ACCIÓN (PUT)
+            if (url.startsWith('/acciones/') && opts.method === 'PUT') {
+                const nombreAccion = decodeURIComponent(url.split('/')[2]);
+                const datosNuevos = JSON.parse(opts.body);
+                const index = DB_LOCAL.findIndex(x => x.nombre === nombreAccion);
+                if (index !== -1) {
+                    DB_LOCAL[index] = datosNuevos;
+                    localStorage.setItem(SONYA_STORAGE_KEY, JSON.stringify(DB_LOCAL));
+                }
+                return { msg: "ok" };
+            }
+
+            // 4. BORRAR ACCIÓN (DELETE) - Por si tienes botón de borrar
+            if (url.startsWith('/acciones/') && opts.method === 'DELETE') {
+                const nombreAccion = decodeURIComponent(url.split('/')[2]);
+                DB_LOCAL = DB_LOCAL.filter(x => x.nombre !== nombreAccion);
+                localStorage.setItem(SONYA_STORAGE_KEY, JSON.stringify(DB_LOCAL));
+                return { msg: "ok" };
+            }
+        }
 
     function fmtVal(v) {
       const n = parseFloat(v);
