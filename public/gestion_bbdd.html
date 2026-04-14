@@ -590,6 +590,7 @@
 
       // Llamada para refrescar los selectores de vínculos
       if (typeof refreshVincSelectors === 'function') refreshVincSelectors();
+      refreshVincSelectors();
     }
     function delAccion(nombre) {
       if (!confirm(`¿Eliminar "${nombre}" de la base de datos de esta sesión?`)) return;
@@ -629,6 +630,72 @@
     }
 
     window.onload = loadBBDD;
+
+    // Esta función llena los desplegables con lo que hay en la BBDD
+    function refreshVincSelectors() {
+      const sAnte = document.getElementById('vinc-ante');
+      const sPost = document.getElementById('vinc-post');
+
+      // Si no existen los elementos en el HTML, no hacemos nada
+      if (!sAnte || !sPost) return;
+
+      // Filtramos los datos que ya tienes en la tabla
+      const antes = DB_LOCAL.filter(x => x.tipo === 'EX-ANTE');
+      const posts = DB_LOCAL.filter(x => x.tipo === 'EX-POST');
+
+      // Llenamos el selector EX-ANTE
+      sAnte.innerHTML = antes.length > 0
+        ? antes.map(x => `<option value="${x.nombre}">${x.nombre}</option>`).join('')
+        : '<option value="">-- No hay Escenarios ANTE --</option>';
+
+      // Llenamos el selector EX-POST
+      sPost.innerHTML = posts.length > 0
+        ? posts.map(x => `<option value="${x.nombre}">${x.nombre}</option>`).join('')
+        : '<option value="">-- No hay Escenarios POST --</option>';
+
+      renderVinculosUI(); // Actualiza las etiquetas de abajo
+    }
+
+    // Esta función es la que se activa al pulsar el botón "Crear Vínculo"
+    function establecerVinculo() {
+      const anteNom = document.getElementById('vinc-ante').value;
+      const postNom = document.getElementById('vinc-post').value;
+
+      if (!anteNom || !postNom) return msg('Primero selecciona ambos escenarios', 'err');
+
+      const idx = DB_LOCAL.findIndex(x => x.nombre === postNom);
+      if (idx !== -1) {
+        DB_LOCAL[idx].vinculoAnte = anteNom;
+        localStorage.setItem(SONYA_STORAGE_KEY, JSON.stringify(DB_LOCAL));
+        msg(`Vínculo creado: ${postNom} -> ${anteNom}`, 'ok');
+        loadBBDD(); // Esto recarga todo para que se vea el cambio
+      }
+    }
+
+    function renderVinculosUI() {
+      const cont = document.getElementById('lista-vinculos');
+      if (!cont) return;
+      const vinculados = DB_LOCAL.filter(x => x.vinculoAnte);
+      cont.innerHTML = vinculados.map(x => `
+    <div class="flex items-center gap-2 bg-tertiary/10 border border-tertiary/20 px-3 py-1.5 rounded-full">
+      <span class="text-[10px] font-black text-tertiary uppercase">${x.nombre}</span>
+      <span class="material-symbols-outlined text-xs text-tertiary">arrow_forward</span>
+      <span class="text-[10px] font-black text-tertiary uppercase">${x.vinculoAnte}</span>
+      <button onclick="quitarVinculo('${x.nombre}')" class="ml-1 text-tertiary hover:text-error transition-colors">
+        <span class="material-symbols-outlined text-sm">close</span>
+      </button>
+    </div>
+  `).join('');
+    }
+
+    function quitarVinculo(nombrePost) {
+      const idx = DB_LOCAL.findIndex(x => x.nombre === nombrePost);
+      if (idx !== -1) {
+        delete DB_LOCAL[idx].vinculoAnte;
+        localStorage.setItem(SONYA_STORAGE_KEY, JSON.stringify(DB_LOCAL));
+        loadBBDD();
+      }
+    }
   </script>
 </body>
 
