@@ -310,7 +310,7 @@
           </div>
           <button onclick="document.getElementById('na-nom').focus()"
             class="flex items-center gap-2 bg-gradient-to-r from-accent-purple to-accent-magenta text-white px-6 py-3 rounded-xl font-headline font-bold shadow-lg shadow-purple-500/25 hover:scale-[1.02] active:scale-95 transition-all">
-            <span class="material-symbols-outlined">add</span> + Añadir Registro
+            <span class="material-symbols-outlined">add</span> Añadir Registro
           </button>
         </div>
 
@@ -366,16 +366,6 @@
             <div class="flex items-center justify-between px-1">
               <h2 class="font-headline font-bold text-xl text-on-surface flex items-center gap-2"><span
                   class="material-symbols-outlined text-accent-purple">list_alt</span>Repositorio Maestro</h2>
-              <div class="flex items-center gap-4">
-                <div class="flex items-center gap-1.5 text-xs font-mono text-on-surface-variant">
-                  <div class="w-2 h-2 rounded-full bg-green-500"></div>Óptimo (4.00)
-                </div>
-                <div class="flex items-center gap-1.5 text-xs font-mono text-on-surface-variant">
-                  <div class="w-2 h-2 rounded-full bg-red-500"></div>Crítico (0.00)
-                </div>
-                <button onclick="loadBBDD()" class="p-1.5 hover:bg-surface-container rounded-lg transition-colors"><span
-                    class="material-symbols-outlined text-outline text-[20px]">refresh</span></button>
-              </div>
             </div>
             <div
               class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm border border-outline-variant/10">
@@ -387,13 +377,13 @@
                     </th>
                     <th
                       class="px-4 py-4 font-label text-xs uppercase tracking-widest text-on-surface-variant text-center">
-                      Eco</th>
-                    <th
-                      class="px-4 py-4 font-label text-xs uppercase tracking-widest text-on-surface-variant text-center">
                       Amb</th>
                     <th
                       class="px-4 py-4 font-label text-xs uppercase tracking-widest text-on-surface-variant text-center">
                       Soc</th>
+                    <th
+                      class="px-4 py-4 font-label text-xs uppercase tracking-widest text-on-surface-variant text-center">
+                      Eco</th>
                     <th
                       class="px-6 py-4 font-label text-xs uppercase tracking-widest text-on-surface-variant text-right">
                       Acciones</th>
@@ -545,9 +535,9 @@
       <tr class="hover:bg-surface-container-low/50 transition-colors group">
         <td class="px-5 py-4">${bType(a.tipo)}</td>
         <td class="px-5 py-4"><div class="font-headline font-semibold text-sm text-on-surface">${a.nombre}</div></td>
-        <td class="px-4 py-4 text-center">${fmtVal(a.eco)}</td>
         <td class="px-4 py-4 text-center">${fmtVal(a.amb)}</td>
         <td class="px-4 py-4 text-center">${fmtVal(a.soc)}</td>
+        <td class="px-4 py-4 text-center">${fmtVal(a.eco)}</td>
         <td class="px-5 py-4 text-right">
           <div class="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <button onclick="document.getElementById('edit-${sid}').classList.toggle('hidden')" class="p-1.5 hover:bg-accent-purple/10 text-accent-purple rounded-lg transition-colors"><span class="material-symbols-outlined text-[18px]">edit</span></button>
