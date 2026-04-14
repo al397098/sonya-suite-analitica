@@ -407,8 +407,8 @@
                 sumC += C[k1];
             });
             
-            if (sumC === 0) return { Eco: 1/3, Amb: 1/3, Soc: 1/3 };
-            return { Eco: C.eco/sumC, Amb: C.amb/sumC, Soc: C.soc/sumC };
+            if (sumC === 0) return { Amb: 1/3, Soc: 1/3, Eco: 1/3 };
+return { Amb: C.amb/sumC, Soc: C.soc/sumC, Eco: C.eco/sumC };
         },
 
         // Estandarización MRP por interpolación lineal entre tramos
@@ -441,7 +441,7 @@
         procesarMRP(datos, alpha, qCustom) {
             let umbrales = {};
             if (qCustom && Object.keys(qCustom).length) {
-                ['Eco','Amb','Soc'].forEach(c => { umbrales[c] = qCustom[c].map(v => ({ valor: v })); });
+                ['Amb','Soc','Eco'].forEach(c => { umbrales[c] = qCustom[c].map(v => ({ valor: v })); });
             } else {
                 // Eco y Soc en false (Maximizar: más es mejor) | Amb en true (Minimizar: menos es mejor)
                 umbrales.Eco = this.getPercentiles(datos.map(d => d.eco), false);
@@ -644,7 +644,7 @@
         document.getElementById('ctrl-lr-text').textContent = `Bloqueo activo para valores inferiores a ${mrpLR} (Alpha[${mrpAlpha.indexOf(mrpLR)}]).`;
 
         let qh = '';
-        ['Eco','Amb','Soc'].forEach(c => {
+        ['Amb','Soc','Eco'].forEach(c => {
             qh += `<tr><td class="bg-slate-100 p-3 rounded-l font-bold text-teal-900 text-sm">${c}</td>
             ${[0,1,2,3,4].map(i => `<td class="px-2"><input type="number" step="any" id="cq-${c}-${i}"
               value="${mrpQ?.[c]?.[i] || mC?.umbrales?.[c]?.[i]?.valor?.toFixed(4) || ''}"
@@ -657,7 +657,7 @@
         mrpAlpha = [0,1,2,3,4].map(i => parseFloat(document.getElementById('ca-'+i).value));
         if (!mrpAlpha.includes(mrpLR)) mrpLR = mrpAlpha[1];
         let nq = {}, val = true;
-        ['Eco','Amb','Soc'].forEach(c => {
+        ['Amb','Soc','Eco'].forEach(c => {
             nq[c] = [0,1,2,3,4].map(i => {
                 let v = parseFloat(document.getElementById(`cq-${c}-${i}`).value);
                 if (isNaN(v)) val = false;
@@ -761,7 +761,7 @@
               </tr></thead>
               <tbody class="divide-y divide-outline-variant/10 text-sm">
                 ${res.resultado.map(x => {
-                    const vals=[x.s_eco,x.s_amb,x.s_soc]; const mi=vals.indexOf(Math.min(...vals)); const cn=['Eco','Amb','Soc'];
+                    const vals=[x.s_amb,x.s_soc,x.s_eco]; const mi=vals.indexOf(Math.min(...vals)); const cn=['Amb','Soc','Eco'];
                     return `<tr class="hover:bg-slate-50 transition-colors ${x.ss<mrpLR?'bg-error/5':''}">
                       <td class="px-6 py-5 font-bold text-slate-800">${x.accion}</td>
                       <td class="px-6 py-5 text-center font-mono font-bold text-lg ${x.ss>=mrpLR?'text-secondary':'text-error'}">${x.ss.toFixed(4)}</td>
@@ -779,7 +779,7 @@
     function buildMath() {
         if (!mC) return;
         let qH = '';
-        ['Eco','Amb','Soc'].forEach(c => {
+        ['Amb','Soc','Eco'].forEach(c => {
             qH += `<tr class="bg-surface-container-low/50 hover:bg-surface-container-low transition-colors">
             <td class="py-4 pl-4 font-headline font-bold text-on-surface">${c}</td>
             ${mC.umbrales[c]?.map((v,i) => `<td class="py-4 font-mono text-sm text-center ${mrpLR===mrpAlpha[i]?'text-error font-bold':''}">${v.valor.toFixed(4)}</td>`).join('') || '<td colspan="5"></td>'}
