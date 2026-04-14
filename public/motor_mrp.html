@@ -369,20 +369,6 @@
                     compensados por puntuaciones altas, manteniendo umbrales innegociables para el sistema.</p>
             </div>
         </div>
-        <div class="mt-auto p-4 mx-4 mb-4 bg-surface-container rounded-xl border border-outline-variant/20">
-            <p class="font-mono text-[10px] text-outline uppercase tracking-wider mb-1.5">System Status</p>
-            <div class="flex items-center gap-2">
-                <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_6px_rgba(34,197,94,0.6)]"></div>
-                <span class="text-xs font-medium font-headline text-green-700">Motor Local Activo</span>
-            </div>
-        </div>
-        <div class="absolute bottom-0 right-0 pointer-events-none opacity-5">
-            <svg width="140" height="140" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="45" fill="none" stroke="#8b3d97" stroke-width="0.5" />
-                <path d="M5 50 L95 50 M50 5 L50 95" stroke="#8b3d97" stroke-width="0.3" />
-                <circle cx="50" cy="50" r="5" fill="#8b3d97" />
-            </svg>
-        </div>
     </aside>
 
     <!-- MAIN -->
@@ -419,19 +405,7 @@
                         MRP</span>
                 </h1>
                 <div class="h-1 w-10 bg-[#8b3d97] mt-2 rounded-full opacity-50 mb-3"></div>
-                <p class="text-on-surface-variant text-sm max-w-2xl">Análisis de Sostenibilidad Fuerte (SS) · 100%
-                    local, sin servidor.</p>
-                <div class="flex gap-2 mt-3">
-                    <span
-                        class="px-2 py-0.5 bg-purple-100 text-purple-700 font-mono text-[10px] rounded uppercase font-bold">Protocolo
-                        Alpha-Veto</span>
-                    <span
-                        class="px-2 py-0.5 bg-teal-100 text-teal-700 font-mono text-[10px] rounded uppercase font-bold">Data-Driven
-                        Q</span>
-                    <span
-                        class="px-2 py-0.5 bg-green-100 text-green-700 font-mono text-[10px] rounded uppercase font-bold">Sin
-                        API · 0 latencia</span>
-                </div>
+
             </div>
 
             <!-- TAB: RANKING GLOBAL -->
@@ -957,8 +931,11 @@
         // ============================================================
         // UI — Sin cambios respecto al original
         // ============================================================
-        let accC = JSON.parse(localStorage.getItem('sonya_data_bbdd')) || [];
-        let mrpAlpha = JSON.parse(localStorage.getItem('sonya_alpha')) || [0, 1, 2.5, 3, 4];
+        let accC = [];
+        function refrescarAccionesDesdeBBDD() {
+            accC = JSON.parse(localStorage.getItem('sonya_data_bbdd')) || [];
+        }
+        refrescarAccionesDesdeBBDD(); let mrpAlpha = JSON.parse(localStorage.getItem('sonya_alpha')) || [0, 1, 2.5, 3, 4];
         let mrpLR = parseFloat(localStorage.getItem('sonya_lr') || '1');
         let mrpQ = JSON.parse(localStorage.getItem('sonya_q') || 'null');
 
@@ -1131,50 +1108,44 @@
             msg('Percentiles restaurados a modo Data-Driven', 'info');
             mC = null; loadM(); setTimeout(() => buildMCtrl(), 500);
         }
-
         function addSimRow() {
+            refrescarAccionesDesdeBBDD(); // Asegura que tenemos los últimos vínculos
             ec++; const n = ec; const d = document.createElement('div'); d.id = `ep-${n}`;
-            const opts = accC.filter(x => x.tipo === 'EX-POST').map(x => `<option value="${x.nombre}">${x.nombre}</option>`).join('');
+
             d.innerHTML = `
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative border-l-4 border-l-secondary/60 hover:border-l-secondary transition-colors group">
-                <button onclick="document.getElementById('ep-${n}').remove()" class="absolute top-4 right-4 text-slate-300 hover:text-error transition-colors">
-                    <span class="material-symbols-outlined text-xl">cancel</span>
-                </button>
-                <div class="flex items-center gap-2 mb-4">
-                    <span class="material-symbols-outlined text-secondary text-sm">auto_awesome</span>
-                    <h4 class="font-headline font-bold text-sm text-slate-800">Escenario EX-POST ${n}</h4>
-                </div>
-                <div class="flex gap-4 mb-5">
-                    <div class="flex-1">
-                        <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Origen</label>
-                        <select id="ep-sel-${n}" onchange="document.getElementById('ep-new-${n}').style.display=(this.value==='__new__'?'block':'none')" class="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-secondary/20 transition-all">
-                            <option value="__new__">-- Definir Nueva Alternativa --</option>${opts}
-                        </select>
-                    </div>
-                    <div class="w-24">
-                        <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1 text-center">Sat (%)</label>
-                        <input type="number" id="ep-sat-${n}" value="70" class="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-center font-label font-bold text-secondary focus:ring-2 focus:ring-secondary/20 transition-all">
-                    </div>
-                </div>
-                <div id="ep-new-${n}" class="block pt-5 border-t border-slate-100/80">
-                    <div class="grid grid-cols-3 gap-3">
-                        <div class="col-span-3"><input type="text" id="ep-nom-${n}" placeholder="Nombre descriptivo de la mejora..." class="w-full bg-slate-50 border-none rounded-xl p-3 text-sm font-body focus:ring-2 focus:ring-secondary/20 transition-shadow"></div>
-                        <div><label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">Ambiental</label><input type="number" id="ep-amb-${n}" placeholder="Valor" class="w-full bg-slate-50 border-none rounded-lg p-2.5 pl-3 font-label font-bold text-sm focus:ring-2 focus:ring-secondary/20"></div>
-                        <div><label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">Social</label><input type="number" id="ep-soc-${n}" placeholder="Valor" class="w-full bg-slate-50 border-none rounded-lg p-2.5 pl-3 font-label font-bold text-sm focus:ring-2 focus:ring-secondary/20"></div>
-                        <div><label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">Económico</label><input type="number" id="ep-eco-${n}" placeholder="Valor" class="w-full bg-slate-50 border-none rounded-lg p-2.5 pl-3 font-label font-bold text-sm focus:ring-2 focus:ring-secondary/20"></div>
-                        <div class="col-span-3 flex items-center justify-end mt-1">
-                            <label class="flex items-center gap-2 cursor-pointer group/chk">
-                                <input type="checkbox" id="ep-save-${n}" class="rounded border-slate-300 text-secondary focus:ring-secondary w-4 h-4 transition-colors">
-                                <span class="text-[10px] font-bold text-slate-400 group-hover/chk:text-secondary uppercase tracking-widest transition-colors">Guardar en BBDD</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </div>`;
+    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative border-l-4 border-l-secondary/60 hover:border-l-secondary transition-colors group mb-4">
+        <button onclick="document.getElementById('ep-${n}').remove()" class="absolute top-4 right-4 text-slate-300 hover:text-error transition-colors">
+            <span class="material-symbols-outlined text-xl">cancel</span>
+        </button>
+        <div class="flex items-center gap-2 mb-4">
+            <span class="material-symbols-outlined text-secondary text-sm">auto_awesome</span>
+            <h4 class="font-headline font-bold text-sm text-slate-800">Escenario EX-POST ${n}</h4>
+        </div>
+        <div class="flex gap-4 mb-5">
+            <div class="flex-1">
+                <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Origen</label>
+                <select id="ep-sel-${n}" onchange="document.getElementById('ep-new-${n}').style.display=(this.value==='__new__'?'block':'none')" class="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-secondary/20 transition-all">
+                    </select>
+            </div>
+            <div class="w-24">
+                <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1 text-center">Sat (%)</label>
+                <input type="number" id="ep-sat-${n}" value="70" class="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-center font-label font-bold text-secondary focus:ring-2 focus:ring-secondary/20 transition-all">
+            </div>
+        </div>
+        <div id="ep-new-${n}" class="block pt-5 border-t border-slate-100/80">
+            <div class="grid grid-cols-3 gap-3">
+                <div class="col-span-3"><input type="text" id="ep-nom-${n}" placeholder="Nombre descriptivo de la mejora..." class="w-full bg-slate-50 border-none rounded-xl p-3 text-sm font-body focus:ring-2 focus:ring-secondary/20 transition-shadow"></div>
+                <div><label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1 text-teal-600">Ambiental</label><input type="number" id="ep-amb-${n}" placeholder="0.00" class="w-full bg-slate-50 border-none rounded-lg p-2.5 pl-3 font-label font-bold text-sm focus:ring-2 focus:ring-secondary/20"></div>
+                <div><label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1 text-purple-600">Social</label><input type="number" id="ep-soc-${n}" placeholder="0.00" class="w-full bg-slate-50 border-none rounded-lg p-2.5 pl-3 font-label font-bold text-sm focus:ring-2 focus:ring-secondary/20"></div>
+                <div><label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1 text-primary">Económico</label><input type="number" id="ep-eco-${n}" placeholder="0.00" class="w-full bg-slate-50 border-none rounded-lg p-2.5 pl-3 font-label font-bold text-sm focus:ring-2 focus:ring-secondary/20"></div>
+            </div>
+        </div>
+    </div>`;
             document.getElementById('m-expost-list').appendChild(d);
+
+            // Llamar al filtro para que rellene el select que acabamos de crear
             actualizarFiltroExPost();
         }
-
         async function runSim() {
             const rs = document.getElementById('m-sim-res'); rs.classList.add('hidden');
             let a = {}; const as = document.getElementById('m-ante-sel').value; const asat = parseFloat(document.getElementById('m-ante-sat').value) || 50;
@@ -1293,25 +1264,31 @@
         }
 
         window.onload = loadM;
-
         function actualizarFiltroExPost() {
-            const anteSeleccionado = document.getElementById('m-ante-sel').value;
+            // IMPORTANTE: Volver a leer la BBDD por si hay vínculos nuevos
+            refrescarAccionesDesdeBBDD();
 
-            // Buscamos todos los selectores de EX-POST que existan en la página
+            const anteSeleccionado = document.getElementById('m-ante-sel').value;
             const selectores = document.querySelectorAll('[id^="ep-sel-"]');
 
             selectores.forEach(selector => {
-                // Guardamos la opción "Nueva Alternativa"
+                const valorActual = selector.value; // Guardar lo que el usuario ya eligió
+
                 let html = '<option value="__new__">-- Definir Nueva Alternativa --</option>';
 
-                // Filtramos de la BBDD solo los que tengan vínculo con el Ante elegido
+                // FILTRO MAESTRO: Solo EX-POST cuyo vinculoAnte coincida con el EX-ANTE seleccionado
                 const vinculados = accC.filter(x => x.tipo === 'EX-POST' && x.vinculoAnte === anteSeleccionado);
 
-                // Los añadimos al desplegable
                 html += vinculados.map(x => `<option value="${x.nombre}">${x.nombre}</option>`).join('');
                 selector.innerHTML = html;
+
+                // Si la opción que ya estaba seleccionada sigue existiendo, la mantenemos
+                if ([...selector.options].some(o => o.value === valorActual)) {
+                    selector.value = valorActual;
+                }
             });
         }
+
     </script>
 </body>
 
