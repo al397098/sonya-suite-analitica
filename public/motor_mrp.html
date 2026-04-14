@@ -5,12 +5,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SONYA | Motor CRITIC + MRP</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500&display=swap"
-        rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-        rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script id="tailwind-config">
         tailwind.config = {
@@ -33,688 +29,215 @@
         }
     </script>
     <style>
-        :root {
-            --purple: #8b3d97;
-            --purple-dark: #5d2766;
-            --teal: #00696c;
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #f6fafe;
-            color: #171c1f;
-            margin: 0;
-        }
-
-        .font-headline {
-            font-family: 'Manrope', sans-serif;
-        }
-
-        .data-mono {
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            vertical-align: middle;
-            line-height: 1;
-        }
-
-        .fill-icon {
-            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-
-        .blueprint-grid {
-            background-color: #f6fafe;
-            background-image: radial-gradient(circle, #dfe3e7 1px, transparent 1px);
-            background-size: 24px 24px;
-        }
-
-        .watercolor-wash {
-            background: radial-gradient(circle at 50% 30%, rgba(139, 61, 151, 0.04) 0%, transparent 60%);
-        }
-
-        .glass {
-            background: rgba(255, 255, 255, 0.75);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-        }
-
-        .tab-content {
-            display: none;
-            animation: fadeUp 0.3s ease;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(8px);
-            }
-
-            to {
-                opacity: 1;
-                transform: none;
-            }
-        }
-
-        .toast-wrap {
-            position: fixed;
-            top: 76px;
-            right: 24px;
-            z-index: 900;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            pointer-events: none;
-        }
-
-        .toast {
-            background: white;
-            border: 1px solid rgba(195, 197, 215, 0.4);
-            border-radius: 12px;
-            padding: 12px 16px;
-            box-shadow: 0 12px 32px rgba(25, 28, 30, 0.08);
-            font-size: 13px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            pointer-events: auto;
-            animation: toastIn 0.3s ease;
-        }
-
-        .toast.removing {
-            animation: toastOut 0.3s ease forwards;
-        }
-
-        @keyframes toastIn {
-            from {
-                opacity: 0;
-                transform: translateX(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: none;
-            }
-        }
-
-        @keyframes toastOut {
-            to {
-                opacity: 0;
-                transform: translateX(20px);
-            }
-        }
-
-        #loading {
-            position: fixed;
-            inset: 0;
-            z-index: 999;
-            background: rgba(246, 250, 254, 0.88);
-            backdrop-filter: blur(6px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-        }
-
-        #loading.show {
-            display: flex;
-        }
-
-        .spinner {
-            width: 36px;
-            height: 36px;
-            border: 3px solid #bfc8cc;
-            border-top-color: var(--purple);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        ::-webkit-scrollbar {
-            width: 5px;
-            height: 5px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #bfc8cc;
-            border-radius: 10px;
-        }
-
-        input[type=number]::-webkit-inner-spin-button,
-        input[type=number]::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-
-        .no-scrollbar {
-            scrollbar-width: none;
-        }
-
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-
-        .sidebar-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 16px;
-            border-radius: 12px;
-            font-family: 'Manrope', sans-serif;
-            font-weight: 700;
-            font-size: 12px;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-            color: #3f484c;
-            transition: all 0.2s;
-            text-decoration: none;
-        }
-
-        .sidebar-link:hover {
-            background: rgba(139, 61, 151, 0.07);
-            color: var(--purple);
-        }
-
-        .sidebar-link.active {
-            background: rgba(139, 61, 151, 0.12);
-            color: var(--purple);
-        }
-
-        .mrp-tab-btn {
-            display: flex;
-            align-items: center;
-            height: 100%;
-            font-family: 'Manrope', sans-serif;
-            font-weight: 700;
-            font-size: 11px;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: #6f797c;
-            border: none;
-            border-bottom: 2px solid transparent;
-            background: none;
-            cursor: pointer;
-            padding: 0 2px;
-            transition: all 0.2s;
-        }
-
-        .mrp-tab-btn:hover {
-            color: var(--purple);
-        }
-
-        .mrp-tab-btn.tab-active {
-            color: var(--purple);
-            border-bottom-color: var(--purple);
-        }
-
-        .std-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            border: 2px solid #bfc8cc;
-            background: white;
-            flex-shrink: 0;
-        }
-
-        .red-dot {
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: #ba1a1a;
-            border: 3px solid white;
-            box-shadow: 0 0 0 3px rgba(186, 26, 26, 0.18);
-            flex-shrink: 0;
-        }
-
-        .connector {
-            width: 2px;
-            background: #dfe3e7;
-            min-height: 24px;
-            margin: 0 5px;
-            flex-shrink: 0;
-        }
-
-        .badge-ok {
-            background: #dcfce7;
-            color: #166534;
-            border: 1px solid #bbf7d0;
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 700;
-            font-size: 13px;
-            padding: 2px 10px;
-            border-radius: 6px;
-        }
-
-        .badge-ko {
-            background: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #fecaca;
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 700;
-            font-size: 13px;
-            padding: 2px 10px;
-            border-radius: 6px;
-        }
-
-        .badge-n {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 13px;
-            color: #3f484c;
-            padding: 2px 6px;
-        }
-
-        .lim {
-            text-decoration: underline;
-            text-decoration-color: #ba1a1a;
-            text-underline-offset: 3px;
-        }
+        :root { --purple: #8b3d97; --purple-dark: #5d2766; --teal: #00696c; }
+        *, *::before, *::after { box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f6fafe; color: #171c1f; margin: 0; }
+        .font-headline { font-family: 'Manrope', sans-serif; }
+        .data-mono { font-family: 'JetBrains Mono', monospace; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; line-height: 1; }
+        .fill-icon { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .blueprint-grid { background-color: #f6fafe; background-image: radial-gradient(circle, #dfe3e7 1px, transparent 1px); background-size: 24px 24px; }
+        .watercolor-wash { background: radial-gradient(circle at 50% 30%, rgba(139, 61, 151, 0.04) 0%, transparent 60%); }
+        .glass { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+        .tab-content { display: none; animation: fadeUp 0.3s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+        .toast-wrap { position: fixed; top: 76px; right: 24px; z-index: 900; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+        .toast { background: white; border: 1px solid rgba(195, 197, 215, 0.4); border-radius: 12px; padding: 12px 16px; box-shadow: 0 12px 32px rgba(25, 28, 30, 0.08); font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 10px; pointer-events: auto; animation: toastIn 0.3s ease; }
+        .toast.removing { animation: toastOut 0.3s ease forwards; }
+        @keyframes toastIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
+        @keyframes toastOut { to { opacity: 0; transform: translateX(20px); } }
+        #loading { position: fixed; inset: 0; z-index: 999; background: rgba(246, 250, 254, 0.88); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; }
+        #loading.show { display: flex; }
+        .spinner { width: 36px; height: 36px; border: 3px solid #bfc8cc; border-top-color: var(--purple); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #bfc8cc; border-radius: 10px; }
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        .no-scrollbar { scrollbar-width: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .sidebar-link { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-radius: 12px; font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: #3f484c; transition: all 0.2s; text-decoration: none; }
+        .sidebar-link:hover { background: rgba(139, 61, 151, 0.07); color: var(--purple); }
+        .sidebar-link.active { background: rgba(139, 61, 151, 0.12); color: var(--purple); }
+        .mrp-tab-btn { display: flex; align-items: center; height: 100%; font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #6f797c; border: none; border-bottom: 2px solid transparent; background: none; cursor: pointer; padding: 0 2px; transition: all 0.2s; }
+        .mrp-tab-btn:hover { color: var(--purple); }
+        .mrp-tab-btn.tab-active { color: var(--purple); border-bottom-color: var(--purple); }
+        .std-dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid #bfc8cc; background: white; flex-shrink: 0; }
+        .red-dot { width: 18px; height: 18px; border-radius: 50%; background: #ba1a1a; border: 3px solid white; box-shadow: 0 0 0 3px rgba(186, 26, 26, 0.18); flex-shrink: 0; }
+        .connector { width: 2px; background: #dfe3e7; min-height: 24px; margin: 0 5px; flex-shrink: 0; }
+        .badge-ok { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 13px; padding: 2px 10px; border-radius: 6px; }
+        .badge-ko { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 13px; padding: 2px 10px; border-radius: 6px; }
+        .badge-n { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #3f484c; padding: 2px 6px; }
+        .lim { text-decoration: underline; text-decoration-color: #ba1a1a; text-underline-offset: 3px; }
     </style>
 </head>
 
 <body class="flex min-h-screen blueprint-grid">
 
     <div id="loading">
-        <div
-            class="bg-white p-8 rounded-2xl border border-outline-variant/20 shadow-2xl flex flex-col items-center gap-4">
+        <div class="bg-white p-8 rounded-2xl border border-outline-variant/20 shadow-2xl flex flex-col items-center gap-4">
             <div class="spinner"></div>
-            <p id="spin-msg" class="text-sm font-bold text-on-surface-variant font-headline">Calculando agregación
-                Leontief...</p>
+            <p id="spin-msg" class="text-sm font-bold text-on-surface-variant font-headline">Calculando...</p>
         </div>
     </div>
     <div class="toast-wrap" id="toast-wrap"></div>
 
-    <!-- ▐▌ SIDEBAR -->
-    <aside
-        class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 z-40 bg-[#f8faff] border-r border-slate-200 overflow-hidden">
+    <!-- SIDEBAR -->
+    <aside class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 z-40 bg-[#f8faff] border-r border-slate-200 overflow-hidden">
         <div class="p-6">
-            <!-- Brand -->
-            <div class="flex items-center mb-10 cursor-pointer" onclick="location.href='index.html'">
+            <div class="flex items-center mb-10 cursor-pointer" onclick="location.href='../index.html'">
                 <img src="logo_sonya.png" alt="SONYA Logo" class="h-10 w-auto object-contain">
             </div>
-            <!-- Nav -->
             <nav class="space-y-1">
-                <a href="../index.html" class="sidebar-link">
-                    <span class="material-symbols-outlined text-xl">grid_view</span>Dashboard
-                </a>
-
-                <a href="gestion_bbdd.html" class="sidebar-link">
-                    <span class="material-symbols-outlined text-xl">database</span>BBDD
-                </a>
-
-                <a href="motor_mrp.html" class="sidebar-link active">
-                    <span class="material-symbols-outlined fill-icon text-xl">analytics</span>Motor MRP
-                </a>
-
-                <a href="motor_topsis.html" class="sidebar-link">
-                    <span class="material-symbols-outlined text-xl">insights</span>Motor TOPSIS
-                </a>
+                <a href="../index.html" class="sidebar-link"><span class="material-symbols-outlined text-xl">grid_view</span>Dashboard</a>
+                <a href="gestion_bbdd.html" class="sidebar-link"><span class="material-symbols-outlined text-xl">database</span>BBDD</a>
+                <a href="motor_mrp.html" class="sidebar-link active"><span class="material-symbols-outlined fill-icon text-xl">analytics</span>Motor MRP</a>
+                <a href="motor_topsis.html" class="sidebar-link"><span class="material-symbols-outlined text-xl">insights</span>Motor TOPSIS</a>
             </nav>
-            <!-- Veto card -->
             <div class="mt-8 p-5 bg-gradient-to-br from-white to-red-50/40 border border-red-100 rounded-2xl shadow-sm">
                 <div class="flex items-center gap-2 mb-2">
                     <span class="material-symbols-outlined fill-icon text-red-500 text-lg">error</span>
-                    <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-red-500">Lógica de
-                        Veto</span>
+                    <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-red-500">Lógica de Veto</span>
                 </div>
                 <h4 class="font-headline font-bold text-xs text-slate-900 mb-2">Sostenibilidad Fuerte</h4>
-                <p class="text-[11px] leading-relaxed text-slate-600">Garantiza que indicadores críticos no sean
-                    compensados por puntuaciones altas, manteniendo umbrales innegociables para el sistema.</p>
+                <p class="text-[11px] leading-relaxed text-slate-600">Garantiza que indicadores críticos no sean compensados por puntuaciones altas, manteniendo umbrales innegociables para el sistema.</p>
             </div>
         </div>
-        <!-- Status -->
         <div class="mt-auto p-4 mx-4 mb-4 bg-surface-container rounded-xl border border-outline-variant/20">
             <p class="font-mono text-[10px] text-outline uppercase tracking-wider mb-1.5">System Status</p>
             <div class="flex items-center gap-2">
-                <div class="w-2 h-2 rounded-full bg-secondary animate-pulse"></div>
-                <span class="text-xs font-medium font-headline">Engine Ready</span>
+                <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_6px_rgba(34,197,94,0.6)]"></div>
+                <span class="text-xs font-medium font-headline text-green-700">Motor Local Activo</span>
             </div>
         </div>
-        <!-- Deco -->
         <div class="absolute bottom-0 right-0 pointer-events-none opacity-5">
-            <svg width="140" height="140" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="45" fill="none" stroke="#8b3d97" stroke-width="0.5" />
-                <path d="M5 50 L95 50 M50 5 L50 95" stroke="#8b3d97" stroke-width="0.3" />
-                <circle cx="50" cy="50" r="5" fill="#8b3d97" />
-            </svg>
+            <svg width="140" height="140" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="none" stroke="#8b3d97" stroke-width="0.5" /><path d="M5 50 L95 50 M50 5 L50 95" stroke="#8b3d97" stroke-width="0.3" /><circle cx="50" cy="50" r="5" fill="#8b3d97" /></svg>
         </div>
     </aside>
 
-    <!-- ▐▌ MAIN COLUMN -->
+    <!-- MAIN -->
     <div class="md:ml-64 flex-1 flex flex-col min-h-screen">
-
-        <header
-            class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-outline-variant/30 flex justify-between items-center pr-8 md:pl-[280px] h-16 shadow-sm">
-
+        <header class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-outline-variant/30 flex justify-between items-center pr-8 md:pl-[280px] h-16 shadow-sm">
             <nav class="hidden md:flex gap-4 lg:gap-8 h-16 overflow-x-auto no-scrollbar">
-                <button
-                    class="mrp-tab-btn h-full border-b-[3px] border-primary text-primary font-bold text-sm tracking-wide px-2 lg:px-4 transition-all whitespace-nowrap"
-                    onclick="switchInnerTab('ranking', this)">Ranking Global</button>
-                <button
-                    class="mrp-tab-btn h-full border-b-[3px] border-transparent text-slate-500 hover:text-primary font-semibold text-sm tracking-wide px-2 lg:px-4 transition-all whitespace-nowrap"
-                    onclick="switchInnerTab('simulacion', this)">Nueva Simulación</button>
-                <button
-                    class="mrp-tab-btn h-full border-b-[3px] border-transparent text-slate-500 hover:text-primary font-semibold text-sm tracking-wide px-2 lg:px-4 transition-all whitespace-nowrap"
-                    onclick="switchInnerTab('control', this)">Panel de Control</button>
-                <button
-                    class="mrp-tab-btn h-full border-b-[3px] border-transparent text-slate-500 hover:text-primary font-semibold text-sm tracking-wide px-2 lg:px-4 transition-all whitespace-nowrap"
-                    onclick="switchInnerTab('math', this)">Desarrollo Matemático</button>
+                <button class="mrp-tab-btn tab-active h-full border-b-[3px] border-primary text-primary font-bold text-sm tracking-wide px-2 lg:px-4 transition-all whitespace-nowrap" onclick="switchInnerTab('ranking', this)">Ranking Global</button>
+                <button class="mrp-tab-btn h-full border-b-[3px] border-transparent text-slate-500 hover:text-primary font-semibold text-sm tracking-wide px-2 lg:px-4 transition-all whitespace-nowrap" onclick="switchInnerTab('simulacion', this)">Nueva Simulación</button>
+                <button class="mrp-tab-btn h-full border-b-[3px] border-transparent text-slate-500 hover:text-primary font-semibold text-sm tracking-wide px-2 lg:px-4 transition-all whitespace-nowrap" onclick="switchInnerTab('control', this)">Panel de Control</button>
+                <button class="mrp-tab-btn h-full border-b-[3px] border-transparent text-slate-500 hover:text-primary font-semibold text-sm tracking-wide px-2 lg:px-4 transition-all whitespace-nowrap" onclick="switchInnerTab('math', this)">Desarrollo Matemático</button>
             </nav>
-
-            <div class="flex items-center gap-4 flex-shrink-0 ml-4">
-                <div id="api-badge"
-                    class="flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-full border border-slate-200 shadow-inner">
-                    <div class="w-2 h-2 rounded-full bg-slate-400" id="api-dot"></div>
-                    <span class="text-[10px] font-label font-bold text-slate-500 uppercase tracking-widest"
-                        id="api-text">Checking...</span>
-                </div>
+            <div class="flex items-center gap-2 px-3 py-1.5 bg-green-50 rounded-full border border-green-200 flex-shrink-0 ml-4">
+                <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_6px_rgba(34,197,94,0.6)]"></div>
+                <span class="text-[10px] font-label font-bold text-green-700 uppercase tracking-widest">Motor Local</span>
             </div>
         </header>
 
         <main class="flex-1 mt-24 p-8 lg:p-10 max-w-7xl mx-auto w-full space-y-10 watercolor-wash">
-            <!-- Page header -->
             <div>
-                <h1
-                    class="text-4xl font-extrabold font-headline tracking-tighter text-slate-900 mb-1 flex items-center gap-1">
-                    <span class="font-medium text-slate-400">Motor</span> <span class="text-[#8b3d97] ml-1">CRITIC +
-                        MRP</span>
+                <h1 class="text-4xl font-extrabold font-headline tracking-tighter text-slate-900 mb-1 flex items-center gap-1">
+                    <span class="font-medium text-slate-400">Motor</span> <span class="text-[#8b3d97] ml-1">CRITIC + MRP</span>
                 </h1>
                 <div class="h-1 w-10 bg-[#8b3d97] mt-2 rounded-full opacity-50 mb-3"></div>
-                <p class="text-on-surface-variant text-sm max-w-2xl">Análisis de Sostenibilidad Fuerte (SS).</p>
+                <p class="text-on-surface-variant text-sm max-w-2xl">Análisis de Sostenibilidad Fuerte (SS) · 100% local, sin servidor.</p>
                 <div class="flex gap-2 mt-3">
-                    <span
-                        class="px-2 py-0.5 bg-purple-100 text-purple-700 font-mono text-[10px] rounded uppercase font-bold">Protocolo
-                        Alpha-Veto</span>
-                    <span
-                        class="px-2 py-0.5 bg-teal-100 text-teal-700 font-mono text-[10px] rounded uppercase font-bold">Data-Driven
-                        Q</span>
+                    <span class="px-2 py-0.5 bg-purple-100 text-purple-700 font-mono text-[10px] rounded uppercase font-bold">Protocolo Alpha-Veto</span>
+                    <span class="px-2 py-0.5 bg-teal-100 text-teal-700 font-mono text-[10px] rounded uppercase font-bold">Data-Driven Q</span>
+                    <span class="px-2 py-0.5 bg-green-100 text-green-700 font-mono text-[10px] rounded uppercase font-bold">Sin API · 0 latencia</span>
                 </div>
             </div>
 
-            <!-- ████ TAB: RANKING GLOBAL ████ -->
+            <!-- TAB: RANKING GLOBAL -->
             <div id="tab-ranking" class="tab-content active space-y-8">
-
-                <!-- KPI -->
                 <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5" id="m-metrics-container">
-                    <div class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm"><span
-                            class="font-headline text-xs font-bold text-on-surface-variant uppercase tracking-widest">Cargando...</span>
-                    </div>
+                    <div class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm"><span class="font-headline text-xs font-bold text-on-surface-variant uppercase tracking-widest">Cargando...</span></div>
                 </section>
 
-                <!-- Weights + Ladder -->
                 <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-                    <!-- CRITIC Weights -->
                     <div class="bg-surface-container-low p-8 rounded-xl border border-outline-variant/10">
                         <div class="flex items-center justify-between mb-8">
-                            <h4 class="font-headline font-bold text-xl flex items-center gap-2">
-                                <span class="material-symbols-outlined text-secondary">balance</span>CRITIC Weights
-                            </h4>
-                            <span
-                                class="text-[10px] font-mono bg-white px-2 py-1 rounded border border-outline-variant/20 text-outline font-bold">AUTO-ADJUSTED</span>
+                            <h4 class="font-headline font-bold text-xl flex items-center gap-2"><span class="material-symbols-outlined text-secondary">balance</span>CRITIC Weights</h4>
+                            <span class="text-[10px] font-mono bg-white px-2 py-1 rounded border border-outline-variant/20 text-outline font-bold">AUTO-ADJUSTED</span>
                         </div>
-                        <div class="space-y-6" id="m-weights-container">
-                            <p class="text-sm text-outline">Calculando...</p>
-                        </div>
-                        <div
-                            class="mt-8 p-4 bg-white/60 border-l-4 border-[#8b3d97] rounded text-sm italic text-on-surface-variant">
-                            "Weights calculated via contrast intensity and inter-criteria correlation analysis."
-                        </div>
+                        <div class="space-y-6" id="m-weights-container"><p class="text-sm text-outline">Calculando...</p></div>
+                        <div class="mt-8 p-4 bg-white/60 border-l-4 border-[#8b3d97] rounded text-sm italic text-on-surface-variant">"Weights calculated via contrast intensity and inter-criteria correlation analysis."</div>
                     </div>
 
-                    <!-- Alpha Ladder -->
                     <div class="bg-surface-container-low p-8 rounded-xl border border-outline-variant/10">
                         <div class="flex items-center justify-between mb-8">
-                            <h4 class="font-headline font-bold text-xl flex items-center gap-2">
-                                <span class="material-symbols-outlined text-error">gavel</span>Active Red Line
-                            </h4>
-                            <span
-                                class="text-[10px] font-mono bg-white px-2 py-1 rounded border border-outline-variant/20 text-outline font-bold">MRP
-                                VETO LOGIC</span>
+                            <h4 class="font-headline font-bold text-xl flex items-center gap-2"><span class="material-symbols-outlined text-error">gavel</span>Active Red Line</h4>
+                            <span class="text-[10px] font-mono bg-white px-2 py-1 rounded border border-outline-variant/20 text-outline font-bold">MRP VETO LOGIC</span>
                         </div>
                         <div class="space-y-0">
-                            <!-- α4 -->
-                            <div class="flex items-start gap-3">
-                                <div class="flex flex-col items-center pt-1">
-                                    <div class="std-dot"></div>
-                                    <div class="connector h-7"></div>
-                                </div>
-                                <div class="flex-1 pb-5 flex items-center justify-between">
-                                    <span class="font-headline font-bold text-sm text-slate-400">Alpha [4] :
-                                        Ideal</span>
-                                    <span class="data-mono text-[11px] text-slate-400">4.00</span>
-                                </div>
-                            </div>
-                            <!-- α3 -->
-                            <div class="flex items-start gap-3">
-                                <div class="flex flex-col items-center pt-1">
-                                    <div class="std-dot"></div>
-                                    <div class="connector h-7"></div>
-                                </div>
-                                <div class="flex-1 pb-5 flex items-center justify-between">
-                                    <span class="font-headline font-bold text-sm text-slate-400">Alpha [3] : Rendimiento
-                                        Alto</span>
-                                    <span class="data-mono text-[11px] text-slate-400">3.00</span>
-                                </div>
-                            </div>
-                            <!-- α2 -->
-                            <div class="flex items-start gap-3">
-                                <div class="flex flex-col items-center pt-1">
-                                    <div class="std-dot"></div>
-                                    <div class="connector h-8"></div>
-                                </div>
-                                <div class="flex-1 pb-5 flex items-center justify-between">
-                                    <span class="font-headline font-bold text-sm text-slate-400">Alpha [2] :
-                                        Estándar</span>
-                                    <span class="data-mono text-[11px] text-slate-400">2.00</span>
-                                </div>
-                            </div>
-                            <!-- α1 RED LINE -->
-                            <div class="flex items-start gap-3">
-                                <div class="flex flex-col items-center pt-1">
-                                    <div class="red-dot"></div>
-                                    <div class="connector h-8"></div>
-                                </div>
+                            <div class="flex items-start gap-3"><div class="flex flex-col items-center pt-1"><div class="std-dot"></div><div class="connector h-7"></div></div><div class="flex-1 pb-5 flex items-center justify-between"><span class="font-headline font-bold text-sm text-slate-400">Alpha [4] : Ideal</span><span class="data-mono text-[11px] text-slate-400">4.00</span></div></div>
+                            <div class="flex items-start gap-3"><div class="flex flex-col items-center pt-1"><div class="std-dot"></div><div class="connector h-7"></div></div><div class="flex-1 pb-5 flex items-center justify-between"><span class="font-headline font-bold text-sm text-slate-400">Alpha [3] : Rendimiento Alto</span><span class="data-mono text-[11px] text-slate-400">3.00</span></div></div>
+                            <div class="flex items-start gap-3"><div class="flex flex-col items-center pt-1"><div class="std-dot"></div><div class="connector h-8"></div></div><div class="flex-1 pb-5 flex items-center justify-between"><span class="font-headline font-bold text-sm text-slate-400">Alpha [2] : Estándar</span><span class="data-mono text-[11px] text-slate-400">2.50</span></div></div>
+                            <div class="flex items-start gap-3"><div class="flex flex-col items-center pt-1"><div class="red-dot"></div><div class="connector h-8"></div></div>
                                 <div class="flex-1 bg-red-50/60 border border-red-200 rounded-lg px-4 py-3 mb-0">
-                                    <div class="flex items-center justify-between">
-                                        <span
-                                            class="font-headline font-extrabold text-sm text-red-600 uppercase tracking-tight">Alpha
-                                            [1] : LÍNEA ROJA (VETO)</span>
-                                        <span class="data-mono text-sm font-bold text-red-600"
-                                            id="lr-display">1.00</span>
-                                    </div>
+                                    <div class="flex items-center justify-between"><span class="font-headline font-extrabold text-sm text-red-600 uppercase tracking-tight">Alpha [1] : LÍNEA ROJA (VETO)</span><span class="data-mono text-sm font-bold text-red-600" id="lr-display">1.00</span></div>
                                 </div>
                             </div>
-                            <!-- α0 -->
-                            <div class="flex items-start gap-3 pt-3">
-                                <div class="flex flex-col items-center pt-1">
-                                    <div class="std-dot opacity-40"></div>
-                                </div>
-                                <div class="flex-1 flex items-center justify-between">
-                                    <span class="font-headline font-bold text-sm text-slate-300">Alpha [0] :
-                                        Inaceptable</span>
-                                    <span class="data-mono text-[11px] text-slate-300">0.00</span>
-                                </div>
-                            </div>
+                            <div class="flex items-start gap-3 pt-3"><div class="flex flex-col items-center pt-1"><div class="std-dot opacity-40"></div></div><div class="flex-1 flex items-center justify-between"><span class="font-headline font-bold text-sm text-slate-300">Alpha [0] : Inaceptable</span><span class="data-mono text-[11px] text-slate-300">0.00</span></div></div>
                         </div>
                     </div>
                 </section>
 
-                <!-- Ranking Table -->
                 <section class="bg-white rounded-xl border border-outline-variant/20 shadow-xl overflow-hidden">
-                    <div
-                        class="px-6 py-5 border-b border-outline-variant/10 flex justify-between items-center bg-surface-container-low/40">
+                    <div class="px-6 py-5 border-b border-outline-variant/10 flex justify-between items-center bg-surface-container-low/40">
                         <h4 class="font-headline font-bold text-xl">High-Resolution Ranking</h4>
-                        <div class="flex gap-2">
-                            <button class="p-2 hover:bg-surface-container rounded-lg transition-colors"><span
-                                    class="material-symbols-outlined text-sm text-outline">filter_list</span></button>
-                            <button onclick="loadM()"
-                                class="p-2 hover:bg-surface-container rounded-lg transition-colors"><span
-                                    class="material-symbols-outlined text-sm text-outline">refresh</span></button>
-                        </div>
+                        <button onclick="loadM()" class="p-2 hover:bg-surface-container rounded-lg transition-colors"><span class="material-symbols-outlined text-sm text-outline">refresh</span></button>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
-                                <tr
-                                    class="bg-surface-container-low text-[10px] font-mono font-bold text-outline uppercase tracking-widest border-b border-outline-variant/10">
-                                    <th class="px-6 py-4">#</th>
-                                    <th class="px-6 py-4">Action Entity</th>
-                                    <th class="px-6 py-4">Score SS</th>
-                                    <th class="px-6 py-4">IMPACTOS (Amb / Soc / Eco)</th>
-                                    <th class="px-6 py-4">Veredicto</th>
-                                    <th class="px-6 py-4 text-right">Actions</th>
+                                <tr class="bg-surface-container-low text-[10px] font-mono font-bold text-outline uppercase tracking-widest border-b border-outline-variant/10">
+                                    <th class="px-6 py-4">#</th><th class="px-6 py-4">Acción</th><th class="px-6 py-4">Score SS</th><th class="px-6 py-4">Logros (Amb / Soc / Eco)</th><th class="px-6 py-4">Veredicto</th><th class="px-6 py-4 text-right"></th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-outline-variant/10" id="m-table-body">
-                                <tr>
-                                    <td colspan="6" class="p-10 text-center text-outline font-headline">Cargando
-                                        algoritmo...</td>
-                                </tr>
+                                <tr><td colspan="6" class="p-10 text-center text-outline font-headline">Cargando...</td></tr>
                             </tbody>
                         </table>
                     </div>
-
                 </section>
-
-                <!-- Footer banner -->
-                <div class="relative h-52 rounded-2xl overflow-hidden border border-outline-variant/10">
-                    <div class="absolute inset-0 bg-gradient-to-r from-[#8b3d97]/8 to-surface-container-low"></div>
-                    <div class="absolute right-8 top-1/2 -translate-y-1/2 pointer-events-none opacity-8">
-                        <svg width="200" height="200" viewBox="0 0 100 100">
-                            <circle cx="50" cy="50" r="46" fill="none" stroke="#8b3d97" stroke-width="0.4" />
-                            <circle cx="50" cy="50" r="30" fill="none" stroke="#8b3d97" stroke-width="0.3" />
-                            <path d="M4 50 L96 50 M50 4 L50 96" stroke="#8b3d97" stroke-width="0.3" />
-                        </svg>
-                    </div>
-                    <div class="relative p-8 h-full flex flex-col justify-center max-w-2xl">
-                        <h5 class="font-headline font-bold text-2xl text-[#8b3d97] mb-2">Architectural Summary</h5>
-                        <p class="text-on-surface-variant leading-relaxed text-sm">The SONYA Engine integra <span
-                                class="font-mono bg-white px-1 rounded border">CRITIC weighting</span> con <span
-                                class="font-mono bg-white px-1 rounded border">MRP Red-Line validation</span>. Ninguna
-                            métrica alta puede enmascarar un fallo crítico (Veto). El <span
-                                class="text-[#8b3d97] font-bold">Synthesized Score (SS)</span> provee la ruta definitiva
-                            de decisión.</p>
-                    </div>
-                </div>
             </div>
 
-            <!-- ████ TAB: NUEVA SIMULACIÓN ████ -->
+            <!-- TAB: NUEVA SIMULACIÓN -->
             <div id="tab-simulacion" class="tab-content space-y-12">
-
-                <!-- Section 01 EX-ANTE -->
                 <section class="space-y-6">
                     <div class="flex items-center gap-5 mb-2">
-                        <div
-                            class="w-14 h-14 rounded-2xl bg-gradient-to-br from-white to-primary/10 flex items-center justify-center text-primary shadow-lg shadow-primary/10 border border-primary/20">
-                            <span class="material-symbols-outlined text-3xl"
-                                style="font-variation-settings: 'FILL' 1;">flag</span>
-                        </div>
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-white to-primary/10 flex items-center justify-center text-primary shadow-lg shadow-primary/10 border border-primary/20"><span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">flag</span></div>
                         <div>
-                            <span
-                                class="inline-block px-2 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-md mb-1">Paso
-                                1: Línea Base</span>
-                            <h2
-                                class="text-3xl md:text-4xl font-extrabold font-headline tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-primary">
-                                Definición Escenario EX-ANTE
-                            </h2>
+                            <span class="inline-block px-2 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-md mb-1">Paso 1: Línea Base</span>
+                            <h2 class="text-3xl md:text-4xl font-extrabold font-headline tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-primary">Definición Escenario EX-ANTE</h2>
                         </div>
                     </div>
                     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                        <!-- Selector -->
-                        <div
-                            class="lg:col-span-8 bg-surface-container-low p-8 rounded-xl shadow-sm border border-transparent">
+                        <div class="lg:col-span-8 bg-surface-container-low p-8 rounded-xl shadow-sm border border-transparent">
                             <div class="space-y-6">
                                 <div>
-                                    <label
-                                        class="block font-mono text-[10px] uppercase tracking-widest text-outline mb-2">Acción
-                                        de Referencia</label>
-                                    <select id="m-ante-sel"
-                                        onchange="document.getElementById('m-ante-new').style.display=this.value==='__new__'?'block':'none'"
-                                        class="w-full bg-white border-0 border-b-2 border-outline focus:border-[#8b3d97] focus:ring-0 font-body text-sm py-3 px-1 transition-colors cursor-pointer"></select>
+                                    <label class="block font-mono text-[10px] uppercase tracking-widest text-outline mb-2">Acción de Referencia</label>
+                                    <select id="m-ante-sel" onchange="document.getElementById('m-ante-new').style.display=this.value==='__new__'?'block':'none'" class="w-full bg-white border-0 border-b-2 border-outline focus:border-[#8b3d97] focus:ring-0 font-body text-sm py-3 px-1 transition-colors cursor-pointer"></select>
                                 </div>
-                                <div id="m-ante-new" class="block mt-6 pt-6 border-t border-slate-100/60">
-                                    <h4
-                                        class="text-sm font-bold text-primary mb-4 font-headline flex items-center gap-2">
-                                        <span class="material-symbols-outlined text-base">edit_document</span>
-                                        Parámetros de la Nueva Acción
-                                    </h4>
-
+                                <div id="m-ante-new" style="display:none" class="mt-6 pt-6 border-t border-slate-100/60">
+                                    <h4 class="text-sm font-bold text-primary mb-4 font-headline flex items-center gap-2"><span class="material-symbols-outlined text-base">edit_document</span>Parámetros de la Nueva Acción</h4>
                                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                        <div class="md:col-span-4">
-                                            <input type="text" id="m-ante-nom"
-                                                placeholder="Escribe un nombre descriptivo para la acción..."
-                                                class="w-full bg-surface-container-low border-none rounded-xl p-3.5 font-body text-sm focus:ring-2 focus:ring-primary/20 transition-shadow">
-                                        </div>
-
-                                        <div>
-                                            <label
-                                                class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-2">Ambiental</label>
-                                            <input type="number" id="m-ante-amb" placeholder="Valor"
-                                                class="w-full bg-surface-container-low border-none rounded-xl p-3 pl-4 text-left font-label font-bold focus:ring-2 focus:ring-primary/20">
-                                        </div>
-
-                                        <div>
-                                            <label
-                                                class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-2">Social</label>
-                                            <input type="number" id="m-ante-soc" placeholder="Valor"
-                                                class="w-full bg-surface-container-low border-none rounded-xl p-3 pl-4 text-left font-label font-bold focus:ring-2 focus:ring-primary/20">
-                                        </div>
-
-                                        <div>
-                                            <label
-                                                class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-2">Económico</label>
-                                            <input type="number" id="m-ante-eco" placeholder="Valor"
-                                                class="w-full bg-surface-container-low border-none rounded-xl p-3 pl-4 text-left font-label font-bold focus:ring-2 focus:ring-primary/20">
-                                        </div>
-
-                                        <div class="flex items-end pb-1.5 pl-2">
-                                            <label class="flex items-center gap-2.5 cursor-pointer group">
-                                                <input type="checkbox" id="m-ante-save"
-                                                    class="rounded border-slate-300 text-primary focus:ring-primary w-5 h-5 transition-colors">
-                                                <span
-                                                    class="text-xs font-bold text-slate-500 group-hover:text-primary uppercase tracking-wide font-headline transition-colors">Guardar
-                                                    en BBDD</span>
-                                            </label>
-                                        </div>
+                                        <div class="md:col-span-4"><input type="text" id="m-ante-nom" placeholder="Escribe un nombre descriptivo para la acción..." class="w-full bg-surface-container-low border-none rounded-xl p-3.5 font-body text-sm focus:ring-2 focus:ring-primary/20 transition-shadow"></div>
+                                        <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-2">Ambiental</label><input type="number" id="m-ante-amb" placeholder="Valor" class="w-full bg-surface-container-low border-none rounded-xl p-3 pl-4 font-label font-bold focus:ring-2 focus:ring-primary/20"></div>
+                                        <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-2">Social</label><input type="number" id="m-ante-soc" placeholder="Valor" class="w-full bg-surface-container-low border-none rounded-xl p-3 pl-4 font-label font-bold focus:ring-2 focus:ring-primary/20"></div>
+                                        <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-2">Económico</label><input type="number" id="m-ante-eco" placeholder="Valor" class="w-full bg-surface-container-low border-none rounded-xl p-3 pl-4 font-label font-bold focus:ring-2 focus:ring-primary/20"></div>
+                                        <div class="flex items-end pb-1.5 pl-2"><label class="flex items-center gap-2.5 cursor-pointer group"><input type="checkbox" id="m-ante-save" class="rounded border-slate-300 text-primary focus:ring-primary w-5 h-5 transition-colors"><span class="text-xs font-bold text-slate-500 group-hover:text-primary uppercase tracking-wide font-headline transition-colors">Guardar en BBDD</span></label></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <!-- Satisfaction gauge -->
-                        <div
-                            class="lg:col-span-4 bg-white p-8 rounded-xl shadow-xl border border-outline-variant/10 flex flex-col justify-center items-center text-center">
-                            <label class="block font-mono text-[10px] uppercase tracking-widest text-outline mb-4">Nivel
-                                de Satisfacción Requerido</label>
+                        <div class="lg:col-span-4 bg-white p-8 rounded-xl shadow-xl border border-outline-variant/10 flex flex-col justify-center items-center text-center">
+                            <label class="block font-mono text-[10px] uppercase tracking-widest text-outline mb-4">Nivel de Satisfacción</label>
                             <div class="relative w-32 h-32 flex items-center justify-center">
                                 <svg class="w-full h-full -rotate-90" viewBox="0 0 128 128">
-                                    <circle class="text-surface-container-low" cx="64" cy="64" fill="transparent" r="56"
-                                        stroke="currentColor" stroke-width="8" />
-                                    <circle id="sat-arc" class="text-[#8b3d97]" cx="64" cy="64" fill="transparent"
-                                        r="56" stroke="currentColor" stroke-dasharray="351.86" stroke-dashoffset="87.97"
-                                        stroke-width="8" stroke-linecap="round" />
+                                    <circle class="text-surface-container-low" cx="64" cy="64" fill="transparent" r="56" stroke="currentColor" stroke-width="8" />
+                                    <circle id="sat-arc" class="text-[#8b3d97]" cx="64" cy="64" fill="transparent" r="56" stroke="currentColor" stroke-dasharray="351.86" stroke-dashoffset="175.93" stroke-width="8" stroke-linecap="round" />
                                 </svg>
                                 <div class="absolute flex flex-col items-center">
-                                    <input id="m-ante-sat" type="number" value="50" min="0" max="100"
-                                        class="w-16 text-center border-0 p-0 font-mono text-2xl font-bold focus:ring-0 bg-transparent text-[#8b3d97]"
-                                        oninput="updateArc(this.value)" />
+                                    <input id="m-ante-sat" type="number" value="50" min="0" max="100" class="w-16 text-center border-0 p-0 font-mono text-2xl font-bold focus:ring-0 bg-transparent text-[#8b3d97]" oninput="updateArc(this.value)" />
                                     <span class="text-[10px] font-mono text-outline font-bold">%</span>
                                 </div>
                             </div>
@@ -723,681 +246,568 @@
                     </div>
                 </section>
 
-                <!-- Section 02 EX-POST -->
                 <section class="space-y-6">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-end mt-12 mb-6 gap-4">
                         <div class="flex items-center gap-5">
-                            <div
-                                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-white to-primary/10 flex items-center justify-center text-primary shadow-lg shadow-primary/10 border border-primary/20">
-                                <span class="material-symbols-outlined text-3xl"
-                                    style="font-variation-settings: 'FILL' 1;">rocket_launch</span>
-                            </div>
+                            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-white to-primary/10 flex items-center justify-center text-primary shadow-lg shadow-primary/10 border border-primary/20"><span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">rocket_launch</span></div>
                             <div>
-                                <span
-                                    class="inline-block px-2 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-md mb-1">Paso
-                                    2: Proyección</span>
-                                <h3
-                                    class="text-3xl md:text-4xl font-extrabold font-headline tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-primary">
-                                    Alternativas EX-POST
-                                </h3>
+                                <span class="inline-block px-2 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-md mb-1">Paso 2: Proyección</span>
+                                <h3 class="text-3xl md:text-4xl font-extrabold font-headline tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-primary">Alternativas EX-POST</h3>
                             </div>
                         </div>
-
-                        <button onclick="addSimRow()"
-                            class="bg-white border-2 border-slate-200 px-5 py-3 rounded-xl text-sm font-extrabold text-slate-600 hover:text-primary hover:border-primary/50 hover:bg-primary/5 transition-all shadow-sm flex items-center gap-2">
-                            <span class="material-symbols-outlined text-lg">add_circle</span> Añadir Escenario
-                        </button>
+                        <button onclick="addSimRow()" class="bg-white border-2 border-slate-200 px-5 py-3 rounded-xl text-sm font-extrabold text-slate-600 hover:text-primary hover:border-primary/50 hover:bg-primary/5 transition-all shadow-sm flex items-center gap-2"><span class="material-symbols-outlined text-lg">add_circle</span> Añadir Escenario</button>
                     </div>
                     <div id="m-expost-list" class="space-y-3"></div>
-                    <!-- CTA -->
                     <div class="pt-8 flex justify-between items-center border-t border-outline-variant/20">
-
-                        <button onclick="runSim()"
-                            class="flex items-center gap-4 bg-[#8b3d97] hover:bg-[#7a3486] text-white px-10 py-5 rounded-xl shadow-[0_10px_30px_rgba(139,61,151,0.3)] transition-all active:scale-95 group font-headline font-extrabold text-lg tracking-tight">
-                            Calcular Matriz MRP
+                        <button onclick="runSim()" class="flex items-center gap-4 bg-[#8b3d97] hover:bg-[#7a3486] text-white px-10 py-5 rounded-xl shadow-[0_10px_30px_rgba(139,61,151,0.3)] transition-all active:scale-95 font-headline font-extrabold text-lg tracking-tight">
+                            <span class="material-symbols-outlined fill-icon">play_arrow</span> Calcular Matriz MRP
                         </button>
                     </div>
                 </section>
 
-                <div id="m-sim-res"
-                    class="hidden bg-white rounded-2xl p-8 border border-outline-variant/10 shadow-sm border-t-4 border-t-[#8b3d97]">
-                </div>
+                <div id="m-sim-res" class="hidden bg-white rounded-2xl p-8 border border-outline-variant/10 shadow-sm border-t-4 border-t-[#8b3d97]"></div>
             </div>
 
-            <!-- ████ TAB: PANEL DE CONTROL ████ -->
+            <!-- TAB: PANEL DE CONTROL -->
             <div id="tab-control" class="tab-content space-y-8">
                 <div class="grid grid-cols-12 gap-8">
-
-                    <!-- Alpha Scale -->
-                    <div
-                        class="col-span-12 lg:col-span-5 bg-white/60 backdrop-blur-md border-l-4 border-[#8b3d97] p-8 rounded-xl relative overflow-hidden shadow-sm">
-                        <div class="absolute top-0 right-0 opacity-[0.04] text-[#8b3d97]">
-                            <span class="material-symbols-outlined" style="font-size:200px">analytics</span>
-                        </div>
-                        <h3 class="font-headline text-xl font-bold mb-8 flex items-center gap-2 relative">
-                            <span class="material-symbols-outlined text-[#8b3d97]">tune</span>Escala Alpha
-                        </h3>
+                    <div class="col-span-12 lg:col-span-5 bg-white/60 backdrop-blur-md border-l-4 border-[#8b3d97] p-8 rounded-xl relative overflow-hidden shadow-sm">
+                        <h3 class="font-headline text-xl font-bold mb-8 flex items-center gap-2 relative"><span class="material-symbols-outlined text-[#8b3d97]">tune</span>Escala Alpha</h3>
                         <div class="space-y-6 relative" id="ctrl-alpha-inputs"></div>
                     </div>
-
-                    <!-- Right column -->
                     <div class="col-span-12 lg:col-span-7 space-y-6">
-
-                        <!-- Red Line Selector -->
                         <div class="bg-white p-8 rounded-xl shadow-sm border border-outline-variant/20">
                             <h3 class="font-headline text-xl font-bold mb-2">Selector de Línea Roja</h3>
-                            <p class="text-sm text-on-surface-variant mb-6">Define el nivel de veto absoluto. Acciones
-                                por debajo de este umbral serán descartadas por el Motor MRP.</p>
-                            <div id="ctrl-lr-selector"
-                                class="flex items-center gap-1 bg-surface-container rounded-full p-1.5 h-20"></div>
-                            <div
-                                class="mt-6 flex items-center gap-3 p-4 bg-error-container/20 rounded-xl border border-error/10">
-                                <span class="material-symbols-outlined text-error">warning</span>
-                                <p class="text-xs text-on-error-container font-medium" id="ctrl-lr-text">Configuración
-                                    de línea roja activa.</p>
-                            </div>
+                            <p class="text-sm text-on-surface-variant mb-6">Define el nivel de veto absoluto. Acciones por debajo serán descartadas.</p>
+                            <div id="ctrl-lr-selector" class="flex items-center gap-1 bg-surface-container rounded-full p-1.5 h-20"></div>
+                            <div class="mt-6 flex items-center gap-3 p-4 bg-error-container/20 rounded-xl border border-error/10"><span class="material-symbols-outlined text-error">warning</span><p class="text-xs text-on-error-container font-medium" id="ctrl-lr-text">Configuración de línea roja activa.</p></div>
                         </div>
-
-                        <!-- Q Manager -->
                         <div class="bg-white/60 backdrop-blur-md p-8 rounded-xl shadow-sm border-t-2 border-secondary">
                             <div class="flex justify-between items-start mb-6">
-                                <div>
-                                    <h3 class="font-headline text-xl font-bold">Gestor de Umbrales Q</h3>
-                                    <p class="text-xs text-on-surface-variant font-mono mt-1">Configuración paramétrica
-                                        por eje de sostenibilidad.</p>
-                                </div>
-                                <button onclick="resetMQ()"
-                                    class="px-4 py-2 bg-white border border-outline-variant/30 text-secondary text-xs font-bold flex items-center gap-2 rounded-lg hover:bg-secondary/5 transition-all active:scale-95">
-                                    <span class="material-symbols-outlined text-sm">refresh</span>Restaurar Data-Driven
-                                </button>
+                                <div><h3 class="font-headline text-xl font-bold">Gestor de Umbrales Q</h3><p class="text-xs text-on-surface-variant font-mono mt-1">Configuración paramétrica por eje.</p></div>
+                                <button onclick="resetMQ()" class="px-4 py-2 bg-white border border-outline-variant/30 text-secondary text-xs font-bold flex items-center gap-2 rounded-lg hover:bg-secondary/5 transition-all active:scale-95"><span class="material-symbols-outlined text-sm">refresh</span>Restaurar Data-Driven</button>
                             </div>
                             <div class="overflow-x-auto no-scrollbar">
                                 <table class="w-full text-left border-separate border-spacing-y-3">
-                                    <thead>
-                                        <tr
-                                            class="text-[10px] uppercase tracking-widest text-on-surface-variant/70 font-bold font-headline">
-                                            <th class="pb-2 pl-2">Criterio</th>
-                                            <th class="pb-2 text-center">q0</th>
-                                            <th class="pb-2 text-center">q1</th>
-                                            <th class="pb-2 text-center">q2</th>
-                                            <th class="pb-2 text-center">q3</th>
-                                            <th class="pb-2 text-center">q4</th>
-                                        </tr>
-                                    </thead>
+                                    <thead><tr class="text-[10px] uppercase tracking-widest text-on-surface-variant/70 font-bold font-headline"><th class="pb-2 pl-2">Criterio</th><th class="pb-2 text-center">q0</th><th class="pb-2 text-center">q1</th><th class="pb-2 text-center">q2</th><th class="pb-2 text-center">q3</th><th class="pb-2 text-center">q4</th></tr></thead>
                                     <tbody id="ctrl-q-inputs"></tbody>
                                 </table>
                             </div>
-                            <button onclick="applyMConfig()"
-                                class="w-full mt-6 group relative px-8 py-4 bg-[#8b3d97] text-white rounded-xl font-headline font-extrabold tracking-wide shadow-xl shadow-[#8b3d97]/30 overflow-hidden transition-all hover:scale-[1.01] active:scale-95">
-                                <span class="relative z-10 flex items-center justify-center gap-3">
-                                    Aplicar Configuración MRP
-                                </span>
-                                <div
-                                    class="absolute inset-0 bg-gradient-to-r from-[#7a3486] to-[#6a2c76] opacity-0 group-hover:opacity-100 transition-opacity">
-                                </div>
-                            </button>
+                            <button onclick="applyMConfig()" class="w-full mt-6 px-8 py-4 bg-[#8b3d97] text-white rounded-xl font-headline font-extrabold tracking-wide shadow-xl shadow-[#8b3d97]/30 transition-all hover:scale-[1.01] active:scale-95">Aplicar Configuración MRP</button>
                         </div>
                     </div>
                 </div>
-
-                <!-- Bottom deco -->
-
             </div>
 
+            <!-- TAB: DESARROLLO MATEMÁTICO -->
             <div id="tab-math" class="tab-content">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-
                     <div class="lg:col-span-8 space-y-6">
-                        <h3
-                            class="text-2xl font-extrabold font-headline tracking-tight text-slate-800 flex items-center gap-2 mb-2">
-                            <span class="material-symbols-outlined text-primary">data_object</span> Desarrollo Empírico
-                            de la Sesión
-                        </h3>
+                        <h3 class="text-2xl font-extrabold font-headline tracking-tight text-slate-800 flex items-center gap-2 mb-2"><span class="material-symbols-outlined text-primary">data_object</span>Desarrollo Empírico de la Sesión</h3>
                         <div id="m-math-container"></div>
                     </div>
-
                     <div class="lg:col-span-4 sticky top-24">
-                        <div
-                            class="bg-slate-900 rounded-[2rem] border border-slate-800 shadow-2xl p-8 md:p-10 relative overflow-hidden group">
-                            <div
-                                class="absolute -right-10 -top-10 w-48 h-48 bg-primary/30 blur-[70px] rounded-full group-hover:bg-primary/40 transition-colors duration-700 pointer-events-none">
-                            </div>
-                            <div
-                                class="absolute -left-10 -bottom-10 w-48 h-48 bg-secondary/20 blur-[70px] rounded-full pointer-events-none">
-                            </div>
-
+                        <div class="bg-slate-900 rounded-[2rem] border border-slate-800 shadow-2xl p-8 relative overflow-hidden">
                             <div class="relative z-10">
-                                <div
-                                    class="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center border border-white/20 mb-6 backdrop-blur-sm shadow-inner">
-                                    <span class="material-symbols-outlined text-white text-3xl"
-                                        style="font-variation-settings: 'FILL' 1;">menu_book</span>
-                                </div>
-
-                                <h3
-                                    class="font-headline font-extrabold text-2xl text-white mb-4 tracking-tight leading-snug">
-                                    Evidencia Científica y Documentación
-                                </h3>
-                                <p class="text-slate-400 font-body text-sm leading-relaxed mb-10">
-                                    Acceso a la demostración matemática completa del algoritmo MRP mediante
-                                    interpolación a tramos y funciones de pertenencia. Incluye la formulación en LaTeX.
-                                </p>
-
-                                <div class="space-y-4">
-                                    <a href="demostracion_mrp.pdf" target="_blank"
-                                        class="w-full flex items-center justify-center gap-3 bg-white hover:bg-primary-container text-slate-900 hover:text-primary px-6 py-4 rounded-xl font-bold font-headline transition-all duration-300 shadow-[0_0_15px_rgba(255,255,255,0.1)] group/btn">
-                                        <span
-                                            class="material-symbols-outlined text-error group-hover/btn:text-primary transition-colors">picture_as_pdf</span>
-                                        VER WHITEPAPER PDF
-                                    </a>
-
-                                    <a href="demostracion_mrp.pdf" download
-                                        class="w-full flex items-center justify-center gap-2 bg-transparent border-2 border-slate-700 hover:border-slate-500 hover:bg-slate-800 text-white px-6 py-3.5 rounded-xl font-bold font-headline transition-all text-sm">
-                                        Descargar Completa
-                                        <span class="material-symbols-outlined text-base">arrow_forward</span>
-                                    </a>
-                                </div>
+                                <div class="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center border border-white/20 mb-6"><span class="material-symbols-outlined text-white text-3xl" style="font-variation-settings: 'FILL' 1;">menu_book</span></div>
+                                <h3 class="font-headline font-extrabold text-2xl text-white mb-4 tracking-tight">Evidencia Científica</h3>
+                                <p class="text-slate-400 font-body text-sm leading-relaxed mb-10">Demostración matemática completa del algoritmo MRP mediante interpolación a tramos y funciones de pertenencia.</p>
+                                <a href="demostracion_mrp.pdf" target="_blank" class="w-full flex items-center justify-center gap-3 bg-white text-slate-900 px-6 py-4 rounded-xl font-bold font-headline transition-all duration-300 hover:bg-purple-50 mb-3">
+                                    <span class="material-symbols-outlined text-error">picture_as_pdf</span>VER WHITEPAPER PDF
+                                </a>
+                                <a href="demostracion_mrp.pdf" download class="w-full flex items-center justify-center gap-2 bg-transparent border-2 border-slate-700 hover:border-slate-500 hover:bg-slate-800 text-white px-6 py-3.5 rounded-xl font-bold font-headline transition-all text-sm">
+                                    Descargar<span class="material-symbols-outlined text-base">arrow_forward</span>
+                                </a>
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </main>
     </div>
+
     <script>
-        // ==========================================
-        // 1. GESTOR DE DATOS REALES (Persistencia Local)
-        // ==========================================
-        const SONYA_STORAGE_KEY = 'sonya_data_bbdd';
+    // ============================================================
+    // BASE DE DATOS LOCAL — Datos reales del proyecto SONYA
+    // Fuente: sonya_acciones.json original (UJI · Grupo SOGRES)
+    // ============================================================
+    let DB_LOCAL = [
+        { nombre: "Microbus",       tipo: "EX-ANTE", eco: 5920.13, amb: 68.38,  soc: 960377.53 },
+        { nombre: "Telematico",     tipo: "EX-POST", eco:  431.63, amb:  5.73,  soc:  77257.43 },
+        { nombre: "Fruteria local", tipo: "EX-ANTE", eco:    0.71, amb: 193.53, soc:    481.19 },
+        { nombre: "Fruta España",   tipo: "EX-POST", eco:    0.92, amb: 261.46, soc:    576.56 }
+    ];
 
-        function obtenerDatosDeBBDD() {
-            const datosGuardados = localStorage.getItem(SONYA_STORAGE_KEY);
-            // Si no hay datos, devuelve un array vacío (así no inventa nombres raros)
-            return datosGuardados ? JSON.parse(datosGuardados) : [];
-        }
+    // ============================================================
+    // MOTOR MATEMÁTICO LOCAL (CRITIC + MRP · Sostenibilidad Fuerte)
+    // ============================================================
+    const MotorLocal = {
 
-        // Inicializamos la variable con tus datos reales
-        let DB_LOCAL = obtenerDatosDeBBDD();
+        // Percentiles para los umbrales q (minimización de impacto negativo)
+        // q0 = máximo (peor), q4 = mínimo (mejor)
+        getPercentiles(arr) {
+            const s = arr.slice().sort((a, b) => a - b);
+            const n = s.length;
+            if (n === 0) return [0,0,0,0,0].map(v => ({ valor: v }));
+            if (n === 1) return [s[0],s[0],s[0],s[0],s[0]].map(v => ({ valor: v }));
+            const p = pct => { const i = (n-1)*pct; const l=Math.floor(i), u=Math.ceil(i), w=i-l; return s[l]*(1-w)+s[u]*w; };
+            // Para MINIMIZACIÓN: q0=máximo(peor), q4=mínimo(mejor)
+            return [p(1), p(0.75), p(0.5), p(0.25), p(0)].map(v => ({ valor: v }));
+        },
 
-        // ==========================================
-        // 2. MOTOR MATEMÁTICO CLIENT-SIDE (Cerebro)
-        // ==========================================
-        const MotorLocal = {
-            getPercentiles: (arr, inv) => {
-                let s = arr.slice().sort((a, b) => a - b);
-                let n = s.length;
-                if (n === 0) return [0, 0, 0, 0, 0].map(v => ({ valor: v }));
-                if (n === 1) return [s[0], s[0], s[0], s[0], s[0]].map(v => ({ valor: v }));
-                const p = (pct) => {
-                    let idx = (n - 1) * pct;
-                    let l = Math.floor(idx), u = Math.ceil(idx), w = idx - l;
-                    return s[l] * (1 - w) + s[u] * w;
-                };
-                let res = [p(0), p(0.25), p(0.5), p(0.75), p(1)];
-                if (inv) res.reverse(); // Ambiental: Menos es mejor (q0=max, q4=min)
-                return res.map(v => ({ valor: v }));
-            },
-            calcCritic: (data) => {
-                let n = data.length;
-                if (n < 2) return { Eco: 0.333, Amb: 0.333, Soc: 0.333 };
-                let m = { eco: 0, amb: 0, soc: 0 }, std = { eco: 0, amb: 0, soc: 0 }, ks = ['eco', 'amb', 'soc'];
-                ks.forEach(k => {
-                    m[k] = data.reduce((s, r) => s + r[k], 0) / n;
-                    std[k] = Math.sqrt(data.reduce((s, r) => s + Math.pow(r[k] - m[k], 2), 0) / (n - 1));
-                });
-                let C = { eco: 0, amb: 0, soc: 0 }, sumC = 0;
-                ks.forEach(k1 => {
-                    let sumR = 0;
-                    ks.forEach(k2 => {
-                        if (k1 === k2) return;
-                        let cov = data.reduce((s, r) => s + (r[k1] - m[k1]) * (r[k2] - m[k2]), 0) / (n - 1);
-                        sumR += (1 - (cov / ((std[k1] * std[k2]) || 1)));
-                    });
-                    C[k1] = std[k1] * sumR;
-                    sumC += C[k1];
-                });
-                if (sumC === 0) return { Eco: 0.333, Amb: 0.333, Soc: 0.333 };
-                return { Eco: C.eco / sumC, Amb: C.amb / sumC, Soc: C.soc / sumC };
-            },
-            estandarizar: (val, q, alpha) => {
-                let qv = q.map(x => x.valor || x);
-                let asc = qv[0] < qv[4]; // Más es mejor
-                if ((asc && val <= qv[0]) || (!asc && val >= qv[0])) {
-                    let den = qv[1] - qv[0];
-                    return Math.abs(den) < 1e-10 ? alpha[0] : alpha[0] - ((alpha[1] - alpha[0]) / den) * (qv[0] - val);
-                }
-                for (let k = 1; k <= 4; k++) {
-                    if ((asc && val <= qv[k]) || (!asc && val >= qv[k])) {
-                        let den = qv[k] - qv[k - 1];
-                        return Math.abs(den) < 1e-10 ? (alpha[k - 1] + alpha[k]) / 2 : alpha[k - 1] + ((alpha[k] - alpha[k - 1]) / den) * (val - qv[k - 1]);
-                    }
-                }
-                let den = qv[4] - qv[3];
-                return Math.abs(den) < 1e-10 ? alpha[4] : alpha[4] + ((alpha[4] - alpha[3]) / den) * (val - qv[4]);
-            },
-            procesarMRP: (datos, alpha, qCustom) => {
-                let umbrales = { Eco: [], Amb: [], Soc: [] };
-                if (qCustom && Object.keys(qCustom).length) {
-                    umbrales.Eco = qCustom.Eco.map(v => ({ valor: v })); umbrales.Amb = qCustom.Amb.map(v => ({ valor: v })); umbrales.Soc = qCustom.Soc.map(v => ({ valor: v }));
-                } else {
-                    umbrales.Eco = MotorLocal.getPercentiles(datos.map(d => d.eco), false);
-                    umbrales.Amb = MotorLocal.getPercentiles(datos.map(d => d.amb), true);
-                    umbrales.Soc = MotorLocal.getPercentiles(datos.map(d => d.soc), false);
-                }
-                let pesos = MotorLocal.calcCritic(datos);
-                let ranking = datos.map(d => {
-                    let s_eco = MotorLocal.estandarizar(d.eco, umbrales.Eco, alpha);
-                    let s_amb = MotorLocal.estandarizar(d.amb, umbrales.Amb, alpha);
-                    let s_soc = MotorLocal.estandarizar(d.soc, umbrales.Soc, alpha);
-                    let ss = Math.min(s_eco, s_amb, s_soc); // Agregación Leontief
-                    return { accion: d.nombre, tipo: d.tipo, s_eco, s_amb, s_soc, ss };
-                }).sort((a, b) => b.ss - a.ss);
-                return { ranking, pesos, umbrales };
-            }
-        };
-        // ==========================================
-        // 3. INTERCEPTOR DE API ACTUALIZADO (Persistencia)
-        // ==========================================
-        async function api(url, opts = {}) {
-            // Refresca los datos antes de cualquier acción
-            DB_LOCAL = obtenerDatosDeBBDD();
-            await new Promise(r => setTimeout(r, 100)); // Simula latencia para UX
-
-            // Cuando la web pide la lista de acciones (GET)
-            if (url.startsWith('/acciones') && (!opts.method || opts.method === 'GET')) {
-                return DB_LOCAL;
-            }
-
-            // Cuando creas una nueva simulación y le das a "Guardar" (POST)
-            if (url.startsWith('/acciones') && opts.method === 'POST') {
-                const nuevaAccion = JSON.parse(opts.body);
-                DB_LOCAL.push(nuevaAccion);
-                // ESTA LÍNEA ES LA MAGIA: Guarda permanentemente en el navegador
-                localStorage.setItem(SONYA_STORAGE_KEY, JSON.stringify(DB_LOCAL));
-                return { msg: "ok" };
-            }
-
-            // Cuando pide el ranking Global
-            if (url.startsWith('/ranking/mrp')) {
-                let urlObj = new URL(url, 'http://local');
-                let a = JSON.parse(urlObj.searchParams.get('alpha') || '[0,1,2.5,3,4]');
-                let q = JSON.parse(urlObj.searchParams.get('q') || 'null');
-                return MotorLocal.procesarMRP(DB_LOCAL, a, q);
-            }
-
-            // Cuando ejecuta la simulación comparativa
-            if (url.startsWith('/evaluar/mrp')) {
-                let req = JSON.parse(opts.body);
-                let ex_ante = DB_LOCAL.find(x => x.nombre === req.ex_ante) || req.ex_ante;
-                let items = [ex_ante, ...req.ex_posts];
-                return { resultado: MotorLocal.procesarMRP(items, req.alpha, req.q).ranking };
-            }
-        }
-        // ==========================================
-        // 4. LÓGICA DE UI ORIGINAL (Sin cambios drásticos)
-        // ==========================================
-        let accC = [], mC = null, ec = 0;
-        let mrpAlpha = JSON.parse(localStorage.getItem('sonya_alpha')) || [0, 1, 2.5, 3, 4];
-        let mrpLR = parseFloat(localStorage.getItem('sonya_lr') || '1');
-        let mrpQ = JSON.parse(localStorage.getItem('sonya_q') || 'null');
-
-        // Configurar estado visual de "Motor Local"
-        document.addEventListener("DOMContentLoaded", () => {
-            document.getElementById('api-text').innerText = 'MOTOR LOCAL ACTIVO';
-            document.getElementById('api-dot').className = 'w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_#22c55e]';
-        });
-
-        function updateArc(v) {
-            const c = Math.min(100, Math.max(0, parseFloat(v) || 0));
-            const r = 56, circ = 2 * Math.PI * r;
-            const el = document.getElementById('sat-arc');
-            if (el) el.setAttribute('stroke-dashoffset', circ * (1 - c / 100));
-        }
-
-        function msg(txt, type = 'info') {
-            const w = document.getElementById('toast-wrap'), t = document.createElement('div');
-            t.className = 'toast';
-            const c = type === 'err' ? '#ba1a1a' : type === 'ok' ? '#00696c' : '#8b3d97';
-            const ic = type === 'err' ? 'error' : type === 'ok' ? 'check_circle' : 'info';
-            t.innerHTML = `<span class="material-symbols-outlined fill-icon" style="color:${c}">${ic}</span><span style="font-size:13px;font-weight:600;color:#171c1f">${txt}</span>`;
-            w.appendChild(t); setTimeout(() => { t.classList.add('removing'); setTimeout(() => t.remove(), 300); }, 3200);
-        }
-
-        function spin(on, text = 'Calculando...') {
-            document.getElementById('spin-msg').innerText = text;
-            document.getElementById('loading').classList.toggle('show', on);
-        }
-
-        function switchInnerTab(tab, btn) {
-            document.querySelectorAll('.mrp-tab-btn').forEach(b => b.className = "mrp-tab-btn h-full border-b-[3px] border-transparent text-slate-500 hover:text-primary font-semibold text-sm tracking-wide px-2 lg:px-4 transition-all whitespace-nowrap");
-            btn.className = "mrp-tab-btn h-full border-b-[3px] border-primary text-primary font-bold text-sm tracking-wide px-2 lg:px-4 transition-all whitespace-nowrap";
-            document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
-            document.getElementById(`tab-${tab}`).classList.add('active');
-            if (tab === 'control') buildMCtrl();
-            if (tab === 'math') buildMath();
-        }
-
-        const bVerd = ss => ss >= mrpLR
-            ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full border border-green-200"><span class="w-1.5 h-1.5 rounded-full bg-green-600"></span>Viable</span>`
-            : `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-red-100 text-red-700 text-xs font-bold rounded-full border border-red-200"><span class="w-1.5 h-1.5 rounded-full bg-red-600"></span>Veto</span>`;
-        async function loadM() {
-            spin(true, 'Procesando matriz MRP y Sostenibilidad Fuerte...');
-            try {
-                // 1. Cargamos los datos locales simulando la llamada a la API
-                if (!accC.length) accC = await api('/acciones');
-
-                // 2. Preparamos los parámetros del motor
-                const alphaParams = mrpAlpha || [0, 1, 2.5, 3, 4];
-                const lrParam = mrpLR || 1.0;
-                const qParams = mrpQ || null;
-
-                // 3. Ejecutamos el motor local
-                mC = MotorLocal.procesarMRP(DB_LOCAL, alphaParams, qParams);
-
-                const d = mC.ranking;
-                const ok = d.filter(x => x.ss >= lrParam).length;
-
-                // --- ACTUALIZACIÓN DE LOS KPIs ---
-                document.getElementById('m-metrics-container').innerHTML = `
-      <div class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm relative overflow-hidden group">
-        <div class="absolute top-0 right-0 w-24 h-24 bg-surface-container-low -mr-8 -mt-8 rounded-full group-hover:scale-110 transition-transform duration-500 pointer-events-none"></div>
-        <p class="text-xs font-mono uppercase tracking-widest text-outline mb-4 relative">Total Actions</p>
-        <h3 class="text-5xl font-bold font-headline text-on-surface relative">${d.length}</h3>
-        <div class="mt-4 flex items-center text-[10px] font-mono text-secondary relative"><span class="material-icons text-sm mr-1">check_circle</span>ACTIVE DATASET</div>
-      </div>
-      <div class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm relative overflow-hidden group">
-        <div class="absolute top-0 right-0 w-24 h-24 bg-green-50 -mr-8 -mt-8 rounded-full group-hover:scale-110 transition-transform duration-500 pointer-events-none"></div>
-        <p class="text-xs font-mono uppercase tracking-widest text-outline mb-4 relative">Viable (SS ≥ ${lrParam})</p>
-        <h3 class="text-5xl font-bold font-headline text-green-600 relative">${ok}</h3>
-        <p class="mt-4 text-[10px] font-mono text-green-600 uppercase relative">Optimal Alignment</p>
-      </div>
-      <div class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm relative overflow-hidden group">
-        <div class="absolute top-0 right-0 w-24 h-24 bg-red-50 -mr-8 -mt-8 rounded-full group-hover:scale-110 transition-transform duration-500 pointer-events-none"></div>
-        <p class="text-xs font-mono uppercase tracking-widest text-outline mb-4 relative">Vetoed (SS < ${lrParam})</p>
-        <h3 class="text-5xl font-bold font-headline text-error relative">${d.length - ok}</h3>
-        <p class="mt-4 text-[10px] font-mono text-error uppercase relative">Risk Threshold Breach</p>
-      </div>
-      <div class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm relative overflow-hidden group">
-        <div class="absolute top-0 right-0 w-24 h-24 bg-purple-50 -mr-8 -mt-8 rounded-full group-hover:scale-110 transition-transform duration-500 pointer-events-none"></div>
-        <p class="text-xs font-mono uppercase tracking-widest text-outline mb-4 relative">Best Score (SS)</p>
-        <h3 class="text-5xl font-bold font-headline text-[#8b3d97] relative">${d.length > 0 ? d[0].ss.toFixed(3) : '--'}</h3>
-        <p class="mt-4 text-[10px] font-mono text-[#8b3d97] uppercase relative">${d.length > 0 ? d[0].accion : ''}</p>
-      </div>`;
-
-                document.getElementById('lr-display').textContent = lrParam.toFixed(2);
-
-                // --- ACTUALIZACIÓN DE LOS PESOS CRITIC ---
-                const wC = ['#00696c', '#8b3d97', '#004655'];
-                document.getElementById('m-weights-container').innerHTML = Object.entries(mC.pesos).map(([k, v], i) => `
-      <div class="space-y-2">
-        <div class="flex justify-between text-sm font-mono font-bold uppercase">
-          <span class="text-on-surface-variant">${k}</span><span>${(v * 100).toFixed(1)}%</span>
-        </div>
-        <div class="w-full h-3 bg-white rounded-full overflow-hidden">
-          <div class="h-full rounded-full transition-all duration-700" style="width:${v * 100}%;background:${wC[i % 3]}"></div>
-        </div>
-      </div>`).join('');
-
-                // Formateador de badges
-                const fmtS = (val, isLim) => {
-                    let cls = isLim ? ' lim' : '';
-                    if (val >= 3.99) return `<span class="badge-ok${cls}">${val.toFixed(2)}</span>`;
-                    if (val <= 0.01) return `<span class="badge-ko${cls}">${val.toFixed(2)}</span>`;
-                    return `<span class="badge-n${cls}">${val.toFixed(2)}</span>`;
-                };
-
-                // --- GENERACIÓN DE LA TABLA ---
-                // Aquí es donde arreglamos los iconos y los datos
-                document.getElementById('m-table-body').innerHTML = d.map((r, i) => `
-      <tr class="hover:bg-surface-container-low/50 transition-colors group ${r.ss < lrParam ? 'bg-error-container/5' : ''}">
-        <td class="px-6 py-5 font-mono text-sm text-outline">${String(i + 1).padStart(2, '0')}</td>
-        <td class="px-6 py-5">
-          <div class="font-headline font-bold text-on-surface">${r.accion}</div>
-          <div class="text-[9px] font-bold font-mono text-secondary mt-1 tracking-widest uppercase">${r.tipo || 'BBDD'}</div>
-        </td>
-        <td class="px-6 py-5 font-mono font-bold text-lg ${r.ss < lrParam ? 'text-error' : 'text-[#8b3d97]'}">${r.ss.toFixed(3)}</td>
-        <td class="px-6 py-5"><div class="flex items-center gap-2">
-          ${fmtS(r.s_amb, r.s_amb === r.ss)}
-          ${fmtS(r.s_soc, r.s_soc === r.ss)}
-          ${fmtS(r.s_eco, r.s_eco === r.ss)}
-        </div></td>
-        <td class="px-6 py-5">${bVerd(r.ss)}</td>
-        <td class="px-6 py-5 text-right">
-          ${r.ss < lrParam ?
-                        `<span class="material-icons text-error">warning</span>` :
-                        `<button class="opacity-0 group-hover:opacity-100 material-icons text-outline transition-opacity">open_in_new</button>`}
-        </td>
-      </tr>`).join('');
-
-                // --- ACTUALIZACIÓN DEL SELECTOR EX-ANTE ---
-                const an = DB_LOCAL.filter(x => x.tipo === 'EX-ANTE').map(x => `<option value="${x.nombre}">${x.nombre}</option>`).join('');
-                document.getElementById('m-ante-sel').innerHTML = '<option value="__new__">-- Definir Nueva Acción --</option>' + an;
-
-            } catch (e) { msg('Error cargando algoritmo: ' + e.message, 'err'); console.error(e); }
-            spin(false);
-        }
-
-
-
-        function buildMCtrl() {
-            document.getElementById('ctrl-alpha-inputs').innerHTML = mrpAlpha.map((a, i) => `
-    <div class="flex items-center justify-between">
-      <label class="font-label text-sm text-on-surface-variant flex flex-col">
-        <span class="font-bold ${i === 1 ? 'text-error' : 'text-on-surface'}">Alpha ${i}</span>
-        <span class="text-[11px] opacity-60">${['Inaceptable', 'Reserva (Línea Roja)', 'Estándar', 'Rendimiento Alto', 'Ideal'][i] || ''}</span>
-      </label>
-      <input type="number" step="0.1" id="ca-${i}" value="${a}"
-        class="w-28 bg-surface-container-low border-none border-b-2 ${i === 1 ? 'border-error' : 'border-outline'} focus:ring-0 focus:border-[#8b3d97] font-mono text-right py-2 px-2 text-sm transition-all"/>
-    </div>`).join('');
-
-            document.getElementById('ctrl-lr-selector').innerHTML = mrpAlpha.map((a, i) => `
-    <button onclick="mrpLR=${a};buildMCtrl();"
-      class="flex-1 h-full rounded-full flex flex-col items-center justify-center transition-all font-mono text-xs font-bold ${mrpLR === a ? 'bg-error text-white shadow-lg shadow-error/30 ring-4 ring-red-100' : 'hover:bg-white/60 text-outline'}">
-      A${i}${mrpLR === a ? '<span style="font-size:8px;letter-spacing:0.05em;text-transform:uppercase;font-weight:700;display:block">Veto</span>' : ''}
-    </button>`).join('');
-
-            document.getElementById('ctrl-lr-text').textContent = `Bloqueo activo para valores inferiores a ${mrpLR} (Percentil Alpha ${mrpAlpha.indexOf(mrpLR)}).`;
-
-            let qh = '';
-            ['Eco', 'Amb', 'Soc'].forEach(c => {
-                qh += `<tr><td class="bg-slate-100 p-3 rounded-l font-bold text-teal-900 text-sm">${c}</td>
-    ${[0, 1, 2, 3, 4].map(i => `<td class="px-2"><input type="number" step="any" id="cq-${c}-${i}"
-      value="${mrpQ?.[c]?.[i] || mC?.umbrales?.[c]?.[i]?.valor?.toFixed(4) || ''}"
-      class="w-full bg-slate-50 border-none text-center font-mono text-xs p-2 focus:bg-white focus:ring-1 focus:ring-[#8b3d97] rounded"/></td>`).join('')}</tr>`;
+        // Pesos CRITIC data-driven
+        calcCritic(data) {
+            const n = data.length;
+            if (n < 2) return { Eco: 1/3, Amb: 1/3, Soc: 1/3 };
+            const ks = ['eco','amb','soc'];
+            const m = {}, std = {};
+            ks.forEach(k => {
+                m[k] = data.reduce((s,r) => s+r[k], 0) / n;
+                std[k] = Math.sqrt(data.reduce((s,r) => s+Math.pow(r[k]-m[k],2), 0) / (n-1));
             });
-            document.getElementById('ctrl-q-inputs').innerHTML = qh;
+            const C = {eco:0, amb:0, soc:0};
+            let sumC = 0;
+            ks.forEach(k1 => {
+                let sumR = 0;
+                ks.forEach(k2 => {
+                    if (k1===k2) return;
+                    const cov = data.reduce((s,r) => s+(r[k1]-m[k1])*(r[k2]-m[k2]), 0) / (n-1);
+                    const denom = (std[k1]*std[k2]) || 1;
+                    sumR += (1 - cov/denom);
+                });
+                C[k1] = std[k1] * sumR;
+                sumC += C[k1];
+            });
+            if (sumC === 0) return { Eco: 1/3, Amb: 1/3, Soc: 1/3 };
+            return { Eco: C.eco/sumC, Amb: C.amb/sumC, Soc: C.soc/sumC };
+        },
+
+        // Estandarización MRP por interpolación lineal entre tramos
+        // Convención de MINIMIZACIÓN: q[0]=máximo(peor·inaceptable) → q[4]=mínimo(mejor·ideal)
+        estandarizar(val, q, alpha) {
+            const qv = q.map(x => x.valor ?? x);
+            // q[0] > q[4] porque es minimización: mayor valor → peor
+
+            // Extrapolación superior: peor que inaceptable (val > q[0])
+            if (val >= qv[0]) {
+                const den = qv[0] - qv[1];
+                if (Math.abs(den) < 1e-10) return alpha[0];
+                return alpha[0] - ((alpha[1]-alpha[0])/den) * (val - qv[0]);
+            }
+            // Interpolación por tramos k=1..4
+            for (let k = 1; k <= 4; k++) {
+                if (val >= qv[k]) {
+                    const den = qv[k-1] - qv[k];
+                    if (Math.abs(den) < 1e-10) return (alpha[k-1]+alpha[k])/2;
+                    return alpha[k-1] + ((alpha[k]-alpha[k-1])/den) * (qv[k-1] - val);
+                }
+            }
+            // Extrapolación inferior: mejor que ideal (val < q[4])
+            const den = qv[3] - qv[4];
+            if (Math.abs(den) < 1e-10) return alpha[4];
+            return alpha[4] + ((alpha[4]-alpha[3])/den) * (qv[4] - val);
+        },
+
+        // Proceso MRP completo con Sostenibilidad Fuerte (Leontief)
+        procesarMRP(datos, alpha, qCustom) {
+            let umbrales = {};
+            if (qCustom && Object.keys(qCustom).length) {
+                ['Eco','Amb','Soc'].forEach(c => {
+                    umbrales[c] = qCustom[c].map(v => ({ valor: v }));
+                });
+            } else {
+                umbrales.Eco = this.getPercentiles(datos.map(d => d.eco));
+                umbrales.Amb = this.getPercentiles(datos.map(d => d.amb));
+                umbrales.Soc = this.getPercentiles(datos.map(d => d.soc));
+            }
+            const pesos = this.calcCritic(datos);
+            const ranking = datos.map(d => {
+                const s_eco = this.estandarizar(d.eco, umbrales.Eco, alpha);
+                const s_amb = this.estandarizar(d.amb, umbrales.Amb, alpha);
+                const s_soc = this.estandarizar(d.soc, umbrales.Soc, alpha);
+                const ss = Math.min(s_eco, s_amb, s_soc); // Agregación Leontief
+                return { accion: d.nombre, tipo: d.tipo, s_eco, s_amb, s_soc, ss };
+            }).sort((a,b) => b.ss - a.ss);
+            return { ranking, pesos, umbrales };
+        }
+    };
+
+    // ============================================================
+    // CAPA API LOCAL — reemplaza todos los fetch a Render
+    // ============================================================
+    async function api(url, opts = {}) {
+        // Simula latencia mínima para UX natural
+        await new Promise(r => setTimeout(r, 80));
+
+        if ((url === '/acciones' || url.startsWith('/acciones?')) && (!opts.method || opts.method === 'GET')) {
+            return DB_LOCAL.map(d => ({ nombre: d.nombre, tipo: d.tipo, eco: d.eco, amb: d.amb, soc: d.soc }));
         }
 
-        function applyMConfig() {
-            mrpAlpha = [0, 1, 2, 3, 4].map(i => parseFloat(document.getElementById('ca-' + i).value));
-            if (!mrpAlpha.includes(mrpLR)) mrpLR = mrpAlpha[1];
-            let nq = {}, val = true;
-            ['Eco', 'Amb', 'Soc'].forEach(c => { nq[c] = [0, 1, 2, 3, 4].map(i => { let v = parseFloat(document.getElementById(`cq-${c}-${i}`).value); if (isNaN(v)) val = false; return v; }); });
-            if (!val) return msg('Existen valores Q inválidos', 'err');
-            mrpQ = nq;
-            localStorage.setItem('sonya_alpha', JSON.stringify(mrpAlpha));
-            localStorage.setItem('sonya_lr', mrpLR);
-            localStorage.setItem('sonya_q', JSON.stringify(mrpQ));
-            msg('Configuración del Motor MRP Aplicada', 'ok');
-            mC = null; loadM();
+        if (url === '/acciones' && opts.method === 'POST') {
+            const p = JSON.parse(opts.body);
+            if (!DB_LOCAL.find(x => x.nombre.toLowerCase() === p.nombre.toLowerCase())) {
+                DB_LOCAL.push({ nombre: p.nombre, tipo: p.tipo || 'EX-POST', eco: parseFloat(p.eco)||0, amb: parseFloat(p.amb)||0, soc: parseFloat(p.soc)||0 });
+            }
+            return { ok: true, nombre: p.nombre };
         }
 
-        function resetMQ() {
-            mrpQ = null; localStorage.removeItem('sonya_q');
-            msg('Percentiles restaurados a modo Data-Driven', 'info');
-            mC = null; loadM(); setTimeout(() => buildMCtrl(), 500);
+        if (url.startsWith('/ranking/mrp')) {
+            const u = new URL(url, 'http://local');
+            const a = JSON.parse(u.searchParams.get('alpha') || '[0,1,2.5,3,4]');
+            const q = JSON.parse(u.searchParams.get('q') || 'null');
+            return MotorLocal.procesarMRP(DB_LOCAL, a, q || {});
         }
 
-        function addSimRow() {
-            ec++; const n = ec; const d = document.createElement('div'); d.id = `ep-${n}`;
-            const opts = accC.filter(x => x.tipo === 'EX-POST').map(x => `<option value="${x.nombre}">${x.nombre}</option>`).join('');
+        if (url.startsWith('/evaluar/mrp')) {
+            const req = JSON.parse(opts.body);
+            const ante = DB_LOCAL.find(x => x.nombre === req.ex_ante) ||
+                         { nombre: req.ex_ante, tipo:'EX-ANTE', eco:0, amb:0, soc:0 };
+            const posts = req.ex_posts.map(ep => {
+                const found = DB_LOCAL.find(x => x.nombre === ep.nombre);
+                return found || { nombre: ep.nombre, tipo:'EX-POST', eco: parseFloat(ep.eco)||0, amb: parseFloat(ep.amb)||0, soc: parseFloat(ep.soc)||0 };
+            });
+            // Simular con el conjunto EX-ANTE + EX-POST para calcular umbrales con contexto
+            const conjunto = [ante, ...posts];
+            const resultado = MotorLocal.procesarMRP(conjunto, req.alpha||[0,1,2.5,3,4], req.q||{}).ranking;
+            return { resultado: resultado.filter(r => r.tipo === 'EX-POST') };
+        }
+    }
 
-            d.innerHTML = `
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative border-l-4 border-l-secondary/60 hover:border-l-secondary transition-colors group">
-                <button onclick="document.getElementById('ep-${n}').remove()" class="absolute top-4 right-4 text-slate-300 hover:text-error transition-colors">
-                    <span class="material-symbols-outlined text-xl">cancel</span>
-                </button>
-                <div class="flex items-center gap-2 mb-4">
-                    <span class="material-symbols-outlined text-secondary text-sm">auto_awesome</span>
-                    <h4 class="font-headline font-bold text-sm text-slate-800">Escenario EX-POST ${n}</h4>
-                </div>
-                <div class="flex gap-4 mb-5">
-                    <div class="flex-1">
-                        <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Origen</label>
-                        <select id="ep-sel-${n}" onchange="document.getElementById('ep-new-${n}').style.display=(this.value==='__new__'?'block':'none')" class="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-secondary/20 transition-all">
-                            <option value="__new__">-- Definir Nueva Alternativa --</option>
-                            ${opts}
-                        </select>
-                    </div>
-                    <div class="w-24">
-                        <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1 text-center">Sat (%)</label>
-                        <input type="number" id="ep-sat-${n}" value="70" class="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-center font-label font-bold text-secondary focus:ring-2 focus:ring-secondary/20 transition-all">
-                    </div>
-                </div>
-                <div id="ep-new-${n}" class="block pt-5 border-t border-slate-100/80">
-                    <div class="grid grid-cols-3 gap-3">
-                        <div class="col-span-3">
-                            <input type="text" id="ep-nom-${n}" placeholder="Nombre descriptivo de la mejora..." class="w-full bg-slate-50 border-none rounded-xl p-3 text-sm font-body focus:ring-2 focus:ring-secondary/20 transition-shadow">
-                        </div>
-                        <div>
-                            <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">Ambiental</label>
-                            <input type="number" id="ep-amb-${n}" placeholder="Valor" class="w-full bg-slate-50 border-none rounded-lg p-2.5 pl-3 text-left font-label font-bold text-sm focus:ring-2 focus:ring-secondary/20">
-                        </div>
-                        <div>
-                            <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">Social</label>
-                            <input type="number" id="ep-soc-${n}" placeholder="Valor" class="w-full bg-slate-50 border-none rounded-lg p-2.5 pl-3 text-left font-label font-bold text-sm focus:ring-2 focus:ring-secondary/20">
-                        </div>
-                        <div>
-                            <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">Económico</label>
-                            <input type="number" id="ep-eco-${n}" placeholder="Valor" class="w-full bg-slate-50 border-none rounded-lg p-2.5 pl-3 text-left font-label font-bold text-sm focus:ring-2 focus:ring-secondary/20">
-                        </div>
-                        <div class="col-span-3 flex items-center justify-end mt-1">
-                            <label class="flex items-center gap-2 cursor-pointer group/chk">
-                                <input type="checkbox" id="ep-save-${n}" class="rounded border-slate-300 text-secondary focus:ring-secondary w-4 h-4 transition-colors">
-                                <span class="text-[10px] font-bold text-slate-400 group-hover/chk:text-secondary uppercase tracking-widest transition-colors">Guardar en BBDD</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
+    // ============================================================
+    // UI — Sin cambios respecto al original
+    // ============================================================
+    let accC = [], mC = null, ec = 0;
+    let mrpAlpha = JSON.parse(localStorage.getItem('sonya_alpha')) || [0, 1, 2.5, 3, 4];
+    let mrpLR    = parseFloat(localStorage.getItem('sonya_lr') || '1');
+    let mrpQ     = JSON.parse(localStorage.getItem('sonya_q') || 'null');
+
+    function updateArc(v) {
+        const c = Math.min(100, Math.max(0, parseFloat(v)||0));
+        const r = 56, circ = 2*Math.PI*r;
+        const el = document.getElementById('sat-arc');
+        if (el) el.setAttribute('stroke-dashoffset', circ*(1-c/100));
+    }
+
+    function msg(txt, type='info') {
+        const w = document.getElementById('toast-wrap'), t = document.createElement('div');
+        t.className = 'toast';
+        const c = type==='err'?'#ba1a1a':type==='ok'?'#00696c':'#8b3d97';
+        const ic = type==='err'?'error':type==='ok'?'check_circle':'info';
+        t.innerHTML = `<span class="material-symbols-outlined fill-icon" style="color:${c}">${ic}</span><span style="font-size:13px;font-weight:600;color:#171c1f">${txt}</span>`;
+        w.appendChild(t);
+        setTimeout(() => { t.classList.add('removing'); setTimeout(() => t.remove(), 300); }, 3200);
+    }
+
+    function spin(on, text='Calculando...') {
+        document.getElementById('spin-msg').innerText = text;
+        document.getElementById('loading').classList.toggle('show', on);
+    }
+
+    function switchInnerTab(tab, btn) {
+        document.querySelectorAll('.mrp-tab-btn').forEach(b => b.className = "mrp-tab-btn h-full border-b-[3px] border-transparent text-slate-500 hover:text-primary font-semibold text-sm tracking-wide px-2 lg:px-4 transition-all whitespace-nowrap");
+        btn.className = "mrp-tab-btn tab-active h-full border-b-[3px] border-primary text-primary font-bold text-sm tracking-wide px-2 lg:px-4 transition-all whitespace-nowrap";
+        document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
+        document.getElementById(`tab-${tab}`).classList.add('active');
+        if (tab === 'control') buildMCtrl();
+        if (tab === 'math') buildMath();
+    }
+
+    const bVerd = ss => ss >= mrpLR
+        ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full border border-green-200"><span class="w-1.5 h-1.5 rounded-full bg-green-600"></span>Viable</span>`
+        : `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-red-100 text-red-700 text-xs font-bold rounded-full border border-red-200"><span class="w-1.5 h-1.5 rounded-full bg-red-600"></span>Veto</span>`;
+
+    async function loadM() {
+        spin(true, 'Procesando matriz MRP y Sostenibilidad Fuerte...');
+        try {
+            accC = await api('/acciones');
+            const mP = '?alpha=' + JSON.stringify(mrpAlpha) + '&lr=' + mrpLR + (mrpQ ? '&q=' + JSON.stringify(mrpQ) : '');
+            mC = await api('/ranking/mrp' + mP);
+            const d = mC.ranking, ok = d.filter(x => x.ss >= mrpLR).length;
+
+            document.getElementById('m-metrics-container').innerHTML = `
+            <div class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm relative overflow-hidden group">
+              <div class="absolute top-0 right-0 w-24 h-24 bg-surface-container-low -mr-8 -mt-8 rounded-full group-hover:scale-110 transition-transform duration-500 pointer-events-none"></div>
+              <p class="text-xs font-mono uppercase tracking-widest text-outline mb-4 relative">Total Actions</p>
+              <h3 class="text-5xl font-bold font-headline text-on-surface relative">${d.length}</h3>
+              <div class="mt-4 flex items-center text-[10px] font-mono text-secondary relative"><span class="material-symbols-outlined text-sm mr-1">check_circle</span>ACTIVE DATASET</div>
+            </div>
+            <div class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm relative overflow-hidden group">
+              <div class="absolute top-0 right-0 w-24 h-24 bg-green-50 -mr-8 -mt-8 rounded-full group-hover:scale-110 transition-transform duration-500 pointer-events-none"></div>
+              <p class="text-xs font-mono uppercase tracking-widest text-outline mb-4 relative">Viable (SS ≥ ${mrpLR})</p>
+              <h3 class="text-5xl font-bold font-headline text-green-600 relative">${ok}</h3>
+              <p class="mt-4 text-[10px] font-mono text-green-600 uppercase relative">Optimal Alignment</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm relative overflow-hidden group">
+              <div class="absolute top-0 right-0 w-24 h-24 bg-red-50 -mr-8 -mt-8 rounded-full group-hover:scale-110 transition-transform duration-500 pointer-events-none"></div>
+              <p class="text-xs font-mono uppercase tracking-widest text-outline mb-4 relative">Vetadas (SS &lt; ${mrpLR})</p>
+              <h3 class="text-5xl font-bold font-headline text-error relative">${d.length - ok}</h3>
+              <p class="mt-4 text-[10px] font-mono text-error uppercase relative">Risk Threshold Breach</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm relative overflow-hidden group">
+              <div class="absolute top-0 right-0 w-24 h-24 bg-purple-50 -mr-8 -mt-8 rounded-full group-hover:scale-110 transition-transform duration-500 pointer-events-none"></div>
+              <p class="text-xs font-mono uppercase tracking-widest text-outline mb-4 relative">Best Score (SS)</p>
+              <h3 class="text-5xl font-bold font-headline text-[#8b3d97] relative">${d[0]?.ss?.toFixed(3)||'--'}</h3>
+              <p class="mt-4 text-[10px] font-mono text-[#8b3d97] uppercase relative">${d[0]?.accion||''}</p>
             </div>`;
-            document.getElementById('m-expost-list').appendChild(d);
-        }
 
-        async function runSim() {
-            const rs = document.getElementById('m-sim-res'); rs.classList.add('hidden');
-            let a = {}; const as = document.getElementById('m-ante-sel').value; const asat = parseFloat(document.getElementById('m-ante-sat').value) || 50;
-            if (as === '__new__') {
-                const n = document.getElementById('m-ante-nom').value; if (!n) return msg('Falta nombre ANTE', 'err');
-                a = { nombre: n, tipo: 'EX-ANTE', eco: parseFloat(document.getElementById('m-ante-eco').value) || 0, amb: parseFloat(document.getElementById('m-ante-amb').value) || 0, soc: parseFloat(document.getElementById('m-ante-soc').value) || 0, sat: asat, nueva: true, guardar: document.getElementById('m-ante-save').checked };
-            } else { a = { nombre: as, sat: asat, nueva: false }; }
+            document.getElementById('lr-display').textContent = mrpLR.toFixed(2);
 
-            let eps = [];
-            for (let i = 1; i <= ec; i++) {
-                let el = document.getElementById(`ep-${i}`); if (!el) continue;
-                let s = document.getElementById(`ep-sel-${i}`).value; let sat = parseFloat(document.getElementById(`ep-sat-${i}`).value) || 70;
-                if (s === '__new__') {
-                    let n = document.getElementById(`ep-nom-${i}`).value; if (!n) return msg('Nombre POST vacío', 'err');
-                    eps.push({ nombre: n, tipo: 'EX-POST', eco: parseFloat(document.getElementById(`ep-eco-${i}`).value) || 0, amb: parseFloat(document.getElementById(`ep-amb-${i}`).value) || 0, soc: parseFloat(document.getElementById(`ep-soc-${i}`).value) || 0, sat: sat, nueva: true, guardar: document.getElementById(`ep-save-${i}`).checked });
-                } else { eps.push({ nombre: s, sat: sat, nueva: false }); }
-            }
-            if (!eps.length) return msg('Añade al menos una alternativa EX-POST', 'err');
+            const wC = ['#00696c', '#8b3d97', '#004655'];
+            document.getElementById('m-weights-container').innerHTML = Object.entries(mC.pesos).map(([k,v],i) => `
+            <div class="space-y-2">
+              <div class="flex justify-between text-sm font-mono font-bold uppercase">
+                <span class="text-on-surface-variant">${k}</span><span>${(v*100).toFixed(1)}%</span>
+              </div>
+              <div class="w-full h-3 bg-white rounded-full overflow-hidden">
+                <div class="h-full rounded-full transition-all duration-700" style="width:${v*100}%;background:${wC[i%3]}"></div>
+              </div>
+            </div>`).join('');
 
-            spin(true, 'Procesando Agregación Leontief (MRP)...');
-            try {
-                let sA = [...(a.nueva && a.guardar ? [a] : []), ...eps.filter(x => x.nueva && x.guardar)];
-                for (let x of sA) await api('/acciones', { method: 'POST', body: JSON.stringify({ nombre: x.nombre, tipo: x.tipo, eco: x.eco, amb: x.amb, soc: x.soc }) });
-                if (sA.length) { accC = await api('/acciones'); mC = null; msg('Registros guardados en Memoria Local', 'ok'); }
+            const fmtS = (val, isLim) => {
+                let cls = isLim ? ' lim' : '';
+                if (val >= 3.99) return `<span class="badge-ok${cls}">${val.toFixed(2)}</span>`;
+                if (val <= 0.01) return `<span class="badge-ko${cls}">${val.toFixed(2)}</span>`;
+                return `<span class="badge-n${cls}">${val.toFixed(2)}</span>`;
+            };
 
-                const res = await api('/evaluar/mrp', { method: 'POST', body: JSON.stringify({ ex_ante: a.nombre, sat_ante: a.sat, ex_posts: eps.map(x => ({ nombre: x.nombre, sat: x.sat, ...(x.nueva ? { eco: x.eco, amb: x.amb, soc: x.soc } : {}) })), alpha: mrpAlpha, lr: mrpLR, q: mrpQ }) });
-                const ok = res.resultado.filter(x => x.ss >= mrpLR).length;
+            document.getElementById('m-table-body').innerHTML = d.map((r,i) => `
+            <tr class="hover:bg-surface-container-low/50 transition-colors group ${r.ss < mrpLR ? 'bg-error-container/5' : ''}">
+              <td class="px-6 py-5 font-mono text-sm text-outline">${String(i+1).padStart(2,'0')}</td>
+              <td class="px-6 py-5">
+                <div class="font-headline font-bold text-on-surface">${r.accion}</div>
+                <div class="text-[9px] font-bold font-mono text-secondary mt-1 tracking-widest uppercase">${r.tipo||''}</div>
+              </td>
+              <td class="px-6 py-5 font-mono font-bold text-lg ${r.ss < mrpLR ? 'text-error' : 'text-[#8b3d97]'}">${r.ss.toFixed(3)}</td>
+              <td class="px-6 py-5"><div class="flex items-center gap-2">
+                ${fmtS(r.s_amb, r.s_amb===r.ss)}
+                ${fmtS(r.s_soc, r.s_soc===r.ss)}
+                ${fmtS(r.s_eco, r.s_eco===r.ss)}
+              </div></td>
+              <td class="px-6 py-5">${bVerd(r.ss)}</td>
+              <td class="px-6 py-5 text-right">
+                ${r.ss < mrpLR ? `<span class="material-symbols-outlined fill-icon text-error">warning</span>` : `<button class="opacity-0 group-hover:opacity-100 material-symbols-outlined text-outline transition-opacity">open_in_new</button>`}
+              </td>
+            </tr>`).join('');
 
-                rs.innerHTML = `
-      <div class="flex items-center justify-between mb-8">
-        <h3 class="text-2xl font-extrabold font-headline">Análisis de Simulación MRP</h3>
-        <div class="bg-surface-container-high px-4 py-2 rounded-lg text-sm font-bold text-slate-700">${ok} de ${res.resultado.length} viables bajo Veto</div>
-      </div>
-      <div class="overflow-x-auto"><table class="w-full text-left border-collapse">
-        <thead class="bg-surface-container-low/50"><tr class="text-[10px] font-bold text-outline uppercase tracking-widest border-b border-outline-variant/10">
-          <th class="px-6 py-4">Alternativa</th><th class="px-6 py-4 text-center">Score SS</th><th class="px-6 py-4 text-center">Criterio Limitante</th><th class="px-6 py-4 text-right">Veredicto</th>
-        </tr></thead>
-        <tbody class="divide-y divide-outline-variant/10 text-sm">
-          ${res.resultado.map(x => {
-                    const vals = [x.s_eco, x.s_amb, x.s_soc]; const mi = vals.indexOf(Math.min(...vals)); const cn = ['Eco', 'Amb', 'Soc'];
-                    return `<tr class="hover:bg-slate-50 transition-colors ${x.ss < mrpLR ? 'bg-error/5' : ''}">
-              <td class="px-6 py-5 font-bold text-slate-800">${x.accion}</td>
-              <td class="px-6 py-5 text-center font-mono font-bold text-lg ${x.ss >= mrpLR ? 'text-secondary' : 'text-error'}">${x.ss.toFixed(4)}</td>
-              <td class="px-6 py-5 text-center text-xs font-bold text-outline uppercase">${cn[mi]}</td>
-              <td class="px-6 py-5 text-right">${bVerd(x.ss)}</td>
-            </tr>`;
-                }).join('')}
-        </tbody>
-      </table></div>`;
-                rs.classList.remove('hidden');
-            } catch (e) { msg(e.message, 'err'); }
-            spin(false);
-        }
+            const an = accC.filter(x => x.tipo==='EX-ANTE').map(x => `<option value="${x.nombre}">${x.nombre}</option>`).join('');
+            document.getElementById('m-ante-sel').innerHTML = '<option value="__new__">-- Definir Nueva Acción --</option>' + an;
 
-        function buildMath() {
-            if (!mC) return;
-            let qH = '';
-            ['Eco', 'Amb', 'Soc'].forEach(c => {
-                qH += `<tr class="bg-surface-container-low/50 hover:bg-surface-container-low transition-colors">
-      <td class="py-4 pl-4 font-headline font-bold text-on-surface">${c}</td>
-      ${mC.umbrales[c]?.map((v, i) => `<td class="py-4 font-mono text-sm text-center ${mrpLR === mrpAlpha[i] ? 'text-error font-bold' : ''}">${v.valor.toFixed(4)}</td>`).join('') || '<td colspan="5"></td>'}
-    </tr>`;
+        } catch(e) { msg('Error en el motor: ' + e.message, 'err'); }
+        spin(false);
+    }
+
+    function buildMCtrl() {
+        document.getElementById('ctrl-alpha-inputs').innerHTML = mrpAlpha.map((a,i) => `
+        <div class="flex items-center justify-between">
+          <label class="font-label text-sm text-on-surface-variant flex flex-col">
+            <span class="font-bold ${i===1?'text-error':'text-on-surface'}">Alpha ${i}</span>
+            <span class="text-[11px] opacity-60">${['Inaceptable','Reserva (Línea Roja)','Estándar','Rendimiento Alto','Ideal'][i]||''}</span>
+          </label>
+          <input type="number" step="0.1" id="ca-${i}" value="${a}"
+            class="w-28 bg-surface-container-low border-none border-b-2 ${i===1?'border-error':'border-outline'} focus:ring-0 focus:border-[#8b3d97] font-mono text-right py-2 px-2 text-sm transition-all"/>
+        </div>`).join('');
+
+        document.getElementById('ctrl-lr-selector').innerHTML = mrpAlpha.map((a,i) => `
+        <button onclick="mrpLR=${a};buildMCtrl();"
+          class="flex-1 h-full rounded-full flex flex-col items-center justify-center transition-all font-mono text-xs font-bold ${mrpLR===a?'bg-error text-white shadow-lg shadow-error/30 ring-4 ring-red-100':'hover:bg-white/60 text-outline'}">
+          A${i}${mrpLR===a?'<span style="font-size:8px;letter-spacing:0.05em;text-transform:uppercase;font-weight:700;display:block">Veto</span>':''}
+        </button>`).join('');
+
+        document.getElementById('ctrl-lr-text').textContent = `Bloqueo activo para valores inferiores a ${mrpLR} (Alpha[${mrpAlpha.indexOf(mrpLR)}]).`;
+
+        let qh = '';
+        ['Eco','Amb','Soc'].forEach(c => {
+            qh += `<tr><td class="bg-slate-100 p-3 rounded-l font-bold text-teal-900 text-sm">${c}</td>
+            ${[0,1,2,3,4].map(i => `<td class="px-2"><input type="number" step="any" id="cq-${c}-${i}"
+              value="${mrpQ?.[c]?.[i] || mC?.umbrales?.[c]?.[i]?.valor?.toFixed(4) || ''}"
+              class="w-full bg-slate-50 border-none text-center font-mono text-xs p-2 focus:bg-white focus:ring-1 focus:ring-[#8b3d97] rounded"/></td>`).join('')}</tr>`;
+        });
+        document.getElementById('ctrl-q-inputs').innerHTML = qh;
+    }
+
+    function applyMConfig() {
+        mrpAlpha = [0,1,2,3,4].map(i => parseFloat(document.getElementById('ca-'+i).value));
+        if (!mrpAlpha.includes(mrpLR)) mrpLR = mrpAlpha[1];
+        let nq = {}, val = true;
+        ['Eco','Amb','Soc'].forEach(c => {
+            nq[c] = [0,1,2,3,4].map(i => {
+                let v = parseFloat(document.getElementById(`cq-${c}-${i}`).value);
+                if (isNaN(v)) val = false;
+                return v;
             });
-            document.getElementById('m-math-container').innerHTML = `
-    <div class="bg-white rounded-xl p-8 shadow-sm border border-outline-variant/15">
-      <div class="flex items-center justify-between mb-6 border-b border-outline-variant/20 pb-4">
-        <h2 class="text-2xl font-bold font-headline text-[#8b3d97]">I. Estandarización a Tramos (MRP)</h2>
-        <span class="font-mono text-xs text-outline px-2 py-1 bg-surface-container rounded border border-outline-variant/20">METRIC_V01</span>
-      </div>
-      <p class="text-sm text-on-surface-variant mb-6">Traducción de los impactos físicos a la escala de logros Alfa mediante interpolación lineal entre cuartiles empíricos.</p>
-      <div class="overflow-x-auto"><table class="w-full text-left border-separate border-spacing-y-2">
-        <thead><tr class="text-outline text-xs uppercase tracking-widest font-bold">
-          <th class="pb-4 pl-4 font-label">Criterio</th>
-          <th class="pb-4 font-label text-center">q0 (Máx)</th><th class="pb-4 font-label text-center">q1</th>
-          <th class="pb-4 font-label text-center">q2 (Mediana)</th><th class="pb-4 font-label text-center">q3</th><th class="pb-4 pr-4 font-label text-center">q4 (Mín)</th>
-        </tr></thead>
-        <tbody>${qH}</tbody>
-      </table></div>
-    </div>
-    <div class="bg-white rounded-xl p-8 shadow-sm border border-outline-variant/15 mt-6">
-      <div class="flex items-center justify-between mb-6 border-b border-outline-variant/20 pb-4">
-        <h2 class="text-2xl font-bold font-headline text-[#8b3d97]">II. Sostenibilidad Fuerte (Agregación Leontief)</h2>
-        <div class="bg-slate-900 text-white px-4 py-2 rounded-lg font-mono text-sm">SS_i = min(s_Eco, s_Amb, s_Soc)</div>
-      </div>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        ${mC.ranking.map(r => `
-          <div class="p-4 rounded-lg border-l-4 ${r.ss >= mrpLR ? 'border-[#8b3d97] bg-surface-container' : 'border-error bg-error-container/10'}">
-            <p class="text-[10px] text-outline uppercase font-bold mb-1">Acción</p>
-            <p class="font-headline font-extrabold text-on-surface text-sm">${r.accion}</p>
-            <div class="mt-2 text-2xl font-mono font-bold ${r.ss >= mrpLR ? 'text-[#8b3d97]' : 'text-error'}">SS ${r.ss.toFixed(2)}</div>
-          </div>`).join('')}
-      </div>
-      <div class="overflow-x-auto"><table class="w-full text-left">
-        <thead class="border-b border-surface-container-high">
-          <tr class="text-outline text-[10px] uppercase tracking-wider font-black">
-            <th class="py-3 px-2">Acción</th><th class="py-3 px-2">Logro s_Eco</th>
-            <th class="py-3 px-2">Logro s_Amb</th><th class="py-3 px-2">Logro s_Soc</th><th class="py-3 px-2 text-right">SS Final</th>
-          </tr>
-        </thead>
-        <tbody class="font-mono text-xs">
-          ${mC.ranking.map(r => `<tr class="border-b border-surface-container/50 hover:bg-surface-container-low/30 transition-colors">
-            <td class="py-3 px-2 font-headline font-bold text-on-surface">${r.accion}</td>
-            <td class="py-3 px-2 ${r.s_eco === r.ss ? 'text-error font-bold underline underline-offset-4' : 'text-slate-500'}">${r.s_eco.toFixed(4)}</td>
-            <td class="py-3 px-2 ${r.s_amb === r.ss ? 'text-error font-bold underline underline-offset-4' : 'text-slate-500'}">${r.s_amb.toFixed(4)}</td>
-            <td class="py-3 px-2 ${r.s_soc === r.ss ? 'text-error font-bold underline underline-offset-4' : 'text-slate-500'}">${r.s_soc.toFixed(4)}</td>
-            <td class="py-3 px-2 text-right font-bold text-sm ${r.ss >= mrpLR ? 'text-[#8b3d97]' : 'text-error'}">${r.ss.toFixed(4)}</td>
-          </tr>`).join('')}
-        </tbody>
-      </table></div>
-    </div>`;
+        });
+        if (!val) return msg('Existen valores Q inválidos', 'err');
+        mrpQ = nq;
+        localStorage.setItem('sonya_alpha', JSON.stringify(mrpAlpha));
+        localStorage.setItem('sonya_lr', mrpLR);
+        localStorage.setItem('sonya_q', JSON.stringify(mrpQ));
+        msg('Configuración del Motor MRP Aplicada', 'ok');
+        mC = null; loadM();
+    }
+
+    function resetMQ() {
+        mrpQ = null; localStorage.removeItem('sonya_q');
+        msg('Percentiles restaurados a modo Data-Driven', 'info');
+        mC = null; loadM(); setTimeout(() => buildMCtrl(), 500);
+    }
+
+    function addSimRow() {
+        ec++; const n = ec; const d = document.createElement('div'); d.id = `ep-${n}`;
+        const opts = accC.filter(x => x.tipo==='EX-POST').map(x => `<option value="${x.nombre}">${x.nombre}</option>`).join('');
+        d.innerHTML = `
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative border-l-4 border-l-secondary/60 hover:border-l-secondary transition-colors group">
+            <button onclick="document.getElementById('ep-${n}').remove()" class="absolute top-4 right-4 text-slate-300 hover:text-error transition-colors">
+                <span class="material-symbols-outlined text-xl">cancel</span>
+            </button>
+            <div class="flex items-center gap-2 mb-4">
+                <span class="material-symbols-outlined text-secondary text-sm">auto_awesome</span>
+                <h4 class="font-headline font-bold text-sm text-slate-800">Escenario EX-POST ${n}</h4>
+            </div>
+            <div class="flex gap-4 mb-5">
+                <div class="flex-1">
+                    <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Origen</label>
+                    <select id="ep-sel-${n}" onchange="document.getElementById('ep-new-${n}').style.display=(this.value==='__new__'?'block':'none')" class="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-secondary/20 transition-all">
+                        <option value="__new__">-- Definir Nueva Alternativa --</option>${opts}
+                    </select>
+                </div>
+                <div class="w-24">
+                    <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1 text-center">Sat (%)</label>
+                    <input type="number" id="ep-sat-${n}" value="70" class="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-center font-label font-bold text-secondary focus:ring-2 focus:ring-secondary/20 transition-all">
+                </div>
+            </div>
+            <div id="ep-new-${n}" class="block pt-5 border-t border-slate-100/80">
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="col-span-3"><input type="text" id="ep-nom-${n}" placeholder="Nombre descriptivo de la mejora..." class="w-full bg-slate-50 border-none rounded-xl p-3 text-sm font-body focus:ring-2 focus:ring-secondary/20 transition-shadow"></div>
+                    <div><label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">Ambiental</label><input type="number" id="ep-amb-${n}" placeholder="Valor" class="w-full bg-slate-50 border-none rounded-lg p-2.5 pl-3 font-label font-bold text-sm focus:ring-2 focus:ring-secondary/20"></div>
+                    <div><label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">Social</label><input type="number" id="ep-soc-${n}" placeholder="Valor" class="w-full bg-slate-50 border-none rounded-lg p-2.5 pl-3 font-label font-bold text-sm focus:ring-2 focus:ring-secondary/20"></div>
+                    <div><label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">Económico</label><input type="number" id="ep-eco-${n}" placeholder="Valor" class="w-full bg-slate-50 border-none rounded-lg p-2.5 pl-3 font-label font-bold text-sm focus:ring-2 focus:ring-secondary/20"></div>
+                    <div class="col-span-3 flex items-center justify-end mt-1">
+                        <label class="flex items-center gap-2 cursor-pointer group/chk">
+                            <input type="checkbox" id="ep-save-${n}" class="rounded border-slate-300 text-secondary focus:ring-secondary w-4 h-4 transition-colors">
+                            <span class="text-[10px] font-bold text-slate-400 group-hover/chk:text-secondary uppercase tracking-widest transition-colors">Guardar en BBDD</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+        document.getElementById('m-expost-list').appendChild(d);
+    }
+
+    async function runSim() {
+        const rs = document.getElementById('m-sim-res'); rs.classList.add('hidden');
+        let a = {}; const as = document.getElementById('m-ante-sel').value; const asat = parseFloat(document.getElementById('m-ante-sat').value)||50;
+        if (as==='__new__') {
+            const n = document.getElementById('m-ante-nom').value; if (!n) return msg('Falta nombre ANTE', 'err');
+            a = { nombre:n, tipo:'EX-ANTE', eco:parseFloat(document.getElementById('m-ante-eco').value)||0, amb:parseFloat(document.getElementById('m-ante-amb').value)||0, soc:parseFloat(document.getElementById('m-ante-soc').value)||0, sat:asat, nueva:true, guardar:document.getElementById('m-ante-save').checked };
+        } else { a = { nombre:as, sat:asat, nueva:false }; }
+
+        let eps = [];
+        for (let i=1; i<=ec; i++) {
+            let el = document.getElementById(`ep-${i}`); if (!el) continue;
+            let s = document.getElementById(`ep-sel-${i}`).value; let sat = parseFloat(document.getElementById(`ep-sat-${i}`).value)||70;
+            if (s==='__new__') {
+                let n = document.getElementById(`ep-nom-${i}`).value; if (!n) return msg('Nombre POST vacío', 'err');
+                eps.push({ nombre:n, tipo:'EX-POST', eco:parseFloat(document.getElementById(`ep-eco-${i}`).value)||0, amb:parseFloat(document.getElementById(`ep-amb-${i}`).value)||0, soc:parseFloat(document.getElementById(`ep-soc-${i}`).value)||0, sat, nueva:true, guardar:document.getElementById(`ep-save-${i}`).checked });
+            } else { eps.push({ nombre:s, sat, nueva:false }); }
         }
+        if (!eps.length) return msg('Añade al menos una alternativa EX-POST', 'err');
 
-        window.onload = loadM;
+        spin(true, 'Procesando Agregación Leontief (MRP)...');
+        try {
+            // Guardar en BBDD local si se marcó el checkbox
+            const sA = [...(a.nueva && a.guardar ? [a] : []), ...eps.filter(x=>x.nueva && x.guardar)];
+            for (let x of sA) await api('/acciones', { method:'POST', body:JSON.stringify({ nombre:x.nombre, tipo:x.tipo, eco:x.eco, amb:x.amb, soc:x.soc }) });
+            if (sA.length) { accC = await api('/acciones'); mC = null; msg('Registros guardados en la sesión', 'ok'); }
+
+            const res = await api('/evaluar/mrp', { method:'POST', body:JSON.stringify({ ex_ante:a.nombre, sat_ante:a.sat, ex_posts:eps.map(x=>({ nombre:x.nombre, sat:x.sat, ...(x.nueva?{eco:x.eco,amb:x.amb,soc:x.soc}:{}) })), alpha:mrpAlpha, lr:mrpLR, q:mrpQ }) });
+            const ok = res.resultado.filter(x=>x.ss>=mrpLR).length;
+
+            rs.innerHTML = `
+            <div class="flex items-center justify-between mb-8">
+              <h3 class="text-2xl font-extrabold font-headline">Análisis de Simulación MRP</h3>
+              <div class="bg-surface-container-high px-4 py-2 rounded-lg text-sm font-bold text-slate-700">${ok} de ${res.resultado.length} viables bajo Veto</div>
+            </div>
+            <div class="overflow-x-auto"><table class="w-full text-left border-collapse">
+              <thead class="bg-surface-container-low/50"><tr class="text-[10px] font-bold text-outline uppercase tracking-widest border-b border-outline-variant/10">
+                <th class="px-6 py-4">Alternativa</th><th class="px-6 py-4 text-center">Score SS</th><th class="px-6 py-4 text-center">Criterio Limitante</th><th class="px-6 py-4 text-right">Veredicto</th>
+              </tr></thead>
+              <tbody class="divide-y divide-outline-variant/10 text-sm">
+                ${res.resultado.map(x => {
+                    const vals=[x.s_eco,x.s_amb,x.s_soc]; const mi=vals.indexOf(Math.min(...vals)); const cn=['Eco','Amb','Soc'];
+                    return `<tr class="hover:bg-slate-50 transition-colors ${x.ss<mrpLR?'bg-error/5':''}">
+                      <td class="px-6 py-5 font-bold text-slate-800">${x.accion}</td>
+                      <td class="px-6 py-5 text-center font-mono font-bold text-lg ${x.ss>=mrpLR?'text-secondary':'text-error'}">${x.ss.toFixed(4)}</td>
+                      <td class="px-6 py-5 text-center text-xs font-bold text-outline uppercase">${cn[mi]}</td>
+                      <td class="px-6 py-5 text-right">${bVerd(x.ss)}</td>
+                    </tr>`;
+                }).join('')}
+              </tbody>
+            </table></div>`;
+            rs.classList.remove('hidden');
+        } catch(e) { msg(e.message, 'err'); }
+        spin(false);
+    }
+
+    function buildMath() {
+        if (!mC) return;
+        let qH = '';
+        ['Eco','Amb','Soc'].forEach(c => {
+            qH += `<tr class="bg-surface-container-low/50 hover:bg-surface-container-low transition-colors">
+            <td class="py-4 pl-4 font-headline font-bold text-on-surface">${c}</td>
+            ${mC.umbrales[c]?.map((v,i) => `<td class="py-4 font-mono text-sm text-center ${mrpLR===mrpAlpha[i]?'text-error font-bold':''}">${v.valor.toFixed(4)}</td>`).join('') || '<td colspan="5"></td>'}
+            </tr>`;
+        });
+        document.getElementById('m-math-container').innerHTML = `
+        <div class="bg-white rounded-xl p-8 shadow-sm border border-outline-variant/15">
+          <div class="flex items-center justify-between mb-6 border-b border-outline-variant/20 pb-4">
+            <h2 class="text-2xl font-bold font-headline text-[#8b3d97]">I. Estandarización a Tramos (MRP)</h2>
+            <span class="font-mono text-xs text-outline px-2 py-1 bg-surface-container rounded border border-outline-variant/20">METRIC_V01</span>
+          </div>
+          <p class="text-sm text-on-surface-variant mb-6">Traducción de los impactos físicos a la escala de logros Alfa (α). Para MINIMIZACIÓN: q0=máximo (peor·inaceptable) → q4=mínimo (mejor·ideal).</p>
+          <div class="overflow-x-auto"><table class="w-full text-left border-separate border-spacing-y-2">
+            <thead><tr class="text-outline text-xs uppercase tracking-widest font-bold">
+              <th class="pb-4 pl-4 font-label">Criterio</th>
+              <th class="pb-4 font-label text-center">q0 (Máx·Peor)</th><th class="pb-4 font-label text-center">q1 (75%)</th>
+              <th class="pb-4 font-label text-center">q2 (Mediana)</th><th class="pb-4 font-label text-center">q3 (25%)</th><th class="pb-4 pr-4 font-label text-center">q4 (Mín·Ideal)</th>
+            </tr></thead>
+            <tbody>${qH}</tbody>
+          </table></div>
+        </div>
+        <div class="bg-white rounded-xl p-8 shadow-sm border border-outline-variant/15 mt-6">
+          <div class="flex items-center justify-between mb-6 border-b border-outline-variant/20 pb-4">
+            <h2 class="text-2xl font-bold font-headline text-[#8b3d97]">II. Sostenibilidad Fuerte (Agregación Leontief)</h2>
+            <div class="bg-slate-900 text-white px-4 py-2 rounded-lg font-mono text-sm">SS_i = min(s_Eco, s_Amb, s_Soc)</div>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            ${mC.ranking.map(r => `
+            <div class="p-4 rounded-lg border-l-4 ${r.ss>=mrpLR?'border-[#8b3d97] bg-surface-container':'border-error bg-error-container/10'}">
+              <p class="text-[10px] text-outline uppercase font-bold mb-1">Acción</p>
+              <p class="font-headline font-extrabold text-on-surface text-sm">${r.accion}</p>
+              <div class="mt-2 text-2xl font-mono font-bold ${r.ss>=mrpLR?'text-[#8b3d97]':'text-error'}">SS ${r.ss.toFixed(2)}</div>
+            </div>`).join('')}
+          </div>
+          <div class="overflow-x-auto"><table class="w-full text-left">
+            <thead class="border-b border-surface-container-high">
+              <tr class="text-outline text-[10px] uppercase tracking-wider font-black">
+                <th class="py-3 px-2">Acción</th><th class="py-3 px-2">Logro s_Eco</th>
+                <th class="py-3 px-2">Logro s_Amb</th><th class="py-3 px-2">Logro s_Soc</th><th class="py-3 px-2 text-right">SS Final</th>
+              </tr>
+            </thead>
+            <tbody class="font-mono text-xs">
+              ${mC.ranking.map(r => `<tr class="border-b border-surface-container/50 hover:bg-surface-container-low/30 transition-colors">
+                <td class="py-3 px-2 font-headline font-bold text-on-surface">${r.accion}</td>
+                <td class="py-3 px-2 ${r.s_eco===r.ss?'text-error font-bold underline underline-offset-4':'text-slate-500'}">${r.s_eco.toFixed(4)}</td>
+                <td class="py-3 px-2 ${r.s_amb===r.ss?'text-error font-bold underline underline-offset-4':'text-slate-500'}">${r.s_amb.toFixed(4)}</td>
+                <td class="py-3 px-2 ${r.s_soc===r.ss?'text-error font-bold underline underline-offset-4':'text-slate-500'}">${r.s_soc.toFixed(4)}</td>
+                <td class="py-3 px-2 text-right font-bold text-sm ${r.ss>=mrpLR?'text-[#8b3d97]':'text-error'}">${r.ss.toFixed(4)}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table></div>
+          <p class="text-xs text-outline mt-6 italic flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-error flex-shrink-0"></span>En rojo subrayado: criterio limitante que dicta el SS por sostenibilidad fuerte.</p>
+        </div>`;
+    }
+
+    window.onload = loadM;
     </script>
-
 </body>
-
 </html>
