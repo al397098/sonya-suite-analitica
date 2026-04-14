@@ -10,6 +10,7 @@
         rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script id="tailwind-config">
         tailwind.config = {
@@ -905,14 +906,18 @@
     </div>
     <script>
         // ==========================================
-        // 1. BASE DE DATOS LOCAL EN MEMORIA
+        // 1. GESTOR DE DATOS REALES (Persistencia Local)
         // ==========================================
-        let DB_LOCAL = [
-            { nombre: "Microbus Eléctrico", tipo: "EX-ANTE", eco: 5920.13, amb: 68.38, soc: 960377.53 },
-            { nombre: "Paneles Solares", tipo: "EX-ANTE", eco: 1500.5, amb: 85.2, soc: 450000 },
-            { nombre: "Sistema Telemático", tipo: "EX-POST", eco: 431.63, amb: 5.73, soc: 77257.43 },
-            { nombre: "Ruta Deficiente", tipo: "EX-POST", eco: 50.00, amb: 5.00, soc: 12000.00 }
-        ];
+        const SONYA_STORAGE_KEY = 'sonya_data_bbdd';
+
+        function obtenerDatosDeBBDD() {
+            const datosGuardados = localStorage.getItem(SONYA_STORAGE_KEY);
+            // Si no hay datos, devuelve un array vacío (así no inventa nombres raros)
+            return datosGuardados ? JSON.parse(datosGuardados) : [];
+        }
+
+        // Inicializamos la variable con tus datos reales
+        let DB_LOCAL = obtenerDatosDeBBDD();
 
         // ==========================================
         // 2. MOTOR MATEMÁTICO CLIENT-SIDE (Cerebro)
@@ -990,33 +995,44 @@
                 return { ranking, pesos, umbrales };
             }
         };
-
         // ==========================================
-        // 3. INTERCEPTOR DE API (Reemplaza los fetch a Render)
+        // 3. INTERCEPTOR DE API ACTUALIZADO (Persistencia)
         // ==========================================
         async function api(url, opts = {}) {
-            await new Promise(r => setTimeout(r, 250)); // Simula latencia para UX
+            // Refresca los datos antes de cualquier acción
+            DB_LOCAL = obtenerDatosDeBBDD();
+            await new Promise(r => setTimeout(r, 100)); // Simula latencia para UX
 
-            if (url.startsWith('/acciones') && (!opts.method || opts.method === 'GET')) return DB_LOCAL;
+            // Cuando la web pide la lista de acciones (GET)
+            if (url.startsWith('/acciones') && (!opts.method || opts.method === 'GET')) {
+                return DB_LOCAL;
+            }
 
+            // Cuando creas una nueva simulación y le das a "Guardar" (POST)
             if (url.startsWith('/acciones') && opts.method === 'POST') {
-                DB_LOCAL.push(JSON.parse(opts.body));
+                const nuevaAccion = JSON.parse(opts.body);
+                DB_LOCAL.push(nuevaAccion);
+                // ESTA LÍNEA ES LA MAGIA: Guarda permanentemente en el navegador
+                localStorage.setItem(SONYA_STORAGE_KEY, JSON.stringify(DB_LOCAL));
                 return { msg: "ok" };
             }
+
+            // Cuando pide el ranking Global
             if (url.startsWith('/ranking/mrp')) {
                 let urlObj = new URL(url, 'http://local');
                 let a = JSON.parse(urlObj.searchParams.get('alpha') || '[0,1,2.5,3,4]');
                 let q = JSON.parse(urlObj.searchParams.get('q') || 'null');
                 return MotorLocal.procesarMRP(DB_LOCAL, a, q);
             }
+
+            // Cuando ejecuta la simulación comparativa
             if (url.startsWith('/evaluar/mrp')) {
                 let req = JSON.parse(opts.body);
-                let ex_ante = DB_LOCAL.find(x => x.nombre === req.ex_ante);
+                let ex_ante = DB_LOCAL.find(x => x.nombre === req.ex_ante) || req.ex_ante;
                 let items = [ex_ante, ...req.ex_posts];
                 return { resultado: MotorLocal.procesarMRP(items, req.alpha, req.q).ranking };
             }
         }
-
         // ==========================================
         // 4. LÓGICA DE UI ORIGINAL (Sin cambios drásticos)
         // ==========================================
@@ -1064,43 +1080,53 @@
         const bVerd = ss => ss >= mrpLR
             ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full border border-green-200"><span class="w-1.5 h-1.5 rounded-full bg-green-600"></span>Viable</span>`
             : `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-red-100 text-red-700 text-xs font-bold rounded-full border border-red-200"><span class="w-1.5 h-1.5 rounded-full bg-red-600"></span>Veto</span>`;
-
         async function loadM() {
             spin(true, 'Procesando matriz MRP y Sostenibilidad Fuerte...');
             try {
+                // 1. Cargamos los datos locales simulando la llamada a la API
                 if (!accC.length) accC = await api('/acciones');
-                const mP = '?alpha=' + JSON.stringify(mrpAlpha) + '&lr=' + mrpLR + (mrpQ ? '&q=' + JSON.stringify(mrpQ) : '');
-                mC = await api('/ranking/mrp' + mP);
-                const d = mC.ranking, ok = d.filter(x => x.ss >= mrpLR).length;
 
+                // 2. Preparamos los parámetros del motor
+                const alphaParams = mrpAlpha || [0, 1, 2.5, 3, 4];
+                const lrParam = mrpLR || 1.0;
+                const qParams = mrpQ || null;
+
+                // 3. Ejecutamos el motor local
+                mC = MotorLocal.procesarMRP(DB_LOCAL, alphaParams, qParams);
+
+                const d = mC.ranking;
+                const ok = d.filter(x => x.ss >= lrParam).length;
+
+                // --- ACTUALIZACIÓN DE LOS KPIs ---
                 document.getElementById('m-metrics-container').innerHTML = `
       <div class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm relative overflow-hidden group">
         <div class="absolute top-0 right-0 w-24 h-24 bg-surface-container-low -mr-8 -mt-8 rounded-full group-hover:scale-110 transition-transform duration-500 pointer-events-none"></div>
         <p class="text-xs font-mono uppercase tracking-widest text-outline mb-4 relative">Total Actions</p>
         <h3 class="text-5xl font-bold font-headline text-on-surface relative">${d.length}</h3>
-        <div class="mt-4 flex items-center text-[10px] font-mono text-secondary relative"><span class="material-symbols-outlined text-sm mr-1">check_circle</span>ACTIVE DATASET</div>
+        <div class="mt-4 flex items-center text-[10px] font-mono text-secondary relative"><span class="material-icons text-sm mr-1">check_circle</span>ACTIVE DATASET</div>
       </div>
       <div class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm relative overflow-hidden group">
         <div class="absolute top-0 right-0 w-24 h-24 bg-green-50 -mr-8 -mt-8 rounded-full group-hover:scale-110 transition-transform duration-500 pointer-events-none"></div>
-        <p class="text-xs font-mono uppercase tracking-widest text-outline mb-4 relative">Viable (SS ≥ ${mrpLR})</p>
+        <p class="text-xs font-mono uppercase tracking-widest text-outline mb-4 relative">Viable (SS ≥ ${lrParam})</p>
         <h3 class="text-5xl font-bold font-headline text-green-600 relative">${ok}</h3>
         <p class="mt-4 text-[10px] font-mono text-green-600 uppercase relative">Optimal Alignment</p>
       </div>
       <div class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm relative overflow-hidden group">
         <div class="absolute top-0 right-0 w-24 h-24 bg-red-50 -mr-8 -mt-8 rounded-full group-hover:scale-110 transition-transform duration-500 pointer-events-none"></div>
-        <p class="text-xs font-mono uppercase tracking-widest text-outline mb-4 relative">Vetoed (SS < ${mrpLR})</p>
+        <p class="text-xs font-mono uppercase tracking-widest text-outline mb-4 relative">Vetoed (SS < ${lrParam})</p>
         <h3 class="text-5xl font-bold font-headline text-error relative">${d.length - ok}</h3>
         <p class="mt-4 text-[10px] font-mono text-error uppercase relative">Risk Threshold Breach</p>
       </div>
       <div class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm relative overflow-hidden group">
         <div class="absolute top-0 right-0 w-24 h-24 bg-purple-50 -mr-8 -mt-8 rounded-full group-hover:scale-110 transition-transform duration-500 pointer-events-none"></div>
         <p class="text-xs font-mono uppercase tracking-widest text-outline mb-4 relative">Best Score (SS)</p>
-        <h3 class="text-5xl font-bold font-headline text-[#8b3d97] relative">${d[0]?.ss?.toFixed(3) || '--'}</h3>
-        <p class="mt-4 text-[10px] font-mono text-[#8b3d97] uppercase relative">${d[0]?.accion || ''}</p>
+        <h3 class="text-5xl font-bold font-headline text-[#8b3d97] relative">${d.length > 0 ? d[0].ss.toFixed(3) : '--'}</h3>
+        <p class="mt-4 text-[10px] font-mono text-[#8b3d97] uppercase relative">${d.length > 0 ? d[0].accion : ''}</p>
       </div>`;
 
-                document.getElementById('lr-display').textContent = mrpLR.toFixed(2);
+                document.getElementById('lr-display').textContent = lrParam.toFixed(2);
 
+                // --- ACTUALIZACIÓN DE LOS PESOS CRITIC ---
                 const wC = ['#00696c', '#8b3d97', '#004655'];
                 document.getElementById('m-weights-container').innerHTML = Object.entries(mC.pesos).map(([k, v], i) => `
       <div class="space-y-2">
@@ -1112,6 +1138,7 @@
         </div>
       </div>`).join('');
 
+                // Formateador de badges
                 const fmtS = (val, isLim) => {
                     let cls = isLim ? ' lim' : '';
                     if (val >= 3.99) return `<span class="badge-ok${cls}">${val.toFixed(2)}</span>`;
@@ -1119,14 +1146,16 @@
                     return `<span class="badge-n${cls}">${val.toFixed(2)}</span>`;
                 };
 
+                // --- GENERACIÓN DE LA TABLA ---
+                // Aquí es donde arreglamos los iconos y los datos
                 document.getElementById('m-table-body').innerHTML = d.map((r, i) => `
-      <tr class="hover:bg-surface-container-low/50 transition-colors group ${r.ss < mrpLR ? 'bg-error-container/5' : ''}">
+      <tr class="hover:bg-surface-container-low/50 transition-colors group ${r.ss < lrParam ? 'bg-error-container/5' : ''}">
         <td class="px-6 py-5 font-mono text-sm text-outline">${String(i + 1).padStart(2, '0')}</td>
         <td class="px-6 py-5">
           <div class="font-headline font-bold text-on-surface">${r.accion}</div>
-          <div class="text-[9px] font-bold font-mono text-secondary mt-1 tracking-widest uppercase">${r.tipo || ''}</div>
+          <div class="text-[9px] font-bold font-mono text-secondary mt-1 tracking-widest uppercase">${r.tipo || 'BBDD'}</div>
         </td>
-        <td class="px-6 py-5 font-mono font-bold text-lg ${r.ss < mrpLR ? 'text-error' : 'text-[#8b3d97]'}">${r.ss.toFixed(3)}</td>
+        <td class="px-6 py-5 font-mono font-bold text-lg ${r.ss < lrParam ? 'text-error' : 'text-[#8b3d97]'}">${r.ss.toFixed(3)}</td>
         <td class="px-6 py-5"><div class="flex items-center gap-2">
           ${fmtS(r.s_amb, r.s_amb === r.ss)}
           ${fmtS(r.s_soc, r.s_soc === r.ss)}
@@ -1134,16 +1163,21 @@
         </div></td>
         <td class="px-6 py-5">${bVerd(r.ss)}</td>
         <td class="px-6 py-5 text-right">
-          ${r.ss < mrpLR ? `<span class="material-symbols-outlined fill-icon text-error">warning</span>` : `<button class="opacity-0 group-hover:opacity-100 material-symbols-outlined text-outline transition-opacity">open_in_new</button>`}
+          ${r.ss < lrParam ?
+                        `<span class="material-icons text-error">warning</span>` :
+                        `<button class="opacity-0 group-hover:opacity-100 material-icons text-outline transition-opacity">open_in_new</button>`}
         </td>
       </tr>`).join('');
 
-                const an = accC.filter(x => x.tipo === 'EX-ANTE').map(x => `<option value="${x.nombre}">${x.nombre}</option>`).join('');
+                // --- ACTUALIZACIÓN DEL SELECTOR EX-ANTE ---
+                const an = DB_LOCAL.filter(x => x.tipo === 'EX-ANTE').map(x => `<option value="${x.nombre}">${x.nombre}</option>`).join('');
                 document.getElementById('m-ante-sel').innerHTML = '<option value="__new__">-- Definir Nueva Acción --</option>' + an;
 
-            } catch (e) { msg('Error cargando algoritmo: ' + e.message, 'err'); }
+            } catch (e) { msg('Error cargando algoritmo: ' + e.message, 'err'); console.error(e); }
             spin(false);
         }
+
+
 
         function buildMCtrl() {
             document.getElementById('ctrl-alpha-inputs').innerHTML = mrpAlpha.map((a, i) => `
