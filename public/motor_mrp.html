@@ -817,16 +817,19 @@ return { Amb: C.amb/sumC, Soc: C.soc/sumC, Eco: C.eco/sumC };
           <div class="overflow-x-auto"><table class="w-full text-left">
             <thead class="border-b border-surface-container-high">
               <tr class="text-outline text-[10px] uppercase tracking-wider font-black">
-                <th class="py-3 px-2">Acción</th><th class="py-3 px-2">Logro s_Eco</th>
-                <th class="py-3 px-2">Logro s_Amb</th><th class="py-3 px-2">Logro s_Soc</th><th class="py-3 px-2 text-right">SS Final</th>
+                <th class="py-3 px-2">Acción</th>
+                <th class="py-3 px-2">Logro s_Amb</th>
+                <th class="py-3 px-2">Logro s_Soc</th>
+                <th class="py-3 px-2">Logro s_Eco</th>
+                <th class="py-3 px-2 text-right">SS Final</th>
               </tr>
             </thead>
             <tbody class="font-mono text-xs">
               ${mC.ranking.map(r => `<tr class="border-b border-surface-container/50 hover:bg-surface-container-low/30 transition-colors">
                 <td class="py-3 px-2 font-headline font-bold text-on-surface">${r.accion}</td>
-                <td class="py-3 px-2 ${r.s_eco===r.ss?'text-error font-bold underline underline-offset-4':'text-slate-500'}">${r.s_eco.toFixed(4)}</td>
                 <td class="py-3 px-2 ${r.s_amb===r.ss?'text-error font-bold underline underline-offset-4':'text-slate-500'}">${r.s_amb.toFixed(4)}</td>
                 <td class="py-3 px-2 ${r.s_soc===r.ss?'text-error font-bold underline underline-offset-4':'text-slate-500'}">${r.s_soc.toFixed(4)}</td>
+                <td class="py-3 px-2 ${r.s_eco===r.ss?'text-error font-bold underline underline-offset-4':'text-slate-500'}">${r.s_eco.toFixed(4)}</td>
                 <td class="py-3 px-2 text-right font-bold text-sm ${r.ss>=mrpLR?'text-[#8b3d97]':'text-error'}">${r.ss.toFixed(4)}</td>
               </tr>`).join('')}
             </tbody>
