@@ -26,17 +26,16 @@
             "surface-container-highest": "#dfe3e7", "outline": "#6f797c", "outline-variant": "#bfc8cc",
             "on-surface-variant": "#3f484c", "accent-purple": "#9333ea", "accent-magenta": "#d946ef"
           },
-          fontFamily: {
-            "headline": ["Manrope", "sans-serif"], "body": ["Inter", "sans-serif"],
-            "mono": ["JetBrains Mono", "monospace"], "label": ["Space Grotesk", "sans-serif"]
-          },
+          fontFamily: { "headline": ["Manrope", "sans-serif"], "body": ["Inter", "sans-serif"], "mono": ["JetBrains Mono", "monospace"], "label": ["Space Grotesk", "sans-serif"] },
           borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "2xl": "0.75rem", "full": "9999px" },
         }
       }
     }
   </script>
   <style>
-    * {
+    *,
+    *::before,
+    *::after {
       box-sizing: border-box;
     }
 
@@ -242,60 +241,58 @@
   <div id="loading">
     <div class="bg-white p-8 rounded-2xl border border-outline-variant/30 shadow-2xl flex flex-col items-center gap-5">
       <div class="spinner"></div>
-      <p id="spin-msg" class="text-sm font-bold text-slate-600 font-headline">Sincronizando BBDD...</p>
+      <p id="spin-msg" class="text-sm font-bold text-slate-600 font-headline">Procesando...</p>
     </div>
   </div>
   <div class="toast-wrap" id="toast-wrap"></div>
 
-  <!-- ═══ SIDEBAR ═══ -->
+  <!-- SIDEBAR -->
   <aside
     class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-[#f8faff] border-r border-slate-200/70 z-40">
     <div class="p-6 flex flex-col h-full">
-      <a href="index.html" class="flex items-center gap-3 mb-10">
-        <div class="mb-10 cursor-pointer transition-transform hover:scale-105 origin-left"
-          onclick="location.href='index.html'">
-          <img src="logo_sonya.png" alt="SONYA Suite Analítica" class="h-10 w-auto object-contain">
-        </div>
-      </a>
+      <div class="mb-10 cursor-pointer transition-transform hover:scale-105 origin-left"
+        onclick="location.href='../index.html'">
+        <img src="logo_sonya.png" alt="SONYA Suite Analítica" class="h-10 w-auto object-contain">
+      </div>
       <nav class="space-y-1.5 flex-1">
-        <a href="../index.html" class="snav-link">
-          <span class="material-symbols-outlined text-xl">grid_view</span> Dashboard
-        </a>
-
-        <a href="gestion_bbdd.html" class="snav-link active">
-          <span class="material-symbols-outlined fill-icon text-xl">database</span> BBDD
-        </a>
-
-        <a href="motor_mrp.html" class="snav-link">
-          <span class="material-symbols-outlined text-xl">analytics</span> Motor MRP
-        </a>
-
-        <a href="motor_topsis.html" class="snav-link">
-          <span class="material-symbols-outlined text-xl">insights</span> Motor TOPSIS
-        </a>
+        <a href="../index.html" class="snav-link"><span
+            class="material-symbols-outlined text-xl">grid_view</span>Dashboard</a>
+        <a href="gestion_bbdd.html" class="snav-link active"><span
+            class="material-symbols-outlined fill-icon text-xl">database</span>BBDD</a>
+        <a href="motor_mrp.html" class="snav-link"><span class="material-symbols-outlined text-xl">analytics</span>Motor
+          MRP</a>
+        <a href="motor_topsis.html" class="snav-link"><span
+            class="material-symbols-outlined text-xl">insights</span>Motor TOPSIS</a>
       </nav>
       <div class="mt-6 p-5 bg-gradient-to-br from-white to-purple-50/40 border border-purple-100 rounded-2xl shadow-sm">
         <div class="flex items-center gap-2 mb-3 text-purple-600/80">
           <span class="material-symbols-outlined fill-icon text-lg">database</span>
           <span class="text-[10px] font-mono font-bold uppercase tracking-widest">CRUD Repositorio</span>
         </div>
-        <h4 class="font-headline font-bold text-xs text-slate-900 mb-2">Datos Centralizados</h4>
+        <h4 class="font-headline font-bold text-xs text-slate-900 mb-2">Datos de Sesión</h4>
         <p class="text-[11px] leading-relaxed text-slate-600">Añadir, editar o eliminar acciones recalcula los pesos
-          CRITIC y umbrales MRP dinámicamente.</p>
+          CRITIC y umbrales MRP dinámicamente. Los cambios son locales a esta sesión.</p>
+      </div>
+      <!-- Status local -->
+      <div class="mt-4 p-4 bg-green-50 border border-green-200 rounded-xl">
+        <p class="font-mono text-[10px] text-green-600 uppercase tracking-wider mb-1.5 font-bold">Motor Local</p>
+        <div class="flex items-center gap-2">
+          <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_6px_rgba(34,197,94,0.5)]"></div>
+          <span class="text-xs font-medium font-headline text-green-700">Sin API · 0 latencia</span>
+        </div>
       </div>
     </div>
   </aside>
 
-  <!-- ═══ MAIN ═══ -->
+  <!-- MAIN -->
   <main class="md:ml-64 flex-1 flex flex-col min-h-screen">
-
     <header
       class="sticky top-0 z-30 w-full h-14 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 flex justify-between items-center px-8 shadow-sm">
       <h2 class="font-headline font-extrabold text-lg tracking-tighter text-on-surface">Gestión de Base de Datos</h2>
-      <div id="api-badge"
-        class="flex items-center gap-1.5 px-3 py-1.5 bg-error/8 text-error rounded-full border border-error/20">
-        <span class="w-1.5 h-1.5 rounded-full bg-error"></span>
-        <span class="text-[10px] font-mono font-bold">API OFFLINE</span>
+      <div
+        class="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 text-green-700 rounded-full border border-green-200">
+        <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+        <span class="text-[10px] font-mono font-bold">MOTOR LOCAL ACTIVO</span>
       </div>
     </header>
 
@@ -306,9 +303,8 @@
         <div class="relative flex justify-between items-end">
           <div>
             <div class="absolute -left-4 top-0 w-1 h-full bg-accent-purple/30 rounded-full"></div>
-            <h1 class="text-4xl font-black tracking-tighter font-headline text-on-surface mb-1 uppercase">
-              Gestión de Base de Datos
-            </h1>
+            <h1 class="text-4xl font-black tracking-tighter font-headline text-on-surface mb-1 uppercase">Gestión de
+              Base de Datos</h1>
             <div class="h-1 w-10 bg-accent-purple rounded-full mt-2 opacity-50"></div>
             <div class="mt-3 flex gap-2">
               <span
@@ -317,6 +313,9 @@
               <span
                 class="px-2 py-0.5 bg-teal-100 text-teal-700 font-mono text-[10px] rounded font-bold uppercase">Recálculo
                 Dinámico</span>
+              <span
+                class="px-2 py-0.5 bg-green-100 text-green-700 font-mono text-[10px] rounded font-bold uppercase">Sin
+                API</span>
             </div>
           </div>
           <button onclick="document.getElementById('na-nom').focus()"
@@ -332,13 +331,12 @@
             <div
               class="absolute top-0 right-0 w-24 h-24 bg-purple-50 -mr-8 -mt-8 rounded-full group-hover:scale-110 transition-transform duration-500">
             </div>
-            <div class="flex justify-between items-start relative">
-              <span class="font-mono text-xs text-on-surface-variant tracking-widest uppercase">Total Acciones</span>
-              <span class="material-symbols-outlined text-accent-purple">analytics</span>
-            </div>
-            <div class="mt-4 relative">
-              <span class="text-5xl font-bold font-headline text-on-surface" id="metric-total">--</span>
-              <p class="text-xs text-on-surface-variant/60 mt-1">Global Data Integrity: 99.8%</p>
+            <div class="flex justify-between items-start relative"><span
+                class="font-mono text-xs text-on-surface-variant tracking-widest uppercase">Total Acciones</span><span
+                class="material-symbols-outlined text-accent-purple">analytics</span></div>
+            <div class="mt-4 relative"><span class="text-5xl font-bold font-headline text-on-surface"
+                id="metric-total">--</span>
+              <p class="text-xs text-on-surface-variant/60 mt-1">Base de datos activa</p>
             </div>
           </div>
           <div
@@ -346,13 +344,12 @@
             <div
               class="absolute top-0 right-0 w-24 h-24 bg-teal-50 -mr-8 -mt-8 rounded-full group-hover:scale-110 transition-transform duration-500">
             </div>
-            <div class="flex justify-between items-start relative">
-              <span class="font-mono text-xs text-secondary/80 tracking-widest uppercase">Acciones EX-ANTE</span>
-              <span
+            <div class="flex justify-between items-start relative"><span
+                class="font-mono text-xs text-secondary/80 tracking-widest uppercase">Acciones EX-ANTE</span><span
                 class="bg-secondary/10 px-2 py-0.5 rounded-full text-[9px] font-bold text-secondary font-mono">BASE</span>
             </div>
-            <div class="mt-4 relative">
-              <span class="text-5xl font-bold font-headline text-secondary" id="metric-ante">--</span>
+            <div class="mt-4 relative"><span class="text-5xl font-bold font-headline text-secondary"
+                id="metric-ante">--</span>
               <p class="text-xs text-secondary/60 mt-1">Escenario de Referencia</p>
             </div>
           </div>
@@ -361,13 +358,12 @@
             <div
               class="absolute top-0 right-0 w-24 h-24 bg-blue-50 -mr-8 -mt-8 rounded-full group-hover:scale-110 transition-transform duration-500">
             </div>
-            <div class="flex justify-between items-start relative">
-              <span class="font-mono text-xs text-primary/80 tracking-widest uppercase">Acciones EX-POST</span>
-              <span
+            <div class="flex justify-between items-start relative"><span
+                class="font-mono text-xs text-primary/80 tracking-widest uppercase">Acciones EX-POST</span><span
                 class="bg-primary/10 px-2 py-0.5 rounded-full text-[9px] font-bold text-primary font-mono">MEJORA</span>
             </div>
-            <div class="mt-4 relative">
-              <span class="text-5xl font-bold font-headline text-primary" id="metric-post">--</span>
+            <div class="mt-4 relative"><span class="text-5xl font-bold font-headline text-primary"
+                id="metric-post">--</span>
               <p class="text-xs text-primary/60 mt-1">Alternativas Propuestas</p>
             </div>
           </div>
@@ -375,26 +371,22 @@
 
         <!-- Main workspace -->
         <div class="flex flex-col xl:flex-row gap-8">
-
           <!-- Repository table -->
           <div class="xl:w-8/12 space-y-4">
             <div class="flex items-center justify-between px-1">
-              <h2 class="font-headline font-bold text-xl text-on-surface flex items-center gap-2">
-                <span class="material-symbols-outlined text-accent-purple">list_alt</span> Repositorio Maestro
-              </h2>
+              <h2 class="font-headline font-bold text-xl text-on-surface flex items-center gap-2"><span
+                  class="material-symbols-outlined text-accent-purple">list_alt</span>Repositorio Maestro</h2>
               <div class="flex items-center gap-4">
                 <div class="flex items-center gap-1.5 text-xs font-mono text-on-surface-variant">
-                  <div class="w-2 h-2 rounded-full bg-green-500"></div> Óptimo (4.00)
+                  <div class="w-2 h-2 rounded-full bg-green-500"></div>Óptimo (4.00)
                 </div>
                 <div class="flex items-center gap-1.5 text-xs font-mono text-on-surface-variant">
-                  <div class="w-2 h-2 rounded-full bg-red-500"></div> Crítico (0.00)
+                  <div class="w-2 h-2 rounded-full bg-red-500"></div>Crítico (0.00)
                 </div>
-                <button onclick="loadBBDD()" class="p-1.5 hover:bg-surface-container rounded-lg transition-colors">
-                  <span class="material-symbols-outlined text-outline text-[20px]">refresh</span>
-                </button>
+                <button onclick="loadBBDD()" class="p-1.5 hover:bg-surface-container rounded-lg transition-colors"><span
+                    class="material-symbols-outlined text-outline text-[20px]">refresh</span></button>
               </div>
             </div>
-
             <div
               class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm border border-outline-variant/10">
               <table class="w-full text-left border-collapse">
@@ -426,6 +418,7 @@
               <div
                 class="bg-surface-container-low p-4 flex justify-between items-center px-6 border-t border-outline-variant/10">
                 <span class="text-xs font-mono text-on-surface-variant" id="bbdd-count">REPOSITORIO MAESTRO</span>
+                <span class="text-[10px] font-mono text-green-600 font-bold">● DATOS DE SESIÓN LOCAL</span>
               </div>
             </div>
           </div>
@@ -434,9 +427,8 @@
           <div class="xl:w-4/12">
             <div class="glass p-8 rounded-xl shadow-lg border border-outline-variant/20 sticky top-20">
               <div class="mb-7 flex items-center gap-3">
-                <div class="p-2 bg-accent-purple/10 rounded-lg">
-                  <span class="material-symbols-outlined fill-icon text-accent-purple">add_box</span>
-                </div>
+                <div class="p-2 bg-accent-purple/10 rounded-lg"><span
+                    class="material-symbols-outlined fill-icon text-accent-purple">add_box</span></div>
                 <h2 class="font-headline font-bold text-xl text-on-surface">Nueva Acción</h2>
               </div>
               <form onsubmit="crearAccion(event)" class="space-y-6">
@@ -459,269 +451,168 @@
                   </select>
                 </div>
                 <div class="grid grid-cols-3 gap-4">
-                  <div>
-                    <label
-                      class="block font-label text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">ECO</label>
-                    <input id="na-eco" type="number" step="any" value="0.00"
+                  <div><label
+                      class="block font-label text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">ECO</label><input
+                      id="na-eco" type="number" step="any" value="0.00"
                       class="w-full bg-surface-container-low border-0 border-b-2 border-outline focus:ring-0 focus:border-accent-purple font-mono text-center py-3 transition-all"
-                      required />
-                  </div>
-                  <div>
-                    <label
-                      class="block font-label text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">AMB</label>
-                    <input id="na-amb" type="number" step="any" value="0.00"
+                      required /></div>
+                  <div><label
+                      class="block font-label text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">AMB</label><input
+                      id="na-amb" type="number" step="any" value="0.00"
                       class="w-full bg-surface-container-low border-0 border-b-2 border-outline focus:ring-0 focus:border-accent-purple font-mono text-center py-3 transition-all"
-                      required />
-                  </div>
-                  <div>
-                    <label
-                      class="block font-label text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">SOC</label>
-                    <input id="na-soc" type="number" step="any" value="0.00"
+                      required /></div>
+                  <div><label
+                      class="block font-label text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">SOC</label><input
+                      id="na-soc" type="number" step="any" value="0.00"
                       class="w-full bg-surface-container-low border-0 border-b-2 border-outline focus:ring-0 focus:border-accent-purple font-mono text-center py-3 transition-all"
-                      required />
-                  </div>
+                      required /></div>
                 </div>
                 <div class="pt-4">
                   <button type="submit"
                     class="w-full bg-slate-900 hover:bg-accent-purple text-white py-4 rounded-xl font-headline font-extrabold uppercase tracking-widest transition-all shadow-md active:scale-[0.98] flex items-center justify-center gap-2">
-                    Guardar en Repositorio
-                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                    Guardar en Repositorio <span class="material-symbols-outlined text-sm">arrow_forward</span>
                   </button>
                 </div>
                 <div class="bg-amber-50 p-4 rounded-xl flex gap-3 items-start border border-amber-200/60">
                   <span
                     class="material-symbols-outlined fill-icon text-amber-600 text-[18px] flex-shrink-0 mt-0.5">info</span>
-                  <p class="text-[11px] text-amber-800 leading-relaxed">
-                    <strong>Recálculo dinámico:</strong> Al añadir un registro, los rangos [Mín, Máx], la desviación
-                    típica y los percentiles se recalculan para todos los motores.
-                  </p>
+                  <p class="text-[11px] text-amber-800 leading-relaxed"><strong>Sesión local:</strong> Los cambios se
+                    mantienen mientras la pestaña esté abierta. Al recargar la página se restauran los datos originales
+                    del proyecto SONYA.</p>
                 </div>
               </form>
             </div>
           </div>
         </div>
 
-        <!-- Decorative watermark -->
-        <div class="mt-8 opacity-[0.04] pointer-events-none select-none">
-          <h4 class="font-headline font-black text-8xl tracking-tighter text-on-surface-variant">SYSTEM_CORE_NODE</h4>
-          <div class="flex gap-12 font-mono text-sm text-on-surface-variant mt-2">
-            <span>COORD: 39.9864° N, -0.0513° E</span>
-            <span>SECURITY: LEVEL_4_ENCRYPT</span>
-            <span>NODE: BBDD_MASTER_04</span>
-          </div>
-        </div>
       </div>
     </div>
 
     <!-- Status bar -->
     <div
       class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-full flex items-center gap-4 shadow-2xl z-50">
-      <div class="w-2 h-2 rounded-full bg-accent-magenta animate-pulse"></div>
-      <span class="font-mono text-xs tracking-tight">Sincronización en tiempo real activa (BBDD Node-04)</span>
-      <button class="text-accent-magenta font-headline font-bold text-xs uppercase hover:underline ml-4"
-        onclick="loadBBDD()">Refrescar</button>
+      <div class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+      <span class="font-mono text-xs tracking-tight">Motor Local Activo · Datos del proyecto SONYA (UJI · Grupo
+        SOGRES)</span>
     </div>
   </main>
 
-  <!-- ══ JAVASCRIPT ══ -->
   <script>
-    const API = 'https://sonya-k39g.onrender.com';
+    // ============================================================
+    // BASE DE DATOS LOCAL — Datos reales del proyecto SONYA
+    // Fuente: sonya_acciones.json (UJI · Grupo SOGRES · Horizon Europe)
+    // ============================================================
+    let DB_LOCAL = [
+      { nombre: "Microbus", tipo: "EX-ANTE", eco: 5920.13, amb: 68.38, soc: 960377.53 },
+      { nombre: "Telematico", tipo: "EX-POST", eco: 431.63, amb: 5.73, soc: 77257.43 },
+      { nombre: "Fruteria local", tipo: "EX-ANTE", eco: 0.71, amb: 193.53, soc: 481.19 },
+      { nombre: "Fruta España", tipo: "EX-POST", eco: 0.92, amb: 261.46, soc: 576.56 }
+    ];
+
     function msg(txt, type = 'info') {
       const w = document.getElementById('toast-wrap'), t = document.createElement('div');
       t.className = 'toast';
       const col = type === 'err' ? '#ba1a1a' : type === 'ok' ? '#00696c' : '#9333ea';
       const icon = type === 'err' ? 'error' : type === 'ok' ? 'check_circle' : 'info';
       t.innerHTML = `<span class="material-symbols-outlined fill-icon" style="color:${col};font-size:18px">${icon}</span><p style="font-size:13px;font-weight:600;color:#171c1f">${txt}</p>`;
-      w.appendChild(t); setTimeout(() => { t.classList.add('removing'); setTimeout(() => t.remove(), 300); }, 3200);
+      w.appendChild(t);
+      setTimeout(() => { t.classList.add('removing'); setTimeout(() => t.remove(), 300); }, 3200);
     }
+
     function spin(on, text = 'Procesando...') {
       document.getElementById('spin-msg').innerText = text;
       document.getElementById('loading').classList.toggle('show', on);
     }
-    // ==========================================
-        // GESTOR DE BASE DE DATOS LOCAL (Sin Render)
-        // ==========================================
-        const SONYA_STORAGE_KEY = 'sonya_data_bbdd';
-
-        function obtenerDatosDeBBDD() {
-            const datos = localStorage.getItem(SONYA_STORAGE_KEY);
-            return datos ? JSON.parse(datos) : [];
-        }
-
-        // Reemplazamos las llamadas a Render por llamadas a la memoria del navegador
-        async function api(url, opts = {}) {
-            await new Promise(r => setTimeout(r, 150)); // Simula un poquito de carga
-            let DB_LOCAL = obtenerDatosDeBBDD();
-
-            // 1. LEER TODAS LAS ACCIONES (GET)
-            if (url === '/acciones' && (!opts.method || opts.method === 'GET')) {
-                return DB_LOCAL;
-            }
-
-            // 2. CREAR NUEVA ACCIÓN (POST)
-            if (url === '/acciones' && opts.method === 'POST') {
-                const nuevaAccion = JSON.parse(opts.body);
-                DB_LOCAL.push(nuevaAccion);
-                localStorage.setItem(SONYA_STORAGE_KEY, JSON.stringify(DB_LOCAL));
-                return { msg: "ok" };
-            }
-
-            // 3. EDITAR ACCIÓN (PUT)
-            if (url.startsWith('/acciones/') && opts.method === 'PUT') {
-                const nombreAccion = decodeURIComponent(url.split('/')[2]);
-                const datosNuevos = JSON.parse(opts.body);
-                const index = DB_LOCAL.findIndex(x => x.nombre === nombreAccion);
-                if (index !== -1) {
-                    DB_LOCAL[index] = datosNuevos;
-                    localStorage.setItem(SONYA_STORAGE_KEY, JSON.stringify(DB_LOCAL));
-                }
-                return { msg: "ok" };
-            }
-
-            // 4. BORRAR ACCIÓN (DELETE) - Por si tienes botón de borrar
-            if (url.startsWith('/acciones/') && opts.method === 'DELETE') {
-                const nombreAccion = decodeURIComponent(url.split('/')[2]);
-                DB_LOCAL = DB_LOCAL.filter(x => x.nombre !== nombreAccion);
-                localStorage.setItem(SONYA_STORAGE_KEY, JSON.stringify(DB_LOCAL));
-                return { msg: "ok" };
-            }
-        }
 
     function fmtVal(v) {
       const n = parseFloat(v);
-      if (n >= 3.99) return `<span class="val-optimal">${n.toFixed(2)}</span>`;
-      if (n <= 0.01) return `<span class="val-critical">${n.toFixed(2)}</span>`;
-      return `<span class="val-normal">${n.toFixed(2)}</span>`;
+      if (n >= 100000) return `<span class="val-optimal">${n.toLocaleString('es-ES', { maximumFractionDigits: 2 })}</span>`;
+      if (n <= 1) return `<span class="val-normal" style="color:#374151">${n.toFixed(2)}</span>`;
+      return `<span class="val-normal">${n.toLocaleString('es-ES', { maximumFractionDigits: 2 })}</span>`;
     }
 
     const bType = t => t === 'EX-ANTE'
       ? `<span class="px-2 py-1 rounded-full text-[10px] font-bold bg-secondary/10 text-secondary font-mono">ANTE</span>`
       : `<span class="px-2 py-1 rounded-full text-[10px] font-bold bg-accent-purple/10 text-accent-purple font-mono">POST</span>`;
 
-    async function loadBBDD() {
-      spin(true, 'Sincronizando con BBDD local...');
-      try {
-        const accC = await api('/acciones');
-        const b = document.getElementById('api-badge');
-        b.className = "flex items-center gap-1.5 px-3 py-1.5 bg-secondary/10 text-secondary rounded-full border border-secondary/20";
-        b.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span><span class="text-[10px] font-mono font-bold">API ONLINE</span>`;
+    function loadBBDD() {
+      const tA = DB_LOCAL.filter(x => x.tipo === 'EX-ANTE').length;
+      const tP = DB_LOCAL.length - tA;
+      document.getElementById('metric-total').innerText = DB_LOCAL.length;
+      document.getElementById('metric-ante').innerText = tA;
+      document.getElementById('metric-post').innerText = tP;
+      document.getElementById('bbdd-count').innerText = `${DB_LOCAL.length} REGISTROS EN BASE DE DATOS`;
 
-        const tA = accC.filter(x => x.tipo === 'EX-ANTE').length;
-        const tP = accC.length - tA;
-        document.getElementById('metric-total').innerText = accC.length;
-        document.getElementById('metric-ante').innerText = tA;
-        document.getElementById('metric-post').innerText = tP;
-        document.getElementById('bbdd-count').innerText = `${accC.length} REGISTROS EN BBDD`;
-
-        const tb = document.getElementById('bbdd-table');
-        if (!accC.length) {
-          tb.innerHTML = '<tr><td colspan="6" class="p-10 text-center text-outline font-headline">BBDD vacía. Añade el primer registro.</td></tr>';
-          spin(false); return;
-        }
-
-        tb.innerHTML = accC.map(a => {
-          const sid = a.nombre.replace(/[\s\W]/g, '_');
-          return `
-        <tr class="hover:bg-surface-container-low/50 transition-colors group">
-          <td class="px-5 py-4">${bType(a.tipo)}</td>
-          <td class="px-5 py-4">
-            <div class="font-headline font-semibold text-sm text-on-surface">${a.nombre}</div>
-          </td>
-          <td class="px-4 py-4 text-center">${fmtVal(a.eco)}</td>
-          <td class="px-4 py-4 text-center">${fmtVal(a.amb)}</td>
-          <td class="px-4 py-4 text-center">${fmtVal(a.soc)}</td>
-          <td class="px-5 py-4 text-right">
-            <div class="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button onclick="document.getElementById('edit-${sid}').classList.toggle('hidden')" class="p-1.5 hover:bg-accent-purple/10 text-accent-purple rounded-lg transition-colors">
-                <span class="material-symbols-outlined text-[18px]">edit</span>
-              </button>
-              <button onclick="delAccion('${a.nombre}')" class="p-1.5 hover:bg-error/10 text-error rounded-lg transition-colors">
-                <span class="material-symbols-outlined text-[18px]">delete</span>
-              </button>
-            </div>
-          </td>
-        </tr>
-        <tr id="edit-${sid}" class="hidden bg-surface-container-low/30">
-          <td colspan="6" class="px-5 py-4">
-            <div class="flex flex-wrap gap-4 items-end bg-white p-4 rounded-xl border border-outline-variant/15 shadow-sm">
-              <div class="flex-1 min-w-[90px]">
-                <label class="block text-[10px] font-bold text-outline uppercase font-headline mb-1">Económico</label>
-                <input type="number" step="any" id="ee-${sid}" value="${a.eco}"
-                  class="w-full bg-surface-container-low border-outline-variant/30 focus:ring-1 focus:ring-accent-purple rounded-lg text-sm p-2 dmono font-bold"/>
-              </div>
-              <div class="flex-1 min-w-[90px]">
-                <label class="block text-[10px] font-bold text-outline uppercase font-headline mb-1">Ambiental</label>
-                <input type="number" step="any" id="ea-${sid}" value="${a.amb}"
-                  class="w-full bg-surface-container-low border-outline-variant/30 focus:ring-1 focus:ring-accent-purple rounded-lg text-sm p-2 dmono font-bold"/>
-              </div>
-              <div class="flex-1 min-w-[90px]">
-                <label class="block text-[10px] font-bold text-outline uppercase font-headline mb-1">Social</label>
-                <input type="number" step="any" id="es-${sid}" value="${a.soc}"
-                  class="w-full bg-surface-container-low border-outline-variant/30 focus:ring-1 focus:ring-accent-purple rounded-lg text-sm p-2 dmono font-bold"/>
-              </div>
-              <button onclick="savAccion('${a.nombre}','${sid}')"
-                class="bg-accent-purple text-white px-5 py-2 rounded-lg text-sm font-bold shadow-sm hover:opacity-90 transition-all font-headline h-[38px] flex-shrink-0">
-                Actualizar
-              </button>
-            </div>
-          </td>
-        </tr>`;
-        }).join('');
-
-      } catch (e) {
-        const b = document.getElementById('api-badge');
-        b.className = "flex items-center gap-1.5 px-3 py-1.5 bg-error/8 text-error rounded-full border border-error/20";
-        b.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-error"></span><span class="text-[10px] font-mono font-bold">API OFFLINE</span>`;
-        msg('Error de conexión. Ejecuta: python sonya_api.py', 'err');
+      const tb = document.getElementById('bbdd-table');
+      if (!DB_LOCAL.length) {
+        tb.innerHTML = '<tr><td colspan="6" class="p-10 text-center text-outline font-headline">BBDD vacía. Añade el primer registro.</td></tr>';
+        return;
       }
-      spin(false);
+
+      tb.innerHTML = DB_LOCAL.map((a, idx) => {
+        const sid = 'r' + idx;
+        return `
+      <tr class="hover:bg-surface-container-low/50 transition-colors group">
+        <td class="px-5 py-4">${bType(a.tipo)}</td>
+        <td class="px-5 py-4"><div class="font-headline font-semibold text-sm text-on-surface">${a.nombre}</div></td>
+        <td class="px-4 py-4 text-center">${fmtVal(a.eco)}</td>
+        <td class="px-4 py-4 text-center">${fmtVal(a.amb)}</td>
+        <td class="px-4 py-4 text-center">${fmtVal(a.soc)}</td>
+        <td class="px-5 py-4 text-right">
+          <div class="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button onclick="document.getElementById('edit-${sid}').classList.toggle('hidden')" class="p-1.5 hover:bg-accent-purple/10 text-accent-purple rounded-lg transition-colors"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+            <button onclick="delAccion('${a.nombre}')" class="p-1.5 hover:bg-error/10 text-error rounded-lg transition-colors"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+          </div>
+        </td>
+      </tr>
+      <tr id="edit-${sid}" class="hidden bg-surface-container-low/30">
+        <td colspan="6" class="px-5 py-4">
+          <div class="flex flex-wrap gap-4 items-end bg-white p-4 rounded-xl border border-outline-variant/15 shadow-sm">
+            <div class="flex-1 min-w-[90px]"><label class="block text-[10px] font-bold text-outline uppercase font-headline mb-1">Económico</label><input type="number" step="any" id="ee-${sid}" value="${a.eco}" class="w-full bg-surface-container-low border-outline-variant/30 focus:ring-1 focus:ring-accent-purple rounded-lg text-sm p-2 dmono font-bold"/></div>
+            <div class="flex-1 min-w-[90px]"><label class="block text-[10px] font-bold text-outline uppercase font-headline mb-1">Ambiental</label><input type="number" step="any" id="ea-${sid}" value="${a.amb}" class="w-full bg-surface-container-low border-outline-variant/30 focus:ring-1 focus:ring-accent-purple rounded-lg text-sm p-2 dmono font-bold"/></div>
+            <div class="flex-1 min-w-[90px]"><label class="block text-[10px] font-bold text-outline uppercase font-headline mb-1">Social</label><input type="number" step="any" id="es-${sid}" value="${a.soc}" class="w-full bg-surface-container-low border-outline-variant/30 focus:ring-1 focus:ring-accent-purple rounded-lg text-sm p-2 dmono font-bold"/></div>
+            <button onclick="savAccion('${a.nombre}','${sid}')" class="bg-accent-purple text-white px-5 py-2 rounded-lg text-sm font-bold shadow-sm hover:opacity-90 transition-all font-headline h-[38px] flex-shrink-0">Actualizar</button>
+          </div>
+        </td>
+      </tr>`;
+      }).join('');
     }
 
-    async function delAccion(n) {
-      if (!confirm(`¿Eliminar permanentemente "${n}" de la BBDD?`)) return;
-      spin(true, 'Eliminando registro...');
-      try {
-        await api('/acciones/' + encodeURIComponent(n), { method: 'DELETE' });
-        msg('Acción eliminada con éxito', 'ok');
-        loadBBDD();
-      } catch (e) { msg(e.message, 'err'); spin(false); }
+    function delAccion(nombre) {
+      if (!confirm(`¿Eliminar "${nombre}" de la base de datos de esta sesión?`)) return;
+      DB_LOCAL = DB_LOCAL.filter(x => x.nombre !== nombre);
+      msg(`"${nombre}" eliminado de la sesión`, 'ok');
+      loadBBDD();
     }
 
-    async function savAccion(n, sid) {
-      const p = {
-        eco: parseFloat(document.getElementById(`ee-${sid}`).value),
-        amb: parseFloat(document.getElementById(`ea-${sid}`).value),
-        soc: parseFloat(document.getElementById(`es-${sid}`).value)
-      };
-      spin(true, 'Actualizando métricas...');
-      try {
-        await api('/acciones/' + encodeURIComponent(n), { method: 'PUT', body: JSON.stringify(p) });
-        msg('Acción actualizada correctamente', 'ok');
-        loadBBDD();
-      } catch (e) { msg(e.message, 'err'); spin(false); }
+    function savAccion(nombre, sid) {
+      const idx = DB_LOCAL.findIndex(x => x.nombre === nombre);
+      if (idx === -1) return msg('Acción no encontrada', 'err');
+      DB_LOCAL[idx].eco = parseFloat(document.getElementById(`ee-${sid}`).value) || DB_LOCAL[idx].eco;
+      DB_LOCAL[idx].amb = parseFloat(document.getElementById(`ea-${sid}`).value) || DB_LOCAL[idx].amb;
+      DB_LOCAL[idx].soc = parseFloat(document.getElementById(`es-${sid}`).value) || DB_LOCAL[idx].soc;
+      msg(`"${nombre}" actualizado correctamente`, 'ok');
+      loadBBDD();
     }
 
-    async function crearAccion(e) {
+    function crearAccion(e) {
       e.preventDefault();
       const n = document.getElementById('na-nom').value.trim();
       if (!n) return msg('El nombre es obligatorio', 'err');
-      const p = {
-        nombre: n,
-        tipo: document.getElementById('na-tipo').value,
-        eco: parseFloat(document.getElementById('na-eco').value) || 0,
-        amb: parseFloat(document.getElementById('na-amb').value) || 0,
-        soc: parseFloat(document.getElementById('na-soc').value) || 0
-      };
-      spin(true, 'Registrando nueva acción...');
-      try {
-        await api('/acciones', { method: 'POST', body: JSON.stringify(p) });
-        document.getElementById('na-nom').value = '';
-        document.getElementById('na-eco').value = '0.00';
-        document.getElementById('na-amb').value = '0.00';
-        document.getElementById('na-soc').value = '0.00';
-        msg('Acción registrada en la BBDD', 'ok');
-        loadBBDD();
-      } catch (e) { msg(e.message, 'err'); spin(false); }
+      if (DB_LOCAL.find(x => x.nombre.toLowerCase() === n.toLowerCase())) return msg(`La acción "${n}" ya existe`, 'err');
+
+      const eco = parseFloat(document.getElementById('na-eco').value) || 0;
+      const amb = parseFloat(document.getElementById('na-amb').value) || 0;
+      const soc = parseFloat(document.getElementById('na-soc').value) || 0;
+      if (eco < 0 || amb < 0 || soc < 0) return msg('Los valores no pueden ser negativos', 'err');
+
+      DB_LOCAL.push({ nombre: n, tipo: document.getElementById('na-tipo').value, eco, amb, soc });
+      document.getElementById('na-nom').value = '';
+      document.getElementById('na-eco').value = '0.00';
+      document.getElementById('na-amb').value = '0.00';
+      document.getElementById('na-soc').value = '0.00';
+      msg(`"${n}" registrado en la sesión`, 'ok');
+      loadBBDD();
     }
 
     window.onload = loadBBDD;
