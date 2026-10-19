@@ -1,0 +1,1830 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SONYA | Motor CRITIC + TOPSIS</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class", theme: {
+                extend: {
+                    colors: {
+                        "primary": "#004655", "primary-container": "#005f73", "on-primary": "#ffffff",
+                        "secondary": "#00696c", "on-secondary": "#ffffff", "secondary-container": "#86f0f3",
+                        "tertiary": "#8b3d97", "on-tertiary": "#ffffff",
+                        "error": "#ba1a1a", "error-container": "#ffdad6", "on-error-container": "#93000a",
+                        "surface": "#f6fafe", "on-surface": "#171c1f",
+                        "surface-container-lowest": "#ffffff", "surface-container-low": "#f0f4f8",
+                        "surface-container": "#eaeef2", "surface-container-high": "#e4e9ed", "surface-container-highest": "#dfe3e7",
+                        "outline": "#6f797c", "outline-variant": "#bfc8cc", "on-surface-variant": "#3f484c",
+                        "success": "#10b981"
+                    },
+                    fontFamily: { "headline": ["Manrope", "sans-serif"], "body": ["Inter", "sans-serif"], "mono": ["JetBrains Mono", "monospace"], "label": ["Space Grotesk", "sans-serif"] },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "2xl": "0.75rem", "full": "9999px" },
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --purple: #8b3d97;
+            --teal: #00696c;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f6fafe;
+            color: #171c1f;
+            margin: 0;
+        }
+
+        .font-headline {
+            font-family: 'Manrope', sans-serif;
+        }
+
+        .data-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+            line-height: 1;
+        }
+
+        .fill-icon {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .blueprint-grid {
+            background-color: #f6fafe;
+            background-image: linear-gradient(to right, rgba(0, 70, 85, 0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(0, 70, 85, 0.05) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        .watercolor-wash {
+            background: radial-gradient(circle at 60% 30%, rgba(0, 105, 108, 0.04) 0%, transparent 55%);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeUp 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .toast-wrap {
+            position: fixed;
+            top: 76px;
+            right: 24px;
+            z-index: 900;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: white;
+            border: 1px solid rgba(195, 197, 215, 0.4);
+            border-radius: 12px;
+            padding: 12px 16px;
+            box-shadow: 0 12px 32px rgba(25, 28, 30, 0.08);
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            pointer-events: auto;
+            animation: toastIn 0.3s ease;
+        }
+
+        .toast.removing {
+            animation: toastOut 0.3s ease forwards;
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        @keyframes toastOut {
+            to {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+        }
+
+        #loading {
+            position: fixed;
+            inset: 0;
+            z-index: 999;
+            background: rgba(246, 250, 254, 0.88);
+            backdrop-filter: blur(6px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #loading.show {
+            display: flex;
+        }
+
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid #bfc8cc;
+            border-top-color: var(--teal);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #bfc8cc;
+            border-radius: 10px;
+        }
+
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .no-scrollbar {
+            scrollbar-width: none;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-family: 'Manrope', sans-serif;
+            font-weight: 700;
+            font-size: 12px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #3f484c;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .sidebar-link:hover {
+            background: rgba(0, 105, 108, 0.07);
+            color: var(--teal);
+        }
+
+        .sidebar-link.active {
+            background: rgba(0, 105, 108, 0.12);
+            color: var(--teal);
+        }
+
+        .topsis-tab {
+            display: flex;
+            align-items: center;
+            height: 100%;
+            font-family: 'Manrope', sans-serif;
+            font-weight: 700;
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #6f797c;
+            border: none;
+            border-bottom: 2px solid transparent;
+            background: none;
+            cursor: pointer;
+            padding: 0 2px;
+            transition: all 0.2s;
+        }
+
+        .topsis-tab:hover {
+            color: var(--teal);
+        }
+
+        .topsis-tab.tab-active {
+            color: var(--teal);
+            border-bottom-color: var(--teal);
+        }
+
+        /* Personalización de la barra de desplazamiento */
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 10px;
+        }
+
+        /* Protege las tablas para que no se aplasten */
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .data-table th,
+        .data-table td {
+            white-space: nowrap;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+    </style>
+</head>
+
+<body class="flex min-h-screen blueprint-grid">
+
+    <div id="loading">
+        <div
+            class="bg-white p-8 rounded-2xl border border-outline-variant/20 shadow-2xl flex flex-col items-center gap-4">
+            <div class="spinner"></div>
+            <p id="spin-msg" class="text-sm font-bold text-on-surface-variant font-headline">Calculating Chebyshev
+                Distances...</p>
+        </div>
+    </div>
+    <div class="toast-wrap" id="toast-wrap"></div>
+
+    <!-- SIDEBAR -->
+    <aside
+        class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 z-40 bg-[#f8faff] border-r border-slate-200 overflow-hidden">
+        <div class="p-6">
+            <div class="flex items-center mb-10 cursor-pointer transition-transform hover:scale-105 origin-left"
+                onclick="location.href='../index.html'">
+                <img src="../logo_sonya.png" alt="SONYA Logo" class="h-10 w-auto object-contain">
+            </div>
+            <nav class="space-y-1">
+                <a href="../index.html" class="sidebar-link">
+                    <span class="material-symbols-outlined text-xl">grid_view</span>Dashboard
+                </a>
+                <a href="gestion_bbdd.html" class="sidebar-link">
+                    <span class="material-symbols-outlined text-xl">database</span>BBDD
+                </a>
+                <a href="mrp.html" class="sidebar-link">
+                    <span class="material-symbols-outlined text-xl">analytics</span>MRP Engine
+                </a>
+                <a href="topsis.html" class="sidebar-link active">
+                    <span class="material-symbols-outlined fill-icon text-xl">insights</span>TOPSIS Engine
+                </a>
+
+                <div class="h-px w-full bg-slate-200 my-4"></div>
+
+                <button onclick="logoutApp()"
+                    class="w-full sidebar-link text-left hover:!bg-red-50 hover:!text-red-600 transition-colors">
+                    <span class="material-symbols-outlined text-xl">logout</span>Sign Out
+                </button>
+            </nav>
+
+
+            <div
+                class="mt-8 p-5 bg-gradient-to-br from-white to-teal-50/40 border border-teal-100 rounded-2xl shadow-sm">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="material-symbols-outlined fill-icon text-secondary text-lg">straighten</span>
+                    <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-secondary">Chebyshev
+                        L∞</span>
+                </div>
+                <h4 class="font-headline font-bold text-xs text-slate-900 mb-2">Distancia Minimax</h4>
+                <p class="text-[11px] leading-relaxed text-slate-600">The criterion most behind determines the position.
+                    No compensation between pillars. Strong Sustainability.</p>
+            </div>
+            <!-- UF Selector in sidebar -->
+            <div class="mt-6">
+                <label class="block font-mono text-[9px] uppercase tracking-widest text-outline mb-2">Action</label>
+                <select id="uf-sidebar-sel" onchange="onUFChange(this.value)"
+                    class="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-700 focus:ring-2 focus:ring-secondary/20 transition-all cursor-pointer">
+                    <option value="">Download Actions....</option>
+                </select>
+            </div>
+        </div>
+        <div class="mt-auto p-4 mx-4 mb-4 bg-surface-container rounded-xl border border-outline-variant/20">
+            <p class="font-mono text-[10px] text-outline uppercase tracking-wider mb-1.5">System Status</p>
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-secondary animate-pulse"></div>
+                <span class="text-xs font-medium font-headline" id="sidebar-status">Engine Ready</span>
+            </div>
+        </div>
+        <div class="absolute bottom-0 right-0 pointer-events-none opacity-5">
+            <svg width="140" height="140" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="45" fill="none" stroke="#00696c" stroke-width="0.5" />
+                <path d="M5 50 L95 50 M50 5 L50 95" stroke="#00696c" stroke-width="0.3" />
+                <circle cx="50" cy="50" r="5" fill="#00696c" />
+            </svg>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="md:ml-64 flex-1 flex flex-col min-h-screen">
+
+        <header
+            class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-outline-variant/30 flex justify-between items-center pr-8 md:pl-[280px] h-16 shadow-sm">
+            <nav class="hidden md:flex gap-4 lg:gap-8 h-16 overflow-x-auto no-scrollbar">
+                <button
+                    class="topsis-tab active h-full border-b-[3px] border-[#00696c] text-[#00696c] font-bold text-sm tracking-wide px-2 lg:px-4 transition-all whitespace-nowrap"
+                    onclick="switchTab('ranking', this)">Global Ranking</button>
+                <button
+                    class="topsis-tab h-full border-b-[3px] border-transparent text-slate-500 hover:text-[#00696c] font-semibold text-sm tracking-wide px-2 lg:px-4 transition-all whitespace-nowrap"
+                    onclick="switchTab('sim', this)">New Simulation</button>
+                <button
+                    class="topsis-tab h-full border-b-[3px] border-transparent text-slate-500 font-semibold text-sm tracking-wide px-2 lg:px-4 transition-all whitespace-nowrap"
+                    onclick="switchTab('scenario', this)">Selectable Ranking</button>
+            </nav>
+            <div class="flex items-center gap-4 flex-shrink-0 ml-4">
+                <!-- UF badge in header -->
+                <div id="uf-header-badge"
+                    class="hidden items-center gap-2 px-3 py-1.5 bg-primary/5 rounded-full border border-primary/10">
+                    <span class="material-symbols-outlined text-primary text-sm fill-icon">category</span>
+                    <span class="text-[10px] font-mono font-bold text-primary uppercase tracking-widest"
+                        id="uf-header-label">--</span>
+                </div>
+                <div id="engine-badge"
+                    class="flex items-center gap-2 px-3 py-1.5 bg-secondary/10 rounded-full border border-secondary/20">
+                    <div class="w-2 h-2 rounded-full bg-secondary animate-pulse"></div>
+                    <span class="text-[10px] font-mono font-bold text-secondary uppercase tracking-widest">Motor
+                        Local</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 mt-24 p-8 lg:p-10 max-w-7xl mx-auto w-full space-y-10 watercolor-wash">
+
+            <!-- Page header -->
+            <div>
+                <h1
+                    class="text-4xl font-extrabold font-headline tracking-tighter text-slate-900 mb-1 flex items-center gap-1">
+                    <span class="font-medium text-slate-400">Motor</span> <span class="text-secondary ml-1">CRITIC +
+                        TOPSIS</span>
+                </h1>
+                <div class="h-1 w-10 bg-secondary mt-2 rounded-full opacity-50 mb-3"></div>
+
+                <!-- UF info bar -->
+                <div id="uf-infobar"
+                    class="mt-5 p-4 bg-white rounded-xl border border-outline-variant/20 shadow-sm hidden">
+                    <div class="flex items-center justify-between flex-wrap gap-3">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined fill-icon text-secondary">category</span>
+                            <div>
+                                <p class="font-mono text-[9px] uppercase tracking-widest text-outline">Action / Active
+                                </p>
+                                <p class="font-headline font-bold text-slate-900" id="uf-infobar-label">--</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-6">
+                            <div class="text-center">
+                                <p class="font-mono text-[9px] text-outline uppercase tracking-widest">Unit</p>
+                                <p class="font-bold text-sm text-slate-700 font-headline" id="uf-infobar-unit">--</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="font-mono text-[9px] text-outline uppercase tracking-widest">Alternatives</p>
+                                <p class="font-bold text-sm text-secondary font-headline" id="uf-infobar-count">--</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="font-mono text-[9px] text-outline uppercase tracking-widest">Recalculate
+                                    CRITIC</p>
+                                <p class="font-bold text-sm text-slate-700 font-headline">Dynamic</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ████ TAB: GLOBAL RANKING ████ -->
+            <div id="view-ranking" class="tab-content active space-y-8 min-w-0 w-full">
+
+                <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                    <div
+                        class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm relative overflow-hidden group">
+                        <p class="text-xs font-mono uppercase tracking-widest text-outline mb-4 relative">Total
+                            Alternatives</p>
+                        <h3 class="text-5xl font-bold font-headline text-on-surface relative" id="met-total">--</h3>
+                        <div class="mt-4 flex items-center text-[10px] font-mono text-secondary relative">
+                            <span class="material-symbols-outlined text-sm mr-1">analytics</span>DATASET ACTIONS
+                        </div>
+                    </div>
+                    <div
+                        class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm relative overflow-hidden group">
+                        <p class="text-xs font-mono uppercase tracking-widest text-outline mb-4 relative">Viables (CC ≥
+                            50%)</p>
+                        <h3 class="text-5xl font-bold font-headline text-green-600 relative" id="met-ok">--</h3>
+                        <p class="mt-4 text-[10px] font-mono text-green-600 uppercase relative">Optimal Alignment</p>
+                    </div>
+                    <div
+                        class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm relative overflow-hidden group">
+                        <p class="text-xs font-mono uppercase tracking-widest text-outline mb-4 relative">Discarded</p>
+                        <h3 class="text-5xl font-bold font-headline text-error relative" id="met-no">--</h3>
+                        <p class="mt-4 text-[10px] font-mono text-error uppercase relative">Below Threshold</p>
+                    </div>
+                    <div
+                        class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm relative overflow-hidden group">
+                        <p class="text-xs font-mono uppercase tracking-widest text-outline mb-4 relative">Best CC</p>
+                        <h3 class="text-5xl font-bold font-headline text-secondary relative" id="met-top">--</h3>
+                        <p class="mt-4 text-[10px] font-mono text-secondary uppercase relative">Best Action</p>
+                    </div>
+                </section>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 min-w-0 w-full">
+
+                    <aside class="lg:col-span-3">
+                        <div
+                            class="bg-surface-container-low p-8 rounded-xl sticky top-24 border border-outline-variant/10 space-y-8">
+                            <div>
+                                <h3 class="font-headline font-bold text-lg mb-6 flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-secondary">balance</span>Weighting
+                                    CRITIC
+                                </h3>
+                                <div class="space-y-6" id="weights-container">
+                                    <p class="text-sm text-outline">Calculating...</p>
+                                </div>
+                            </div>
+
+                            <div id="pis-nis-panel" class="hidden pt-6 border-t border-outline-variant/20 space-y-6">
+                                <div>
+                                    <h4 class="font-mono text-[10px] uppercase tracking-widest text-outline mb-4">Ideal
+                                        Vectors (V)</h4>
+                                    <div class="space-y-3" id="pis-nis-container"></div>
+                                </div>
+                                <div class="pt-6 border-t border-slate-200 space-y-4">
+                                    <h4
+                                        class="font-mono text-[10px] uppercase tracking-widest text-secondary font-bold">
+                                        Critical Configuration</h4>
+                                    <div>
+                                        <div class="flex justify-between mb-1">
+                                            <label class="text-[10px] font-bold text-secondary uppercase">Acceptance
+                                                CC</label>
+                                            <span id="val-thr-cc"
+                                                class="text-[10px] font-mono font-bold text-secondary">50%</span>
+                                        </div>
+                                        <input type="range" min="0" max="100" value="50"
+                                            oninput="topsisThreshold = this.value/100; document.getElementById('val-thr-cc').innerText = this.value + '%'; loadT();"
+                                            class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-secondary">
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between mb-1">
+                                            <label class="text-[10px] font-bold text-purple-600 uppercase">Minimum
+                                                Effectiveness (CASP-12)</label>
+                                            <span id="val-thr-sat"
+                                                class="text-[10px] font-mono font-bold text-purple-600">20%</span>
+                                        </div>
+                                        <input type="range" min="0" max="100" value="20"
+                                            id="thr-sat-slider" oninput="mrpMinSat = this.value; document.getElementById('val-thr-sat').innerText = this.value + '%'; loadT();"
+                                            class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-purple-600">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </aside>
+
+                    <div class="lg:col-span-9 min-w-0 w-full">
+                        <div
+                            class="bg-white rounded-xl overflow-hidden border border-outline-variant/20 shadow-xl min-w-0 w-full">
+                            <div
+                                class="px-6 py-5 border-b border-outline-variant/10 flex justify-between items-center bg-surface-container-low/40">
+                                <h2 class="font-headline font-bold text-xl">Ranking of Prioritization</h2>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-[10px] font-mono text-outline hidden lg:inline">D⁺ = max|v−v⁺| ·
+                                        D⁻ = min|v−v⁻|</span>
+                                    <button onclick="loadT()"
+                                        class="p-2 hover:bg-surface-container rounded-lg transition-colors"
+                                        title="Recalculate">
+                                        <span class="material-symbols-outlined text-sm text-outline">refresh</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="w-full overflow-x-auto custom-scrollbar">
+                                <table class="w-full min-w-[1100px] text-left border-collapse">
+                                    <thead>
+                                        <tr
+                                            class="bg-surface-container-low text-[10px] font-mono font-bold text-outline uppercase tracking-widest border-b border-outline-variant/10">
+                                            <th class="px-4 py-4 text-center">#</th>
+                                            <th class="px-4 py-4">Alternative</th>
+                                            <th class="px-4 py-4 text-center">Type</th>
+                                            <th class="px-4 py-4 text-right">Env (raw)</th>
+                                            <th class="px-4 py-4 text-right">Soc (raw)</th>
+                                            <th class="px-4 py-4 text-right">Eco (raw)</th>
+                                            <th
+                                                class="px-5 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                                                Variation vs EX-ANTE</th>
+                                            <th class="px-4 py-4 text-center">D⁺ / D⁻</th>
+                                            <th class="px-4 py-4 text-center">CC (%)</th>
+                                            <th class="px-4 py-4 text-right">Verdict</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-outline-variant/10" id="ranking-body">
+                                        <tr>
+                                            <td colspan="10" class="p-10 text-center text-outline font-headline">Select
+                                                an Action to get started...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div id="t-sat-section"
+                    class="mt-10 bg-white rounded-2xl border border-purple-200 shadow-xl overflow-hidden hidden min-w-0 w-full">
+                    <div class="px-6 py-5 border-b border-purple-100 flex justify-between items-center bg-purple-50">
+                        <h4 class="font-headline font-bold text-xl text-purple-900 flex items-center gap-2">
+                            <span class="material-symbols-outlined">how_to_reg</span> Viable Ranking - Effectiveness
+                        </h4>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold text-purple-700">Minimum required:</span>
+                            <span
+                                class="bg-white px-3 py-1 rounded-md border border-purple-200 font-mono font-bold text-sm text-purple-800"
+                                id="display-min-sat">20%</span>
+                        </div>
+                    </div>
+                    <div class="w-full overflow-x-auto custom-scrollbar">
+                        <table class="w-full min-w-[800px] text-left border-collapse">
+                            <thead>
+                                <tr
+                                    class="bg-purple-50/50 text-[10px] font-mono font-bold text-purple-800 uppercase tracking-widest border-b border-purple-100">
+                                    <th class="px-4 py-4">Alternative</th>
+                                    <th class="px-4 py-4 text-center">Score CC</th>
+                                    <th class="px-4 py-4 text-center">Viability CC</th>
+                                    <th class="px-4 py-4 text-center">Limiting Criterion</th>
+                                    <th class="px-4 py-4 text-center">Effectiveness Index (CASP-12)</th>
+                                    <th class="px-4 py-4 text-right">Effectiveness (EI ≥ τ_EI)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-purple-50" id="t-sat-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+            <!-- FIN view-ranking -->
+
+        </main>
+
+
+        <!-- ████ TAB: NEW SIMULATION ████ -->
+        <div id="view-sim" class="tab-content space-y-10">
+
+            <!-- PASO 1: ACCIÓN -->
+            <section class="space-y-6">
+                <div>
+                    <span
+                        class="inline-block px-2 py-1 bg-secondary/10 text-secondary text-[10px] font-black uppercase tracking-widest rounded-md mb-1">Step
+                        1: Action</span>
+                    <h2
+                        class="text-3xl md:text-4xl font-extrabold font-headline tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-secondary">
+                        Define the Functional Action
+                    </h2>
+                </div>
+                <div class="bg-surface-container-low p-8 rounded-xl border border-transparent space-y-6">
+                    <div>
+                        <label
+                            class="block font-mono text-[10px] uppercase tracking-widest text-outline mb-2">Action</label>
+                        <select id="sim-uf-sel" onchange="simOnActionChange(this.value)"
+                            class="w-full bg-white border-0 border-b-2 border-outline focus:border-secondary focus:ring-0 font-body text-sm py-3 px-1 transition-colors cursor-pointer">
+                            <option value="">Loading...</option>
+                        </select>
+                    </div>
+                    <div id="sim-new-action-panel"
+                        class="hidden p-6 bg-secondary/5 rounded-2xl border-2 border-dashed border-secondary/20">
+                        <div class="flex items-center gap-3 mb-5 text-secondary">
+                            <span class="material-symbols-outlined">create_new_folder</span>
+                            <h3 class="font-headline font-bold text-sm uppercase tracking-wider">Configure New Action
+                            </h3>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div>
+                                <label
+                                    class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Name</label>
+                                <input type="text" id="sim-new-action-name" placeholder="e.g.: New Waste Law"
+                                    class="w-full bg-white border border-slate-200 rounded-xl p-3.5 text-sm font-medium focus:ring-2 focus:ring-secondary/30 outline-none shadow-sm">
+                            </div>
+                            <div>
+                                <label
+                                    class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Unit
+                                    (optional)</label>
+                                <input type="text" id="sim-new-action-unit" placeholder="e.g.: Tonnes"
+                                    class="w-full bg-white border border-slate-200 rounded-xl p-3.5 text-sm font-medium focus:ring-2 focus:ring-secondary/30 outline-none shadow-sm">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PASO 2: EX-ANTE -->
+            <section class="space-y-6" id="sim-ante-section" style="display:none">
+                <div>
+                    <span
+                        class="inline-block px-2 py-1 bg-secondary/10 text-secondary text-[10px] font-black uppercase tracking-widest rounded-md mb-1">Step
+                        2: Baseline</span>
+                    <h2
+                        class="text-3xl md:text-4xl font-extrabold font-headline tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-secondary">
+                        EX-ANTE Reference Definition
+                    </h2>
+                </div>
+                <div id="sim-ante-existing"
+                    class="hidden p-6 bg-white rounded-xl border border-outline-variant/20 shadow-sm">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-2 h-full min-h-[40px] rounded-full bg-secondary/30"></div>
+                        <div>
+                            <p class="font-mono text-[9px] uppercase tracking-widest text-outline">EX-ANTE Baseline
+                                (from DB)</p>
+                            <p class="font-headline font-bold text-slate-900 text-lg" id="sim-ante-existing-name">--</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-4 mt-3 ml-5">
+                        <span
+                            class="text-[11px] font-mono font-bold bg-teal-50 text-teal-700 border border-teal-200 px-3 py-1.5 rounded-lg">Env:
+                            <span id="sim-ante-existing-amb">--</span></span>
+                        <span
+                            class="text-[11px] font-mono font-bold bg-purple-50 text-purple-700 border border-purple-200 px-3 py-1.5 rounded-lg">Soc:
+                            <span id="sim-ante-existing-soc">--</span></span>
+                        <span
+                            class="text-[11px] font-mono font-bold bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg">Eco:
+                            <span id="sim-ante-existing-eco">--</span></span>
+                        <span
+                            class="text-[11px] font-mono font-bold bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1.5 rounded-lg">Effectiveness:
+                            <span id="sim-ante-existing-sat">--</span></span>
+                    </div>
+                </div>
+                <div id="sim-ante-new-form"
+                    class="hidden bg-surface-container-low p-8 rounded-xl border border-transparent">
+                    <h4 class="text-sm font-bold text-secondary mb-5 font-headline flex items-center gap-2">
+                        <span class="material-symbols-outlined text-base">edit_document</span>New EX-ANTE Baseline
+                        Parameters
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="md:col-span-2 lg:col-span-4">
+                            <label
+                                class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-2">Descriptive
+                                Name</label>
+                            <input type="text" id="sim-ante-nom"
+                                placeholder="Write a descriptive name for this baseline action..."
+                                class="w-full bg-white border-none rounded-xl p-3.5 font-body text-sm focus:ring-2 focus:ring-secondary/20 transition-shadow shadow-sm">
+                        </div>
+                        <div>
+                            <label
+                                class="block text-[10px] font-bold text-teal-600 uppercase tracking-widest mb-1.5 ml-2">Environmental</label>
+                            <input type="number" step="any" id="sim-ante-amb" placeholder="Value"
+                                class="w-full bg-white border-none rounded-xl p-3 pl-4 font-label font-bold focus:ring-2 focus:ring-secondary/20 shadow-sm">
+                        </div>
+                        <div>
+                            <label
+                                class="block text-[10px] font-bold text-purple-600 uppercase tracking-widest mb-1.5 ml-2">Social</label>
+                            <input type="number" step="any" id="sim-ante-soc" placeholder="Value"
+                                class="w-full bg-white border-none rounded-xl p-3 pl-4 font-label font-bold focus:ring-2 focus:ring-secondary/20 shadow-sm">
+                        </div>
+                        <div>
+                            <label
+                                class="block text-[10px] font-bold text-primary uppercase tracking-widest mb-1.5 ml-2">Economic</label>
+                            <input type="number" step="any" id="sim-ante-eco" placeholder="Value"
+                                class="w-full bg-white border-none rounded-xl p-3 pl-4 font-label font-bold focus:ring-2 focus:ring-secondary/20 shadow-sm">
+                        </div>
+                        <div>
+                            <label
+                                class="block text-[10px] font-bold text-amber-600 uppercase tracking-widest mb-1.5 ml-2">Effectiveness Index (CASP-12)</label>
+                            <input type="text" id="sim-ante-sat" placeholder="e.g.: 78, 30.7pts or NS"
+                                class="w-full bg-white border-none rounded-xl p-3 pl-4 font-label font-bold focus:ring-2 focus:ring-amber-300/40 shadow-sm text-amber-700">
+                            <p class="text-[10px] text-slate-400 mt-1 ml-2">Enter EI as % (0–100), CASP-12 pts (e.g. 30.7pts) or <strong>NS</strong> (Not
+                                Specified)</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PASO 3: EX-POST -->
+            <section class="space-y-6" id="sim-expost-section" style="display:none">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+                    <div>
+                        <span
+                            class="inline-block px-2 py-1 bg-secondary/10 text-secondary text-[10px] font-black uppercase tracking-widest rounded-md mb-1">Step
+                            3: Projection</span>
+                        <h2
+                            class="text-3xl md:text-4xl font-extrabold font-headline tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-secondary">
+                            EX-POST Alternatives
+                        </h2>
+                    </div>
+                    <button onclick="simAddExPostRow()"
+                        class="bg-white border-2 border-slate-200 px-5 py-3 rounded-xl text-sm font-extrabold text-slate-600 hover:text-secondary hover:border-secondary/50 hover:bg-secondary/5 transition-all shadow-sm flex items-center gap-2 whitespace-nowrap">
+                        <span class="material-symbols-outlined text-lg">add_circle</span> Add New EX-POST
+                    </button>
+                </div>
+                <div id="sim-expost-db-panel" class="hidden p-5 bg-slate-50 rounded-2xl border border-slate-200">
+                    <p class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-4">Existing EX-POST in
+                        database — select to include:</p>
+                    <div id="sim-expost-db-list" class="grid grid-cols-1 lg:grid-cols-2 gap-3"></div>
+                </div>
+                <div id="sim-expost-manual-list" class="space-y-3"></div>
+                <div class="pt-8 flex justify-between items-center border-t border-outline-variant/20">
+                    <div class="hidden lg:block">
+                        <p class="font-mono text-[10px] text-outline uppercase tracking-wider">Engine Protocol</p>
+                        <p class="font-body text-xs text-on-surface">CRITIC · TOPSIS · Chebyshev L∞ · No-compensatorio
+                        </p>
+                    </div>
+                    <button onclick="simRun()"
+                        class="flex items-center gap-4 bg-secondary hover:bg-primary-container text-white px-10 py-5 rounded-xl shadow-[0_10px_30px_rgba(0,105,108,0.3)] transition-all active:scale-95 font-headline font-extrabold text-lg tracking-tight">
+                        Run TOPSIS Simulation
+                    </button>
+                </div>
+            </section>
+
+            <div id="sim-res"
+                class="hidden bg-white rounded-2xl border border-outline-variant/10 shadow-sm border-t-4 border-t-secondary">
+            </div>
+
+        </div>
+
+
+        <div id="view-scenario" class="tab-content space-y-8">
+
+            <section
+                class="bg-gradient-to-br from-secondary-container/20 to-transparent rounded-2xl border border-secondary/20 p-8 shadow-sm">
+                <div class="flex items-center gap-4 mb-8">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-secondary shadow-sm border border-secondary/10">
+                        <span class="material-symbols-outlined text-2xl"
+                            style="font-variation-settings: 'FILL' 1;">dashboard_customize</span>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-extrabold font-headline text-slate-900">Scenario Constructor
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-1">Recalculate the CRITIC weights by evaluating only the
+                            subset of selected actions.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-1 space-y-6">
+                        <div>
+                            <label class="block font-mono text-[10px] uppercase tracking-widest text-outline mb-2">1.
+                                Select the Action</label>
+                            <select id="t-scenario-uf" onchange="onScenarioActionChange(this.value)"
+                                class="w-full bg-white border-0 border-b-2 border-outline focus:border-secondary focus:ring-0 font-body text-sm py-3 px-1 transition-colors cursor-pointer">
+                                <option value="">Dowloading...</option>
+                            </select>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-slate-300"></div>
+                            <label class="block font-mono text-[10px] uppercase tracking-widest text-outline mb-3"> Base
+                                LINE (EX-ANTE fixed)</label>
+                            <div id="t-scenario-base-info" class="text-sm text-slate-500 italic">
+                                Select an action first...
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-2">
+                        <label class="block font-mono text-[10px] uppercase tracking-widest text-outline mb-2">2.
+                            Select the Options to Compare (EX-POST)</label>
+                        <div id="t-scenario-expost-list"
+                            class="space-y-3 max-h-[300px] overflow-y-auto pr-2 no-scrollbar">
+                            <div class="p-8 text-center border-2 border-dashed border-slate-200 rounded-xl">
+                                <p class="text-sm text-slate-400 font-headline">Alternatives will appear here...
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 flex justify-end">
+                            <button onclick="generateScenarioRanking()"
+                                class="flex items-center gap-3 bg-secondary hover:bg-primary-container text-white px-8 py-4 rounded-xl shadow-lg shadow-[#00696c]/20 transition-all active:scale-95 font-headline font-bold">
+                                <span class="material-symbols-outlined">analytics</span> Generate Specific Ranking
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div id="t-scenario-results" class="hidden min-w-0 w-full">
+                <section
+                    class="bg-white rounded-2xl border border-outline-variant/20 shadow-xl overflow-hidden min-w-0 w-full">
+                    <div class="px-6 py-5 border-b bg-slate-50 flex justify-between items-center">
+                        <h4 class="font-headline font-bold text-xl text-slate-800">Specific Ranking</h4>
+                    </div>
+
+                    <div class="w-full overflow-x-auto custom-scrollbar">
+
+                        <table class="w-full min-w-[1100px] text-left border-collapse">
+                            <thead>
+                                <tr
+                                    class="bg-slate-50 text-[10px] font-mono font-bold text-outline uppercase tracking-widest border-b">
+                                    <th class="px-4 py-4 text-center">#</th>
+                                    <th class="px-4 py-4">Alternative</th>
+                                    <th class="px-4 py-4 text-center">Type</th>
+                                    <th class="px-4 py-4 text-right">Env</th>
+                                    <th class="px-4 py-4 text-right">Soc</th>
+                                    <th class="px-4 py-4 text-right">Eco</th>
+                                    <th class="px-4 py-4 text-center">Variation</th>
+                                    <th class="px-4 py-4 text-center">D⁺ / D⁻</th>
+                                    <th class="px-4 py-4 text-center">CC (%)</th>
+                                    <th class="px-4 py-4 text-right">Verdict</th>
+                                </tr>
+                            </thead>
+                            <tbody id="t-scenario-table-body" class="divide-y divide-slate-100/50"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </div>
+        <div id="view-math" class="tab-content">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <div class="lg:col-span-8 space-y-6">
+                    <h3
+                        class="text-2xl font-extrabold font-headline tracking-tight text-slate-800 flex items-center gap-2 mb-2">
+                        <span class="material-symbols-outlined text-secondary">data_object</span> Desarrollo
+                        Empírico de la Sesión
+                    </h3>
+                    <div id="math-container">
+                        <div
+                            class="p-12 text-center text-slate-400 bg-white rounded-xl border border-outline-variant/15 shadow-sm">
+                            <span class="material-symbols-outlined text-5xl mb-4 block">functions</span>
+                            <p class="font-headline font-bold">Load the Global Ranking to extract the decision matrix.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-4 sticky top-24">
+                    <div
+                        class="bg-slate-900 rounded-[2rem] border border-slate-800 shadow-2xl p-8 md:p-10 relative overflow-hidden group">
+                        <div
+                            class="absolute -right-10 -top-10 w-48 h-48 bg-secondary/30 blur-[70px] rounded-full group-hover:bg-secondary/40 transition-colors duration-700 pointer-events-none">
+                        </div>
+                        <div
+                            class="absolute -left-10 -bottom-10 w-48 h-48 bg-teal-500/20 blur-[70px] rounded-full pointer-events-none">
+                        </div>
+                        <div class="relative z-10">
+                            <div
+                                class="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center border border-white/20 mb-6 backdrop-blur-sm shadow-inner">
+                                <span class="material-symbols-outlined text-white text-3xl"
+                                    style="font-variation-settings: 'FILL' 1;">menu_book</span>
+                            </div>
+                            <h3
+                                class="font-headline font-extrabold text-2xl text-white mb-4 tracking-tight leading-snug">
+                                Scientific Evidence and Documentation</h3>
+                            <p class="text-slate-400 font-body text-sm leading-relaxed mb-10">Demonstration of the
+                                mathematical completeness of the TOPSIS algorithm with Chebyshev distances (L∞) and
+                                statistical
+                                CRITIC weighting.</p>
+                            <div class="space-y-4">
+                                <a href="../presentacion_topsis_vs_mrp/SONYA_TOPSIS.pdf" target="_blank"
+                                    class="w-full flex items-center justify-center gap-3 bg-white hover:bg-surface-container-high text-slate-900 hover:text-secondary px-6 py-4 rounded-xl font-bold font-headline transition-all duration-300 shadow-[0_0_15px_rgba(255,255,255,0.1)] group/btn">
+                                    <span
+                                        class="material-symbols-outlined text-error group-hover/btn:text-secondary transition-colors">picture_as_pdf</span>
+                                    SEE WHITEPAPER PDF
+                                </a>
+                                <a href="../presentacion_topsis_vs_mrp/SONYA_TOPSIS.pdf" download
+                                    class="w-full flex items-center justify-center gap-2 bg-transparent border-2 border-slate-700 hover:border-slate-500 hover:bg-slate-800 text-white px-6 py-3.5 rounded-xl font-bold font-headline transition-all text-sm">
+                                    Download Complete
+                                    <span class="material-symbols-outlined text-base">arrow_forward</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        </main>
+    </div>
+
+    <script src="js/topsis_engine.js"></script>
+
+    <script type="module">
+        import "./js/logic_connector.js";
+        import { signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { auth } from "./js/firebase-config.js";
+
+        window.logoutApp = function () {
+            signOut(auth).then(() => { window.location.href = '../index.html'; });
+        };
+
+        // ── State ────────────────────────────────────────────────
+        let connector = null;
+        let activeUF = '';
+        let lastResult = null;
+        let mrpMinSat = CASP12.FALLBACK_TAU;   // tau_EI (%): por defecto = EI de la línea base EX-ANTE (A1) de la Acción activa
+        let tauUserOverride = false;            // true si el usuario mueve el slider (se resetea al cambiar de Acción)
+        function applyBaselineTau(alts) {
+            if (tauUserOverride) return;
+            mrpMinSat = CASP12.defaultTau(alts);
+            const sl = document.getElementById('thr-sat-slider');
+            if (sl) sl.value = Math.round(mrpMinSat);
+            const lb = document.getElementById('val-thr-sat');
+            if (lb) lb.innerText = CASP12.fmtTau(mrpMinSat);
+        }
+        let topsisThreshold = 0.5;
+        let scenarioSelectedEPs = [];
+
+        // ── Helpers UI ───────────────────────────────────────────
+        window.msg = function (txt, type = 'info') {
+            const w = document.getElementById('toast-wrap');
+            const t = document.createElement('div');
+            t.className = 'toast';
+            const c = type === 'err' ? '#ba1a1a' : type === 'ok' ? '#00696c' : '#004655';
+            const ic = type === 'err' ? 'error' : type === 'ok' ? 'check_circle' : 'info';
+            t.innerHTML = `<span class="material-symbols-outlined fill-icon" style="color:${c}">${ic}</span><span style="font-size:13px;font-weight:600;color:#171c1f">${txt}</span>`;
+            w.appendChild(t);
+            setTimeout(() => { t.classList.add('removing'); setTimeout(() => t.remove(), 300); }, 3500);
+        }
+
+        window.spin = function (on, text = 'Calculando...') {
+            document.getElementById('spin-msg').innerText = text;
+            document.getElementById('loading').classList.toggle('show', on);
+        }
+
+        window.switchTab = function (tab, btn) {
+            document.querySelectorAll('.topsis-tab').forEach(b => {
+                b.className = 'topsis-tab h-full border-b-[3px] border-transparent text-slate-500 hover:text-[#00696c] font-semibold text-sm tracking-wide px-2 lg:px-4 transition-all whitespace-nowrap';
+            });
+            btn.className = 'topsis-tab active h-full border-b-[3px] border-[#00696c] text-[#00696c] font-bold text-sm tracking-wide px-2 lg:px-4 transition-all whitespace-nowrap';
+            document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
+            document.getElementById(`view-${tab}`).classList.add('active');
+            if (tab === 'math') window.buildMath();
+        }
+
+        const bType = t => t === 'EX-ANTE'
+            ? `<span class="px-2.5 py-1 rounded-lg bg-surface-container-highest text-outline text-[10px] font-bold uppercase">Ante</span>`
+            : `<span class="px-2.5 py-1 rounded-lg bg-secondary/10 text-secondary text-[10px] font-bold uppercase">Post</span>`;
+
+        const bVerd = v => !v ? '--'
+            : (v.includes('APPROVED') || v.includes('APROBADA') || v.includes('Viable'))
+                ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full border border-green-200"><span class="w-1.5 h-1.5 rounded-full bg-green-600"></span>Viable</span>`
+                : `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-red-100 text-red-700 text-xs font-bold rounded-full border border-red-200"><span class="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse"></span>Discarded</span>`;
+        window.getBadge = function (baseValue, currentValue) {
+            if (!baseValue || !currentValue) return '<span class="text-slate-300">-</span>';
+            const diff = baseValue - currentValue;
+            const pct = Math.abs(((currentValue - baseValue) / baseValue) * 100).toFixed(1);
+
+            if (diff < 0) return `<span class="bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded text-[10px] inline-block w-14 text-center">+${pct}%</span>`;
+            else if (diff > 0) return `<span class="bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded text-[10px] inline-block w-14 text-center">-${pct}%</span>`;
+            else return `<span class="bg-gray-100 text-gray-600 font-bold px-2 py-0.5 rounded text-[10px] inline-block w-14 text-center">=</span>`;
+        }
+
+        window.getResilienceTableHTML = function (ranking) {
+            const maxA = Math.max(...ranking.map(r => r.amb)), minA = Math.min(...ranking.map(r => r.amb));
+            const maxS = Math.max(...ranking.map(r => r.soc)), minS = Math.min(...ranking.map(r => r.soc));
+            const maxE = Math.max(...ranking.map(r => r.eco)), minE = Math.min(...ranking.map(r => r.eco));
+
+            const survival = ranking.map(r => {
+                const s_amb = maxA === minA ? 4 : ((maxA - r.amb) / (maxA - minA)) * 4;
+                const s_soc = maxS === minS ? 4 : ((maxS - r.soc) / (maxS - minS)) * 4;
+                const s_eco = maxE === minE ? 4 : ((maxE - r.eco) / (maxE - minE)) * 4;
+                const logs = [{ l: 'Environmental', v: s_amb, icon: 'eco' }, { l: 'Social', v: s_soc, icon: 'groups' }, { l: 'Economic', v: s_eco, icon: 'payments' }];
+                logs.sort((a, b) => a.v - b.v);
+                const critico = logs[0];
+                const restantes = [logs[1], logs[2]];
+                const ss2 = (restantes[0].v + restantes[1].v) / 2;
+                return { ...r, ss2, critico, restantes };
+            }).sort((a, b) => b.ss2 - a.ss2);
+
+            return `
+                <div class="mt-8 p-6 bg-gradient-to-r from-blue-900 to-blue-800 rounded-t-2xl shadow-lg border-b border-blue-700">
+                    <div class="flex items-start gap-4">
+                        <div class="p-2 bg-blue-800/50 rounded-lg"><span class="material-symbols-outlined text-blue-300 text-2xl">troubleshoot</span></div>
+                        <div>
+                            <h4 class="font-headline font-black text-white text-base uppercase tracking-widest">Second Layer Analysis: Technical Tie-Breaking</h4>
+                            <p class="text-xs text-blue-200 leading-relaxed mt-1.5 font-medium">Banned by Strong Sustainability. Performance after omitting the limiting factor.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="overflow-hidden rounded-b-2xl border-x border-b border-blue-100 bg-white shadow-2xl mb-10">
+                    <table class="w-full text-left text-sm border-collapse">
+                        <thead class="bg-blue-50/80 text-[10px] uppercase font-black text-blue-800 tracking-widest border-b border-blue-100">
+                            <tr><th class="px-6 py-4 text-center">#</th><th class="px-6 py-4">Alternativa</th><th class="px-6 py-4 text-center">Omission Factor</th><th class="px-6 py-4 text-right">Supervivencia</th><th class="px-6 py-4 text-center">Logros</th><th class="px-6 py-4 text-right">Veredicto</th></tr>
+                        </thead>
+                        <tbody class="divide-y divide-blue-50">
+                            ${survival.map((r, i) => `
+                            <tr class="hover:bg-blue-50/40 transition-all">
+                                <td class="px-6 py-5 text-center font-mono font-bold text-blue-300">${String(i + 1).padStart(2, '0')}</td>
+                                <td class="px-6 py-5"><div class="font-headline font-extrabold text-slate-800 text-base">${r.accion}</div><div class="text-[9px] text-slate-400 font-bold uppercase mt-0.5">${r.tipo}</div></td>
+                                <td class="px-6 py-5 text-center">
+                                    <div class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-600 border border-red-100 rounded-lg">
+                                        <span class="material-symbols-outlined text-[14px]">${r.critico.icon}</span>
+                                        <span class="text-[10px] font-black uppercase font-mono line-through decoration-red-500/40">${r.critico.l}</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-5 text-right"><span class="font-mono font-black text-2xl ${i === 0 ? 'text-blue-600' : 'text-slate-600'}">${r.ss2.toFixed(3)}</span></td>
+                                <td class="px-6 py-5 text-center"><div class="flex justify-center gap-2">${r.restantes.map(l => `<span class="px-2 py-1 bg-slate-100 text-slate-600 border border-slate-200 rounded text-[10px] font-bold font-mono">${l.l.substring(0, 3)}: ${l.v.toFixed(2)}</span>`).join('')}</div></td>
+                                <td class="px-6 py-5 text-right">${i === 0 ? '<span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-600 to-blue-500 text-white text-[10px] font-black rounded-lg shadow-md uppercase tracking-widest">Recommendation</span>' : '<span class="text-slate-400 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 bg-slate-100 rounded-lg border border-slate-200">Secundaria</span>'}</td>
+                            </tr>`).join('')}
+                        </tbody>
+                    </table>
+                </div>`;
+        }
+
+        // ── UF selectors sync & population ────────────────────────────────────
+        window.populateUFSelectors = async function (ufs, selectedId) {
+            const opts = ufs.map(uf => `<option value="${uf.id}" ${uf.id === selectedId ? 'selected' : ''}>${uf.label}</option>`).join('');
+
+            const sidebarSel = document.getElementById('uf-sidebar-sel');
+            if (sidebarSel) sidebarSel.innerHTML = opts + `<option value="__new__"> Create New Action</option>`;
+
+            const simGlobalSel = document.getElementById('sim-uf-sel');
+            if (simGlobalSel) simGlobalSel.innerHTML = `<option value="">-- Select Existing Action --</option><option value="__new__" style="font-weight:bold; color:#00696c">➕ Create New Action from Scratch</option>` + opts;
+
+            const scenarioSel = document.getElementById('t-scenario-uf');
+            if (scenarioSel) scenarioSel.innerHTML = `<option value="">-- Select Existing Action --</option>` + opts;
+        }
+
+        window.refreshExPostExistingList = async function (ufId) {
+            const container = document.getElementById('m-expost-existing-container');
+            const list = document.getElementById('m-expost-existing-list');
+
+            if (!ufId || ufId === '__new__') {
+                if (container) container.classList.add('hidden');
+                return;
+            }
+
+            const alts = await connector.getAlternatives(ufId);
+            const exPosts = alts.filter(a => a.tipo === 'EX-POST');
+
+            if (exPosts.length > 0 && container && list) {
+                container.classList.remove('hidden');
+                list.innerHTML = exPosts.map(ep => `
+                    <label class="flex items-start gap-3 p-4 bg-white border border-slate-200 rounded-2xl cursor-pointer hover:bg-teal-50 hover:border-secondary/30 transition-all shadow-sm group">
+                        <input type="checkbox" class="sim-expost-db-chk w-5 h-5 mt-0.5 flex-shrink-0 rounded-md border-slate-300 text-secondary focus:ring-secondary" value="${ep.nombre}" data-json='${JSON.stringify(ep)}'>
+                        <div class="flex flex-col min-w-0 w-full">
+                            <span class="font-headline font-black text-sm text-slate-800 break-words leading-tight group-hover:text-secondary transition-colors">${ep.nombre}</span>
+                            <div class="flex flex-wrap gap-2 mt-2 opacity-80">
+                                <span class="text-[10px] font-mono font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded border border-slate-200">A: ${ep.amb}</span>
+                                <span class="text-[10px] font-mono font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded border border-slate-200">S: ${ep.soc}</span>
+                                <span class="text-[10px] font-mono font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded border border-slate-200">E: ${ep.eco}</span>
+                            </div>
+                        </div>
+                    </label>
+                `).join('');
+            } else if (container) {
+                container.classList.add('hidden');
+            }
+        }
+
+        window.onUFChange = async function (ufId) {
+            if (!ufId) return;
+            ['uf-sidebar-sel', 'sim-uf-sel'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ufId; });
+
+            const builderAction = document.getElementById('m-action-builder-container');
+            const exPostList = document.getElementById('m-expost-existing-container');
+            const anteSel = document.getElementById('ante-sel');
+            const infoBar = document.getElementById('uf-infobar');
+
+            if (ufId === '__new__') {
+                if (infoBar) infoBar.classList.add('hidden');
+                if (builderAction) builderAction.classList.remove('hidden');
+                if (exPostList) exPostList.classList.add('hidden');
+
+                if (anteSel) {
+                    anteSel.innerHTML = `<option value="__new__">Definition of Initial Base</option>`;
+                    anteSel.disabled = true;
+                    window.onAnteChange('__new__');
+                }
+
+                const simTabBtn = document.querySelectorAll('.topsis-tab')[1];
+                if (simTabBtn && !document.getElementById('view-sim').classList.contains('active')) {
+                    window.switchTab('sim', simTabBtn);
+                }
+                return;
+            }
+
+            if (ufId === activeUF) return;
+            activeUF = ufId;
+            lastResult = null;
+
+            if (builderAction) builderAction.classList.add('hidden');
+            if (anteSel) anteSel.disabled = false;
+
+            await window.refreshAnteSelect();
+            await window.refreshExPostExistingList(ufId);
+            await window.loadT();
+        }
+
+        window.refreshAnteSelect = async function () {
+            if (!connector || !activeUF || activeUF === '__new__') return;
+            const alts = await connector.getAlternatives(activeUF);
+            const exAntes = alts.filter(a => a.tipo === 'EX-ANTE');
+
+            const anteSel = document.getElementById('ante-sel');
+            if (!anteSel) return;
+
+            let html = '';
+            exAntes.forEach(a => html += `<option value="${a.nombre}">${a.nombre}</option>`);
+
+            if (exAntes.length > 0) {
+                anteSel.innerHTML = html;
+                anteSel.value = exAntes[0].nombre;
+                window.onAnteChange(exAntes[0].nombre);
+            } else {
+                anteSel.innerHTML = `<option value="">-- There is no defined EX-ANTE basis --</option>`;
+                anteSel.value = "";
+                window.onAnteChange("");
+            }
+        }
+
+        window.onAnteChange = function (val) {
+            const newPanel = document.getElementById('ante-new');
+            if (val === '__new__') {
+                newPanel.style.display = 'block';
+                newPanel.classList.remove('hidden');
+                ['ante-nom', 'ante-amb', 'ante-soc', 'ante-eco'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = '';
+                });
+            } else {
+                newPanel.style.display = 'none';
+                newPanel.classList.add('hidden');
+            }
+        }
+
+        function renderWeights(pesos) {
+            const wColors = { 'Economic': '#004655', 'Environmental': '#00696c', 'Social': '#8b3d97' };
+            document.getElementById('weights-container').innerHTML = Object.entries(pesos).map(([k, v]) => `
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm font-mono font-bold uppercase">
+                        <span class="text-on-surface-variant">${k}</span>
+                        <span style="color:${wColors[k] ?? '#00696c'}">${(v * 100).toFixed(1)}%</span>
+                    </div>
+                    <div class="w-full h-3 bg-white rounded-full overflow-hidden">
+                        <div class="h-full rounded-full transition-all duration-700" style="width:${v * 100}%;background:${wColors[k] ?? '#00696c'}"></div>
+                    </div>
+                </div>`).join('');
+        }
+
+        function renderPisNis(pis, nis) {
+            const panel = document.getElementById('pis-nis-panel');
+            const keys = [['eco', 'Eco'], ['amb', 'Amb'], ['soc', 'Soc']];
+            document.getElementById('pis-nis-container').innerHTML = keys.map(([k, label]) => `
+                <div class="flex justify-between items-center text-xs font-mono">
+                    <span class="text-outline font-bold">${label}</span>
+                    <span class="text-green-700 font-bold">A⁺ ${pis[k]?.toFixed(4) ?? '--'}</span>
+                    <span class="text-red-600 font-bold">A⁻ ${nis[k]?.toFixed(4) ?? '--'}</span>
+                </div>`).join('');
+            panel.classList.remove('hidden');
+        }
+
+        function renderUFInfobar(uf, count) {
+            document.getElementById('uf-infobar-label').textContent = uf.label;
+            document.getElementById('uf-infobar-unit').textContent = uf.unit || 'Unidades';
+            document.getElementById('uf-infobar-count').textContent = count;
+            document.getElementById('uf-infobar').classList.remove('hidden');
+            document.getElementById('uf-header-badge').classList.remove('hidden');
+            document.getElementById('uf-header-badge').classList.add('flex');
+            document.getElementById('uf-header-label').textContent = uf.label;
+        }
+
+        window.updateThresholds = function () {
+            topsisThreshold = document.getElementById('topsis-thr-input').value / 100;
+            mrpMinSat = parseFloat(document.getElementById('mrp-sat-input').value);
+            tauUserOverride = true;
+            window.loadT();
+        }
+
+        // Asignar listeners globales para los sliders del HTML
+        window.changeTopsisThr = function (val) {
+            topsisThreshold = val / 100;
+            document.getElementById('val-thr-cc').innerText = val + '%';
+            window.loadT();
+        }
+
+        window.changeSatThr = function (val) {
+            mrpMinSat = parseFloat(val);
+            tauUserOverride = true;
+            document.getElementById('val-thr-sat').innerText = CASP12.fmtTau(val);
+            window.loadT();
+        }
+
+
+        window.loadT = async function () {
+            if (!connector || !activeUF || activeUF === '__new__') return;
+            spin(true, 'Querying the cloud and recalculating the matrix...');
+            try {
+                const ufs = await connector.getUFs();
+                const ufInfo = ufs.find(u => u.id === activeUF);
+
+                let rawAlts = await connector.getAlternatives(activeUF);
+                let altsDisponibles = rawAlts.map(alt => ({
+                    ...alt,
+                    satisfaccion: (alt.satisfaccion === undefined || alt.satisfaccion === 'NS' || alt.satisfaccion === '') ? 'NS' : parseFloat(alt.satisfaccion)
+                }));
+
+                applyBaselineTau(altsDisponibles);
+
+                if (altsDisponibles.length < 2) {
+                    document.getElementById('ranking-body').innerHTML = `<tr><td colspan="10" class="p-10 text-center text-outline font-headline">Datos insuficientes para el análisis.</td></tr>`;
+                    spin(false); return;
+                }
+
+                if (ufInfo) renderUFInfobar(ufInfo, altsDisponibles.length);
+
+                lastResult = window.TOPSISEngine.run(altsDisponibles, { threshold: topsisThreshold });
+
+                let d = lastResult.ranking;
+
+                d.sort((a, b) => {
+                    const aVetada = a.cc < topsisThreshold || a.amb <= 0 || a.soc <= 0 || a.eco <= 0;
+                    const bVetada = b.cc < topsisThreshold || b.amb <= 0 || b.soc <= 0 || b.eco <= 0;
+                    if (!aVetada && bVetada) return -1;
+                    if (aVetada && !bVetada) return 1;
+                    return b.cc - a.cc;
+                });
+
+                const exAnte = d.find(item => item.tipo === 'EX-ANTE');
+
+                renderWeights(lastResult.pesos);
+                renderPisNis(lastResult.pis, lastResult.nis);
+
+                document.getElementById('met-total').innerText = d.length;
+                document.getElementById('met-top').innerText = (d[0].cc * 100).toFixed(1) + '%';
+
+                const viables = d.filter(r => r.cc >= topsisThreshold && r.amb > 0 && r.soc > 0 && r.eco > 0);
+                document.getElementById('met-ok').innerText = viables.length;
+                document.getElementById('met-no').innerText = d.length - viables.length;
+                document.getElementById('ranking-body').innerHTML = d.map((r, i) => `
+                    <tr class="hover:bg-slate-50 transition-colors border-b border-slate-100">
+                        <td class="px-4 py-5 font-mono text-sm text-outline">${i === 0 ? '🏆' : String(i + 1).padStart(2, '0')}</td>
+                        <td class="px-4 py-5 font-headline font-bold text-slate-800">${r.accion}</td>
+                        <td class="px-4 py-5 text-center">${bType(r.tipo)}</td>
+                        <td class="px-4 py-5 text-right font-mono text-xs font-bold">${r.amb}</td>
+                        <td class="px-4 py-5 text-right font-mono text-xs font-bold">${r.soc}</td>
+                        <td class="px-4 py-5 text-right font-mono text-xs font-bold">${r.eco}</td>
+                        <td class="px-5 py-2 text-center border-l border-r border-slate-100 bg-slate-50/50">
+                            ${r.tipo === 'EX-ANTE' || !exAnte ? '---' : `<div class="flex flex-col gap-1">${window.getBadge(exAnte.amb, r.amb)} ${window.getBadge(exAnte.soc, r.soc)} ${window.getBadge(exAnte.eco, r.eco)}</div>`}
+                        </td>
+                        <td class="px-4 py-5 text-center">
+                            <div class="flex flex-col items-center gap-0.5">
+                                <span class="data-mono text-[10px] text-green-700 font-bold">D⁺ ${r.d_plus?.toFixed(5) ?? '--'}</span>
+                                <span class="data-mono text-[10px] text-red-600 font-bold">D⁻ ${r.d_minus?.toFixed(5) ?? '--'}</span>
+                            </div>
+                        </td>
+                        <td class="px-4 py-5 text-center font-mono font-bold text-lg ${r.cc >= topsisThreshold ? 'text-secondary' : 'text-error'}">${(r.cc * 100).toFixed(2)}%</td>
+                        <td class="px-4 py-5 text-right">${r.cc >= topsisThreshold ? bVerd('APPROVED') : bVerd('DISCARDED')}</td>
+                    </tr>`).join('');
+
+                document.getElementById('t-sat-section').classList.remove('hidden');
+                document.getElementById('display-min-sat').innerText = CASP12.fmtTau(mrpMinSat);
+                document.getElementById('t-sat-body').innerHTML = d.map(r => {
+                    const orig = altsDisponibles.find(a => a.nombre === r.accion);
+                    const sat = orig ? orig.satisfaccion : 'NS';
+                    const isNS = sat === 'NS';
+                    const aprobadoCC = r.cc >= topsisThreshold && r.amb > 0 && r.soc > 0 && r.eco > 0;
+
+                    let criterioLimitante = '--';
+                    if (!aprobadoCC) {
+                        if (r.cc <= 0) {
+                            criterioLimitante = '<span class="text-error font-bold text-[10px] uppercase">Multiple</span>';
+                        } else {
+                            const pilares = [{ n: 'Environmental', v: r.amb }, { n: 'Social', v: r.soc }, { n: 'Economic', v: r.eco }];
+                            pilares.sort((a, b) => a.v - b.v);
+                            criterioLimitante = `<span class="text-error font-bold text-[10px] uppercase">${pilares[0].n}</span>`;
+                        }
+                    }
+
+                    let badgeSat = '', colorSat = '', displaySat = '';
+                    if (isNS) {
+                        displaySat = 'NS'; colorSat = 'text-yellow-600';
+                        badgeSat = `<span class="inline-flex items-center gap-1 px-3 py-1 bg-yellow-100 text-yellow-800 text-[10px] font-bold rounded-full border border-yellow-200"><span class="material-symbols-outlined text-sm">help</span> Pending (NS)</span>`;
+                    } else {
+                        const aprobadoSat = CASP12.passes(sat, mrpMinSat);
+                        displaySat = sat + '%'; colorSat = aprobadoSat ? 'text-green-600' : 'text-red-600';
+                        badgeSat = aprobadoSat
+                            ? `<span class="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-800 text-[10px] font-bold rounded-full border border-green-200"><span class="material-symbols-outlined text-sm">check_circle</span> APPROVED</span>`
+                            : `<span class="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-800 text-[10px] font-bold rounded-full border border-red-200"><span class="material-symbols-outlined text-sm">cancel</span> REJECTED</span>`;
+                    }
+
+                    return `
+                        <tr class="hover:bg-purple-50/10 transition-colors">
+                            <td class="px-4 py-5 font-bold text-slate-800">${r.accion}</td>
+                            <td class="px-4 py-5 text-center font-mono font-bold text-lg ${aprobadoCC ? 'text-secondary' : 'text-error'}">${(r.cc * 100).toFixed(3)}</td>
+                            <td class="px-4 py-5 text-center">
+                                <span class="px-2 py-1 rounded text-[10px] font-bold ${aprobadoCC ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}">
+                                    ${aprobadoCC ? 'Viable' : 'Discarded'}
+                                </span>
+                            </td>
+                            <td class="px-4 py-5 text-center font-bold">${criterioLimitante}</td>
+                            <td class="px-4 py-5 text-center font-mono font-bold text-xl ${colorSat}">${displaySat}</td>
+                            <td class="px-4 py-5 text-right">${badgeSat}</td>
+                        </tr>`;
+                }).join('');
+
+            } catch (e) { msg(e.message, 'err'); }
+            spin(false);
+        }
+        // ── Simulation State ──────────────────────────────────────
+        let simState = {
+            actionId: null, isNewAction: false, actionLabel: '', actionUnit: '',
+            anteData: null, anteIsNew: false, exPostDB: [], exPostNew: [],
+            manualRowCount: 0, currentDraft: null
+        };
+
+        window.simOnActionChange = async function (ufId) {
+            simState = { ...simState, actionId: ufId, isNewAction: false, anteData: null, anteIsNew: false, exPostDB: [], exPostNew: [], manualRowCount: 0, currentDraft: null };
+            document.getElementById('sim-res').classList.add('hidden');
+            document.getElementById('sim-expost-manual-list').innerHTML = '';
+
+            const newActionPanel = document.getElementById('sim-new-action-panel');
+            const anteSection = document.getElementById('sim-ante-section');
+            const expostSection = document.getElementById('sim-expost-section');
+            const anteExisting = document.getElementById('sim-ante-existing');
+            const anteNewForm = document.getElementById('sim-ante-new-form');
+            const expostDBPanel = document.getElementById('sim-expost-db-panel');
+
+            if (!ufId) {
+                newActionPanel.classList.add('hidden');
+                anteSection.style.display = 'none';
+                expostSection.style.display = 'none';
+                return;
+            }
+
+            if (ufId === '__new__') {
+                simState.isNewAction = true;
+                simState.anteIsNew = true;
+                newActionPanel.classList.remove('hidden');
+                anteSection.style.display = 'block';
+                expostSection.style.display = 'block';
+                anteExisting.classList.add('hidden');
+                anteNewForm.classList.remove('hidden');
+                expostDBPanel.classList.add('hidden');
+                return;
+            }
+
+            newActionPanel.classList.add('hidden');
+            anteSection.style.display = 'block';
+            expostSection.style.display = 'block';
+
+            const alts = await connector.getAlternatives(ufId);
+            const exAnte = alts.find(a => a.tipo === 'EX-ANTE');
+            const exPosts = alts.filter(a => a.tipo === 'EX-POST');
+
+            if (exAnte) {
+                simState.anteData = { ...exAnte };
+                simState.anteIsNew = false;
+                anteExisting.classList.remove('hidden');
+                anteNewForm.classList.add('hidden');
+                document.getElementById('sim-ante-existing-name').textContent = exAnte.nombre;
+                document.getElementById('sim-ante-existing-amb').textContent = exAnte.amb;
+                document.getElementById('sim-ante-existing-soc').textContent = exAnte.soc;
+                document.getElementById('sim-ante-existing-eco').textContent = exAnte.eco;
+                const satDisplay = (exAnte.satisfaccion === undefined || exAnte.satisfaccion === 'NS' || exAnte.satisfaccion === '') ? 'NS' : exAnte.satisfaccion + '%';
+                document.getElementById('sim-ante-existing-sat').textContent = satDisplay;
+            } else {
+                simState.anteIsNew = true;
+                anteExisting.classList.add('hidden');
+                anteNewForm.classList.remove('hidden');
+            }
+
+            if (exPosts.length > 0) {
+                expostDBPanel.classList.remove('hidden');
+                document.getElementById('sim-expost-db-list').innerHTML = exPosts.map(ep => `
+                    <label class="flex items-start gap-3 p-4 bg-white border border-slate-200 rounded-2xl cursor-pointer hover:bg-teal-50 hover:border-secondary/30 transition-all shadow-sm group">
+                        <input type="checkbox" class="sim-ep-db-chk w-5 h-5 mt-0.5 flex-shrink-0 rounded-md border-slate-300 text-secondary focus:ring-secondary"
+                            value="${ep.nombre}" data-json='${JSON.stringify(ep).replace(/'/g, "&#39;")}' onchange="simToggleDBExPost(this)">
+                        <div class="min-w-0 w-full">
+                            <span class="font-headline font-black text-sm text-slate-800 break-words leading-tight group-hover:text-secondary transition-colors">${ep.nombre}</span>
+                            <div class="flex flex-wrap gap-2 mt-2">
+                                <span class="text-[10px] font-mono font-bold bg-teal-50 text-teal-700 px-2 py-1 rounded border border-teal-100">Env: ${ep.amb}</span>
+                                <span class="text-[10px] font-mono font-bold bg-purple-50 text-purple-700 px-2 py-1 rounded border border-purple-100">Soc: ${ep.soc}</span>
+                                <span class="text-[10px] font-mono font-bold bg-blue-50 text-blue-700 px-2 py-1 rounded border border-blue-100">Eco: ${ep.eco}</span>
+                                <span class="text-[10px] font-mono font-bold bg-amber-50 text-amber-700 px-2 py-1 rounded border border-amber-100">EI: ${(ep.satisfaccion === undefined || ep.satisfaccion === 'NS' || ep.satisfaccion === '') ? 'NS' : ep.satisfaccion + '%'}</span>
+                            </div>
+                        </div>
+                    </label>`).join('');
+            } else {
+                expostDBPanel.classList.add('hidden');
+            }
+        }
+
+        window.simToggleDBExPost = function (chk) {
+            const data = JSON.parse(chk.getAttribute('data-json'));
+            if (chk.checked) {
+                if (!simState.exPostDB.find(e => e.nombre === data.nombre)) simState.exPostDB.push(data);
+            } else {
+                simState.exPostDB = simState.exPostDB.filter(e => e.nombre !== data.nombre);
+            }
+        }
+
+        window.simAddExPostRow = function () {
+            simState.manualRowCount++;
+            const n = simState.manualRowCount;
+            simState.exPostNew.push(n);
+            const d = document.createElement('div');
+            d.id = `sim-ep-row-${n}`;
+            d.innerHTML = `
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative border-l-4 border-l-secondary/60 hover:border-l-secondary transition-colors mb-2">
+                    <button onclick="simRemoveExPostRow(${n})" class="absolute top-4 right-4 text-slate-300 hover:text-error transition-colors bg-slate-50 w-8 h-8 rounded-full flex items-center justify-center">
+                        <span class="material-symbols-outlined text-lg">close</span>
+                    </button>
+                    <div class="flex items-center gap-2 mb-4">
+                        
+                        <h4 class="font-headline font-bold text-sm text-slate-800 uppercase tracking-widest">New EX-POST Alternative ${n}</h4>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="md:col-span-2 lg:col-span-4">
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">Descriptive Name</label>
+                            <input type="text" id="sim-ep-nom-${n}" placeholder="Alternative name..."
+                                class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-sm font-bold focus:ring-2 focus:ring-secondary/20 outline-none shadow-sm">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-teal-600 uppercase tracking-widest mb-1 ml-1">Environmental</label>
+                            <input type="number" step="any" id="sim-ep-amb-${n}"
+                                class="w-full bg-white border border-slate-200 rounded-xl p-3 pl-4 font-mono font-bold text-sm focus:ring-2 focus:ring-secondary/20 outline-none shadow-sm">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-purple-600 uppercase tracking-widest mb-1 ml-1">Social</label>
+                            <input type="number" step="any" id="sim-ep-soc-${n}"
+                                class="w-full bg-white border border-slate-200 rounded-xl p-3 pl-4 font-mono font-bold text-sm focus:ring-2 focus:ring-secondary/20 outline-none shadow-sm">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-primary uppercase tracking-widest mb-1 ml-1">Economic</label>
+                            <input type="number" step="any" id="sim-ep-eco-${n}"
+                                class="w-full bg-white border border-slate-200 rounded-xl p-3 pl-4 font-mono font-bold text-sm focus:ring-2 focus:ring-secondary/20 outline-none shadow-sm">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-amber-600 uppercase tracking-widest mb-1 ml-1">Effectiveness Index (CASP-12)</label>
+                            <input type="text" id="sim-ep-sat-${n}" placeholder="e.g.: 78, 30.7pts or NS"
+                                class="w-full bg-white border border-slate-200 rounded-xl p-3 pl-4 font-mono font-bold text-sm focus:ring-2 focus:ring-amber-300/40 outline-none shadow-sm text-amber-700">
+                            <p class="text-[10px] text-slate-400 mt-1 ml-1">EI as % (0–100), CASP-12 pts or <strong>NS</strong></p>
+                        </div>
+                    </div>
+                </div>`;
+            document.getElementById('sim-expost-manual-list').appendChild(d);
+        }
+
+        window.simRemoveExPostRow = function (n) {
+            document.getElementById(`sim-ep-row-${n}`)?.remove();
+            simState.exPostNew = simState.exPostNew.filter(x => x !== n);
+        }
+
+        window.simRun = async function () {
+            const ufId = document.getElementById('sim-uf-sel')?.value;
+            if (!ufId) { msg('Select or create an Action first', 'err'); return; }
+
+            let anteObj = null;
+            if (simState.anteIsNew) {
+                const nom = document.getElementById('sim-ante-nom')?.value.trim();
+                if (!nom) { msg('Enter a name for the EX-ANTE baseline', 'err'); return; }
+                const satRaw = document.getElementById('sim-ante-sat')?.value.trim().toUpperCase();
+                anteObj = {
+                    nombre: nom, tipo: 'EX-ANTE',
+                    amb: parseFloat(document.getElementById('sim-ante-amb')?.value) || 0,
+                    soc: parseFloat(document.getElementById('sim-ante-soc')?.value) || 0,
+                    eco: parseFloat(document.getElementById('sim-ante-eco')?.value) || 0,
+                    satisfaccion: CASP12.parse(satRaw),
+                    isNew: true
+                };
+            } else {
+                anteObj = { ...simState.anteData, isNew: false };
+            }
+
+            if (!anteObj) { msg('EX-ANTE baseline not defined', 'err'); return; }
+
+            const allExPost = [...simState.exPostDB.map(e => ({ ...e, isNew: false }))];
+            for (const n of simState.exPostNew) {
+                const el = document.getElementById(`sim-ep-row-${n}`);
+                if (!el) continue;
+                const nom = document.getElementById(`sim-ep-nom-${n}`)?.value.trim();
+                if (!nom) continue;
+                const satRaw = document.getElementById(`sim-ep-sat-${n}`)?.value.trim().toUpperCase();
+                allExPost.push({
+                    nombre: nom, tipo: 'EX-POST',
+                    amb: parseFloat(document.getElementById(`sim-ep-amb-${n}`)?.value) || 0,
+                    soc: parseFloat(document.getElementById(`sim-ep-soc-${n}`)?.value) || 0,
+                    eco: parseFloat(document.getElementById(`sim-ep-eco-${n}`)?.value) || 0,
+                    satisfaccion: CASP12.parse(satRaw),
+                    isNew: true
+                });
+            }
+
+            if (allExPost.length === 0) { msg('Add or select at least one EX-POST alternative', 'err'); return; }
+
+            let newActionMeta = null;
+            if (simState.isNewAction) {
+                const actionName = document.getElementById('sim-new-action-name')?.value.trim();
+                if (!actionName) { msg('Enter a name for the new Action', 'err'); return; }
+                newActionMeta = { label: actionName, unit: document.getElementById('sim-new-action-unit')?.value.trim() || 'Units' };
+            }
+
+            spin(true, 'Calculating TOPSIS simulation...');
+            try {
+                const engineInput = [anteObj, ...allExPost].map(x => ({
+                    accion: x.nombre, nombre: x.nombre, tipo: x.tipo, amb: x.amb, soc: x.soc, eco: x.eco
+                }));
+                const res = window.TOPSISEngine.run(engineInput, { threshold: topsisThreshold });
+                const d = res.ranking;
+                const exAnteRes = d.find(r => r.tipo === 'EX-ANTE');
+
+                simState.currentDraft = { ufId, isNewAction: simState.isNewAction, newActionMeta, anteObj, allExPost };
+
+                const newOnly = allExPost.filter(e => e.isNew);
+                const hasSaveable = anteObj.isNew || newOnly.length > 0 || simState.isNewAction;
+
+                let html = `
+                    <div class="bg-amber-100/80 text-amber-900 p-4 text-center text-[10px] font-black tracking-widest uppercase border-b border-amber-200 rounded-t-2xl">⚠️ Sandbox Mode — Simulation Results</div>
+                    <div class="w-full overflow-x-auto custom-scrollbar bg-white/40">
+                        <table class="w-full min-w-[1100px] text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50/80 text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest border-b border-slate-200">
+                                    <th class="px-4 py-4 text-center">#</th>
+                                    <th class="px-4 py-4">Alternative</th>
+                                    <th class="px-4 py-4 text-center">Type</th>
+                                    <th class="px-4 py-4 text-right">Env</th>
+                                    <th class="px-4 py-4 text-right">Soc</th>
+                                    <th class="px-4 py-4 text-right">Eco</th>
+                                    <th class="px-4 py-4 text-center">EI (CASP-12)</th>
+                                    <th class="px-4 py-4 text-center">Variation</th>
+                                    <th class="px-4 py-4 text-center">D⁺ / D⁻</th>
+                                    <th class="px-4 py-4 text-center">CC (%)</th>
+                                    <th class="px-4 py-4 text-right">Verdict</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200/60">`;
+
+                d.forEach((r, i) => {
+                    const origData = [anteObj, ...allExPost].find(x => x.nombre === r.accion);
+                    const sat = origData?.satisfaccion;
+                    const satDisplay = (sat === undefined || sat === 'NS' || sat === '') ? 'NS' : sat + '%';
+                    const isNew = origData?.isNew ? '<span class="text-[9px] bg-secondary/10 text-secondary px-1.5 py-0.5 rounded font-bold ml-1">NEW</span>' : '';
+                    html += `
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-4 py-4 text-center font-mono font-bold text-slate-400">${String(i + 1).padStart(2, '0')}</td>
+                            <td class="px-4 py-4 font-bold text-slate-800">${r.accion}${isNew}</td>
+                            <td class="px-4 py-4 text-center">${bType(r.tipo)}</td>
+                            <td class="px-4 py-4 text-right font-mono text-xs">${r.amb}</td>
+                            <td class="px-4 py-4 text-right font-mono text-xs">${r.soc}</td>
+                            <td class="px-4 py-4 text-right font-mono text-xs">${r.eco}</td>
+                            <td class="px-4 py-4 text-center font-mono text-xs font-bold text-amber-700">${satDisplay}</td>
+                            <td class="px-4 py-2 text-center border-l border-r border-slate-100/50">
+                                ${r.tipo === 'EX-ANTE' || !exAnteRes ? '---' : `<div class="flex flex-col gap-1 items-center">${window.getBadge(exAnteRes.amb, r.amb)} ${window.getBadge(exAnteRes.soc, r.soc)} ${window.getBadge(exAnteRes.eco, r.eco)}</div>`}
+                            </td>
+                            <td class="px-4 py-4 text-center text-[10px] font-mono"><span class="text-green-600 block">D⁺ ${r.d_plus.toFixed(4)}</span><span class="text-red-600 block">D⁻ ${r.d_minus.toFixed(4)}</span></td>
+                            <td class="px-4 py-4 text-center font-mono font-bold text-lg ${r.cc >= topsisThreshold ? 'text-secondary' : 'text-error'}">${(r.cc * 100).toFixed(2)}%</td>
+                            <td class="px-4 py-4 text-right">${r.cc >= topsisThreshold ? bVerd('APPROVED') : bVerd('DISCARDED')}</td>
+                        </tr>`;
+                });
+
+                html += `</tbody></table></div>`;
+                if (hasSaveable) {
+                    html += `
+                        <div class="p-6 bg-slate-900 rounded-b-2xl flex items-center justify-between gap-4">
+                            <p class="text-slate-400 text-xs font-mono">${simState.isNewAction ? '1 new Action + ' : ''}${anteObj.isNew ? '1 new EX-ANTE + ' : ''}${newOnly.length} new EX-POST ready to save</p>
+                            <button onclick="simPersist()" class="bg-white text-slate-900 hover:bg-secondary hover:text-white transition-colors px-8 py-2.5 rounded-xl font-black text-xs">Save to Cloud Database</button>
+                        </div>`;
+                }
+
+                const rs = document.getElementById('sim-res');
+                rs.innerHTML = html;
+                rs.classList.remove('hidden');
+                rs.scrollIntoView({ behavior: 'smooth' });
+            } catch (e) { msg(e.message, 'err'); }
+            spin(false);
+        }
+
+        window.simPersist = async function () {
+            const draft = simState.currentDraft;
+            if (!draft) return;
+            spin(true, 'Saving to Cloud...');
+            try {
+                let targetId = draft.ufId;
+                if (draft.isNewAction && draft.newActionMeta) {
+                    const newAction = await connector.addUF(draft.newActionMeta);
+                    targetId = newAction.id;
+                }
+                if (draft.anteObj.isNew) {
+                    await connector.addAlternative(targetId, { nombre: draft.anteObj.nombre, tipo: 'EX-ANTE', amb: draft.anteObj.amb, soc: draft.anteObj.soc, eco: draft.anteObj.eco, satisfaccion: draft.anteObj.satisfaccion });
+                }
+                for (const ep of draft.allExPost) {
+                    if (ep.isNew) await connector.addAlternative(targetId, { nombre: ep.nombre, tipo: 'EX-POST', amb: ep.amb, soc: ep.soc, eco: ep.eco, satisfaccion: ep.satisfaccion });
+                }
+                msg('Simulation saved to Cloud successfully!', 'ok');
+                setTimeout(() => location.reload(), 1500);
+            } catch (e) {
+                msg('Error saving: ' + e.message, 'err');
+                spin(false);
+            }
+        }
+
+
+        window.onScenarioActionChange = async function (actionName) {
+            const container = document.getElementById('t-scenario-expost-list');
+            const resContainer = document.getElementById('t-scenario-results');
+            if (resContainer) resContainer.classList.add('hidden');
+
+            scenarioSelectedEPs = [];
+            if (container) container.innerHTML = '';
+            if (!actionName) return;
+
+            const alts = await connector.getAlternatives(actionName);
+            const exAnte = alts.find(a => a.tipo === 'EX-ANTE');
+            const infoDiv = document.getElementById('t-scenario-base-info');
+
+            if (infoDiv) {
+                if (exAnte) infoDiv.innerHTML = `<span class="font-bold text-slate-700">${exAnte.nombre}</span> <span class="text-xs text-outline ml-2 break-words">(Amb: ${exAnte.amb}, Soc: ${exAnte.soc}, Eco: ${exAnte.eco})</span>`;
+                else infoDiv.innerHTML = `<span class="text-error font-bold">EX-ANTE no encontrado para esta acción.</span>`;
+            }
+
+            const exPosts = alts.filter(a => a.tipo === 'EX-POST');
+            if (exPosts.length === 0) {
+                if (container) container.innerHTML = '<p class="text-sm text-outline p-4 font-headline">No hay alternativas EX-POST para esta acción.</p>';
+                return;
+            }
+
+            if (container) {
+                container.innerHTML = exPosts.map(ep => `
+                    <label class="flex flex-col sm:flex-row sm:items-center gap-3 p-4 bg-white border border-slate-200 rounded-xl cursor-pointer hover:bg-teal-50 hover:border-[#00696c]/30 transition-all shadow-sm">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <input type="checkbox" onchange="toggleScenarioAlt('${ep.nombre}', this.checked)" class="w-5 h-5 flex-shrink-0 rounded border-slate-300 text-[#00696c] focus:ring-[#00696c]">
+                            <span class="font-bold text-sm text-slate-800 break-words">${ep.nombre}</span>
+                        </div>
+                        <div class="sm:ml-auto flex flex-wrap gap-2 text-[10px] text-slate-600 font-mono pl-8 sm:pl-0">
+                            <span class="bg-slate-100 border border-slate-200 px-2 py-1 rounded font-bold">Amb: ${ep.amb}</span>
+                            <span class="bg-slate-100 border border-slate-200 px-2 py-1 rounded font-bold">Soc: ${ep.soc}</span>
+                            <span class="bg-slate-100 border border-slate-200 px-2 py-1 rounded font-bold">Eco: ${ep.eco}</span>
+                        </div>
+                    </label>
+                `).join('');
+            }
+        }
+
+        window.toggleScenarioAlt = function (nombre, isChecked) {
+            if (isChecked) { if (!scenarioSelectedEPs.includes(nombre)) scenarioSelectedEPs.push(nombre); }
+            else { scenarioSelectedEPs = scenarioSelectedEPs.filter(n => n !== nombre); }
+        }
+
+        window.generateScenarioRanking = async function () {
+            const actionName = document.getElementById('t-scenario-uf').value;
+            if (!actionName) { msg('Select an Action first', 'err'); return; }
+            if (scenarioSelectedEPs.length === 0) { msg('Mark at least one EX-POST alternative', 'err'); return; }
+
+            spin(true, 'Recalculating CRITIC weights and TOPSIS metrics...');
+            try {
+                const alts = await connector.getAlternatives(actionName);
+                const exAnte = alts.find(a => a.tipo === 'EX-ANTE');
+
+                const subset = [];
+                if (exAnte) subset.push({ accion: exAnte.nombre, nombre: exAnte.nombre, tipo: exAnte.tipo, amb: Number(exAnte.amb), soc: Number(exAnte.soc), eco: Number(exAnte.eco) });
+
+                scenarioSelectedEPs.forEach(epName => {
+                    const found = alts.find(a => a.nombre === epName && a.tipo === 'EX-POST');
+                    if (found) subset.push({ accion: found.nombre, nombre: found.nombre, tipo: found.tipo, amb: Number(found.amb), soc: Number(found.soc), eco: Number(found.eco) });
+                });
+
+                if (subset.length < 2) throw new Error('At least 2 valid alternatives are needed (Base + 1 EX-POST).');
+
+                const res = window.TOPSISEngine.run(subset, { threshold: topsisThreshold });
+                window.renderScenarioResults(res.ranking, exAnte, topsisThreshold);
+
+                const resContainer = document.getElementById('t-scenario-results');
+                if (resContainer) resContainer.classList.remove('hidden');
+                msg('Specific Ranking Generated', 'ok');
+
+            } catch (e) { msg('Error: ' + e.message, 'err'); }
+            spin(false);
+        }
+
+
+        window.renderScenarioResults = function (ranking, exAnte, threshold) {
+            const tbody = document.getElementById('t-scenario-table-body');
+            if (!tbody) return;
+
+            tbody.innerHTML = ranking.map((r, i) => {
+                const isVetada = r.cc < threshold;
+                const rowColor = isVetada ? 'bg-red-50/40' : 'hover:bg-slate-50';
+
+                return `
+                <tr class="${rowColor} transition-colors border-b border-slate-100/50">
+                    <td class="px-4 py-4 text-center font-mono font-bold text-slate-400">${String(i + 1).padStart(2, '0')}</td>
+                    <td class="px-4 py-4"><div class="font-headline font-black text-slate-800 text-base">${r.accion}</div><div class="text-[9px] font-bold font-mono text-slate-400 mt-0.5 uppercase">${r.tipo}</div></td>
+                    <td class="px-4 py-4 text-center">${bType(r.tipo)}</td>
+                    <td class="px-4 py-4 text-right data-mono text-xs font-bold">${r.amb}</td>
+                    <td class="px-4 py-4 text-right data-mono text-xs font-bold">${r.soc}</td>
+                    <td class="px-4 py-4 text-right data-mono text-xs font-bold">${r.eco}</td>
+                    <td class="px-4 py-4 text-center">
+                        ${r.tipo === 'EX-ANTE' || !exAnte ? '<span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Baseline</span>'
+                        : `<div class="flex flex-col gap-1 items-center justify-center">${window.getBadge(exAnte.amb, r.amb)} ${window.getBadge(exAnte.soc, r.soc)} ${window.getBadge(exAnte.eco, r.eco)}</div>`}
+                    </td>
+                    <td class="px-4 py-4 text-center"><div class="flex flex-col items-center gap-0.5"><span class="data-mono text-[10px] text-green-700 font-bold">D⁺ ${r.d_plus?.toFixed(5) ?? '--'}</span><span class="data-mono text-[10px] text-red-600 font-bold">D⁻ ${r.d_minus?.toFixed(5) ?? '--'}</span></div></td>
+                    <td class="px-4 py-4 text-center font-mono font-bold text-lg ${r.cc >= threshold ? 'text-secondary' : 'text-error'}">${(r.cc * 100).toFixed(2)}%</td>
+                    <td class="px-4 py-4 text-right">${r.cc >= threshold ? bVerd('APPROVED') : bVerd('DISCARDED')}</td>
+                </tr>`
+            }).join('');
+
+            // Inyección de tabla de desempate técnica
+            const tableContainer = tbody.closest('table').parentElement;
+            let vetoContainer = document.getElementById('t-veto-escenario-container');
+            if (!vetoContainer) {
+                vetoContainer = document.createElement('div');
+                vetoContainer.id = 't-veto-escenario-container';
+                tableContainer.parentElement.appendChild(vetoContainer);
+            }
+            if (ranking.length >= 2 && ranking.every(r => r.cc === 0)) { vetoContainer.innerHTML = window.getResilienceTableHTML(ranking); }
+            else { vetoContainer.innerHTML = ''; }
+        }
+
+        window.buildMath = function () {
+            if (!lastResult) {
+                document.getElementById('math-container').innerHTML = `
+                    <div class="p-12 text-center text-slate-400 bg-white rounded-xl border border-outline-variant/15 shadow-sm"><span class="material-symbols-outlined text-5xl mb-4 block">functions</span><p class="font-headline font-bold">Load the Global Ranking first.</p></div>`;
+                return;
+            }
+            const r = lastResult;
+            document.getElementById('math-container').innerHTML = `
+                <div class="bg-white p-8 rounded-xl border border-outline-variant/15 shadow-sm">
+                    <div class="flex items-center justify-between mb-6 border-b border-outline-variant/20 pb-4">
+                        <h2 class="text-2xl font-bold font-headline text-secondary">Critic Weighting</h2>
+                        <span class="font-mono text-xs text-outline px-2 py-1 bg-surface-container rounded border border-outline-variant/20">C_j = σ_j · Σ(1−r_jk)</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        ${Object.entries(r.std ?? {}).map(([k, v]) => `
+                            <div class="bg-surface-container-low p-5 rounded-xl border border-outline-variant/15">
+                                <p class="text-[10px] font-bold uppercase tracking-widest text-outline font-headline">σ — ${k}</p>
+                                <p class="data-mono text-xl font-bold text-slate-800 mt-2">${typeof v === 'number' ? v.toFixed(6) : '--'}</p>
+                                <p class="text-[10px] font-mono text-outline mt-1">W = ${((r.pesos[k === 'eco' ? 'Economic' : k === 'amb' ? 'Environmental' : 'Social'] ?? 0) * 100).toFixed(2)}%</p>
+                            </div>`).join('')}
+                    </div>
+                </div>
+                `;
+        }
+
+        // ── Initialization ─────────────────────────────────────────
+        window.addEventListener('DOMContentLoaded', async () => {
+            spin(true, 'Connecting TOPSIS Engine to the Cloud...');
+
+            // Ajuste para sliders (deben usar funciones globales)
+            document.querySelectorAll('input[type="range"]').forEach(slider => {
+                const isTopsis = slider.getAttribute('oninput').includes('topsisThreshold');
+                slider.removeAttribute('oninput'); // Limpiar el inline
+                slider.addEventListener('input', (e) => {
+                    if (isTopsis) window.changeTopsisThr(e.target.value);
+                    else window.changeSatThr(e.target.value);
+                });
+            });
+
+            try {
+                connector = await window.SonyaConnector.init();
+                const ufs = await connector.getUFs();
+                if (ufs.length > 0) {
+                    await window.populateUFSelectors(ufs, ufs[0].id);
+                    activeUF = ufs[0].id;
+                    await window.loadT();
+                } else {
+                    await window.populateUFSelectors([], '');
+                }
+                msg(`Connected to Firebase securely`, 'ok');
+            } catch (e) {
+                msg(`Initialization error: ${e.message}`, 'err');
+            }
+            spin(false);
+        });
+    </script>
+
+</body>
+
+</html>

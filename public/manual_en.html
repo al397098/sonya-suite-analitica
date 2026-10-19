@@ -1,0 +1,1879 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SONYA — User Manual</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.70);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+        }
+
+        .nav-link {
+            transition: all .2s;
+        }
+
+        .nav-link:hover {
+            color: #0d9488;
+            transform: translateX(4px);
+        }
+
+        .nav-link.active {
+            color: #0d9488;
+            font-weight: 700;
+            border-left: 3px solid #0d9488;
+            padding-left: 8px;
+        }
+
+        .badge-teal {
+            background: #ccfbf1;
+            color: #0f766e;
+        }
+
+        .badge-purple {
+            background: #ede9fe;
+            color: #6d28d9;
+        }
+
+        .badge-amber {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .badge-rose {
+            background: #ffe4e6;
+            color: #be123c;
+        }
+
+        .badge-green {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .badge-slate {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .badge-red {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .section-title {
+            background: linear-gradient(135deg, #0f766e 0%, #6d28d9 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 100px;
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 104px;
+            max-height: calc(100vh - 48px);
+            overflow-y: auto;
+        }
+
+        .formula-block {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar-wrap {
+                display: none;
+            }
+        }
+
+        .step-num {
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+        }
+
+        .alpha-card {
+            flex: 1;
+            min-width: 100px;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+
+    <!-- decorative blobs -->
+    <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        <div
+            class="absolute top-[-100px] left-[-100px] w-[600px] h-[600px] rounded-full bg-teal-400 opacity-[0.08] blur-[120px]">
+        </div>
+        <div
+            class="absolute top-[300px] right-[-150px] w-[700px] h-[700px] rounded-full bg-violet-500 opacity-[0.10] blur-[140px]">
+        </div>
+        <div
+            class="absolute bottom-[-200px] left-[30%] w-[600px] h-[600px] rounded-full bg-teal-300 opacity-[0.06] blur-[120px]">
+        </div>
+    </div>
+
+    <header class="relative z-50 glass shadow-md shadow-slate-200/40 border-b border-white/80 sticky top-0">
+        <div class="max-w-7xl mx-auto px-6 h-20 relative flex items-center justify-between">
+
+            <div class="flex items-center cursor-pointer hover:scale-105 transition-transform duration-300 relative z-10"
+                onclick="location.href='../index.html'">
+                <img src="../logo_sonya.png" alt="SONYA Logo" class="h-10 w-auto object-contain drop-shadow-sm">
+            </div>
+
+            <div
+                class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center pointer-events-none w-full">
+                <h1
+                    class="text-2xl md:text-3xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-violet-600 drop-shadow-sm">
+                    SONYA
+                </h1>
+                <div class="flex items-center gap-3 mt-1">
+                    <div class="w-6 h-[1.5px] bg-slate-300 rounded-full hidden md:block"></div>
+                    <span class="text-[10px] md:text-xs text-slate-500 font-bold uppercase tracking-[0.2em]">User
+                        Manual</span>
+                    <div class="w-6 h-[1.5px] bg-slate-300 rounded-full hidden md:block"></div>
+                </div>
+            </div>
+
+            <div class="hidden lg:flex items-center gap-2 relative z-10">
+                <span
+                    class="badge-teal rounded-full px-3 py-1 text-[10px] font-black shadow-sm uppercase tracking-widest border border-teal-200">MRP
+                    Engine</span>
+                <span
+                    class="badge-purple rounded-full px-3 py-1 text-[10px] font-black shadow-sm uppercase tracking-widest border border-violet-200">TOPSIS
+                    Engine</span>
+                <span
+                    class="badge-slate rounded-full px-3 py-1 text-[10px] font-black shadow-sm uppercase tracking-widest border border-slate-200">CRITIC</span>
+            </div>
+
+        </div>
+    </header>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-4 py-10 flex gap-8">
+
+        <!-- SIDEBAR NAV -->
+        <aside class="sidebar-wrap w-64 flex-shrink-0">
+            <nav class="sidebar glass rounded-3xl p-5 shadow-xl shadow-slate-200/40">
+                <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 px-1">Contents</p>
+                <ul class="space-y-1 text-sm text-slate-600">
+                    <li><a href="#s1" class="nav-link block py-1.5 px-2 rounded-lg hover:bg-teal-50">1. Introduction</a>
+                    </li>
+                    <li><a href="#s2" class="nav-link block py-1.5 px-2 rounded-lg hover:bg-teal-50">2. The
+                            Dashboard</a></li>
+                    <li><a href="#s3" class="nav-link block py-1.5 px-2 rounded-lg hover:bg-teal-50">3. Database
+                            Management</a></li>
+                    <li><a href="#s4" class="nav-link block py-1.5 px-2 rounded-lg hover:bg-teal-50">4. MRP Engine</a>
+                    </li>
+                    <li><a href="#s5" class="nav-link block py-1.5 px-2 rounded-lg hover:bg-teal-50">5. TOPSIS
+                            Engine</a></li>
+                    <li><a href="#s6" class="nav-link block py-1.5 px-2 rounded-lg hover:bg-teal-50">6. Practical
+                            Example</a></li>
+                    <li><a href="#s7" class="nav-link block py-1.5 px-2 rounded-lg hover:bg-teal-50">7. Glossary</a>
+                    </li>
+                    <li><a href="#s8" class="nav-link block py-1.5 px-2 rounded-lg hover:bg-teal-50">8. FAQs</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 min-w-0 space-y-10">
+
+            <!-- HERO -->
+            <section class="glass rounded-3xl p-10 shadow-xl shadow-slate-200/40 text-center">
+                <div
+                    class="inline-flex items-center gap-2 bg-teal-50 border border-teal-200 rounded-full px-4 py-1.5 mb-6">
+                    <div class="w-2 h-2 bg-teal-500 rounded-full animate-pulse"></div>
+                    <span class="text-xs font-bold text-teal-700 uppercase tracking-widest">Strong Non-Compensatory
+                        Sustainability</span>
+                </div>
+
+                <h1 class="text-5xl font-black tracking-tight mb-3"><span class="section-title">SONYA</span></h1>
+                <p class="text-2xl font-bold text-slate-700 mb-2">User Manual</p>
+                <p class="text-slate-500 mb-8">Multi-criteria impact assessment for social economy organisations</p>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <div class="glass rounded-2xl px-6 py-4 border border-teal-100 shadow-sm min-w-[120px]">
+                        <p class="text-3xl font-black text-teal-600 mono">3</p>
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wide mt-1">Impact Pillars</p>
+                        <p class="text-xs text-slate-400">Env · Soc · Eco</p>
+                    </div>
+                    <div class="glass rounded-2xl px-6 py-4 border border-violet-100 shadow-sm min-w-[120px]">
+                        <p class="text-3xl font-black text-violet-600 mono">3</p>
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wide mt-1">Analytical Engines</p>
+                        <p class="text-xs text-slate-400">CRITIC · MRP · TOPSIS</p>
+                    </div>
+                    <div class="glass rounded-2xl px-6 py-4 border border-rose-100 shadow-sm min-w-[120px]">
+                        <p class="text-3xl font-black text-rose-600 mono">min</p>
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wide mt-1">Governing Operator</p>
+                        <p class="text-xs text-slate-400">The weakest rules</p>
+                    </div>
+                    <div class="glass rounded-2xl px-6 py-4 border border-slate-200 shadow-sm min-w-[120px]">
+                        <p class="text-3xl font-black text-slate-600 mono">0</p>
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wide mt-1">Compensation</p>
+                        <p class="text-xs text-slate-400">Does not exist in SONYA</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- S1 INTRODUCTION -->
+            <section id="s1" class="glass rounded-3xl p-8 shadow-xl shadow-slate-200/40">
+                <div class="flex items-center gap-3 mb-6">
+                    <span
+                        class="w-8 h-8 rounded-xl bg-teal-600 flex items-center justify-center text-white font-black text-sm">1</span>
+                    <h2 class="text-2xl font-black text-slate-900">Introduction to SONYA</h2>
+                </div>
+                <p class="text-sm text-slate-500 italic mb-6">Before opening the application, understand the logic
+                    behind it</p>
+
+                <p class="text-slate-700 leading-relaxed mb-4">SONYA is not an average calculator. It is a platform that
+                    starts from a very specific premise: when you evaluate the impact of an organisation, you cannot
+                    compensate for environmental damage with good economic results. The three pillars must perform well
+                    at the same time. That is the core of the model.</p>
+                <p class="text-slate-700 leading-relaxed mb-8">Imagine you have three candidates for a job. Candidate A
+                    scores 9 for experience and 8 for skills, but 1 for attitude. Most selection methods would hire them
+                    anyway because the average (6) is high. SONYA does not. For SONYA, that candidate does not pass: the
+                    weakest link defines the outcome.</p>
+
+                <h3 class="text-lg font-bold text-slate-800 mb-4">1.1 The three perspectives of sustainability</h3>
+                <p class="text-slate-700 leading-relaxed mb-4">Every alternative in SONYA is described with exactly
+                    three numbers. All three are <span
+                        class="badge-amber rounded-full px-2 py-0.5 text-xs font-bold">"cost"</span> criteria: the lower
+                    the value, the better the performance. There are no exceptions here.</p>
+
+                <div class="overflow-x-auto rounded-2xl border border-slate-200 shadow-lg bg-white my-8">
+                    <table class="w-full text-sm min-w-[500px]">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Perspective</th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    What it Measures</th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Example Unit</th>
+                                <th
+                                    class="px-4 py-3 text-center text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Criterion</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3 font-semibold"><span
+                                        class="badge-teal rounded-full px-2 py-0.5 text-xs font-bold">Environmental</span>
+                                </td>
+                                <td class="px-4 py-3 text-slate-600">Negative impact on the environment: emissions,
+                                    waste, pollution.</td>
+                                <td class="px-4 py-3 text-slate-500 mono text-xs">kg CO₂ eq / unit produced</td>
+                                <td class="px-4 py-3 text-center"><span
+                                        class="badge-rose rounded-full px-2 py-0.5 text-xs font-bold">Minimise</span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3 font-semibold"><span
+                                        class="badge-purple rounded-full px-2 py-0.5 text-xs font-bold">Social</span>
+                                </td>
+                                <td class="px-4 py-3 text-slate-600">Negative social impact: workplace accidents,
+                                    exclusion, conflict.</td>
+                                <td class="px-4 py-3 text-slate-500 mono text-xs">Incidents / 1,000 workers</td>
+                                <td class="px-4 py-3 text-center"><span
+                                        class="badge-rose rounded-full px-2 py-0.5 text-xs font-bold">Minimise</span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3 font-semibold"><span
+                                        class="badge-amber rounded-full px-2 py-0.5 text-xs font-bold">Economic</span>
+                                </td>
+                                <td class="px-4 py-3 text-slate-600">Cost or economic burden of the alternative.</td>
+                                <td class="px-4 py-3 text-slate-500 mono text-xs">€ / tonne treated</td>
+                                <td class="px-4 py-3 text-center"><span
+                                        class="badge-rose rounded-full px-2 py-0.5 text-xs font-bold">Minimise</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="border-l-4 border-amber-500 bg-amber-50 rounded-r-2xl p-4 mb-6">
+                    <p class="text-xs font-black text-amber-700 uppercase tracking-widest mb-1">⚠ WARNING: All three are
+                        cost criteria</p>
+                    <p class="text-sm text-amber-800">The lower the value, the better the position in the ranking in all
+                        three cases. If you enter the values backwards (for example, a very high Social thinking it is
+                        positive), the engines will penalise it.</p>
+                </div>
+
+                <h3 class="text-lg font-bold text-slate-800 mb-3">1.2 Why you cannot compensate one pillar with another
+                </h3>
+                <p class="text-slate-700 leading-relaxed mb-3">The idea of compensation is intuitive: if my company is
+                    very good environmentally, it can "pay for" mediocre social performance. This approach makes sense
+                    in some contexts, but in organisational sustainability it is problematic: a company with terrible
+                    social impact remains unsustainable, even if it has the world's best solar panels.</p>
+                <p class="text-slate-700 leading-relaxed">SONYA implements this logic through two mathematical
+                    mechanisms: the Leontief Operator (MRP Engine) and the Chebyshev distance (TOPSIS Engine). Both have
+                    the same essential property: the criterion with the worst performance determines the final result.
+                </p>
+            </section>
+
+            <!-- S2 DASHBOARD -->
+            <section id="s2" class="glass rounded-3xl p-8 shadow-xl shadow-slate-200/40">
+                <div class="flex items-center gap-3 mb-6">
+                    <span
+                        class="w-8 h-8 rounded-xl bg-violet-600 flex items-center justify-center text-white font-black text-sm">2</span>
+                    <h2 class="text-2xl font-black text-slate-900">The Dashboard</h2>
+                </div>
+                <p class="text-sm text-slate-500 italic mb-6">Your starting point in each session</p>
+
+                <p class="text-slate-700 leading-relaxed mb-6">When you open SONYA you see the Dashboard: the home panel
+                    from which you access everything. The left sidebar is always visible and allows you to jump between
+                    modules without losing context.</p>
+
+                <div class="overflow-x-auto rounded-2xl border border-slate-200 shadow-lg bg-white my-8">
+                    <table class="w-full text-sm min-w-[600px]">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200 w-32">
+                                </th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-black text-teal-600 uppercase tracking-widest border-b border-slate-200">
+                                    Database</th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-black text-violet-600 uppercase tracking-widest border-b border-slate-200">
+                                    MRP Engine</th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    TOPSIS Engine</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3 font-bold text-slate-700 text-xs uppercase tracking-wide">When to
+                                    use it</td>
+                                <td class="px-4 py-3 text-slate-600">To enter or edit data for Actions and Alternatives.
+                                </td>
+                                <td class="px-4 py-3 text-slate-600">To obtain the ranking by Strong Sustainability and
+                                    adjust the Veto Line.</td>
+                                <td class="px-4 py-3 text-slate-600">For ranking by closeness to the ideal, Sandbox
+                                    simulations or sub-rankings.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 class="text-lg font-bold text-slate-800 mb-3">2.1 The correct flow is always the same</h3>
+                <p class="text-slate-700 leading-relaxed mb-6">No matter the case study: you always start with the data,
+                    then analyse. If you jump straight to the engines without data, you will not get anything useful.
+                </p>
+
+                <div class="flex flex-wrap gap-3">
+                    <div class="flex-1 min-w-[130px] rounded-2xl border border-teal-200 bg-teal-50 p-4 text-center">
+                        <p class="text-2xl font-black text-teal-600 mono mb-1">01</p>
+                        <p class="text-sm font-bold text-slate-700">Open Database</p>
+                        <p class="text-xs text-slate-500">Create the Action</p>
+                    </div>
+                    <div class="flex-1 min-w-[130px] rounded-2xl border border-teal-200 bg-teal-50 p-4 text-center">
+                        <p class="text-2xl font-black text-teal-600 mono mb-1">02</p>
+                        <p class="text-sm font-bold text-slate-700">Record EX-ANTE</p>
+                        <p class="text-xs text-slate-500">The baseline</p>
+                    </div>
+                    <div class="flex-1 min-w-[130px] rounded-2xl border border-violet-200 bg-violet-50 p-4 text-center">
+                        <p class="text-2xl font-black text-violet-600 mono mb-1">03</p>
+                        <p class="text-sm font-bold text-slate-700">Add EX-POST</p>
+                        <p class="text-xs text-slate-500">The alternatives</p>
+                    </div>
+                    <div class="flex-1 min-w-[130px] rounded-2xl border border-violet-200 bg-violet-50 p-4 text-center">
+                        <p class="text-2xl font-black text-violet-600 mono mb-1">04</p>
+                        <p class="text-sm font-bold text-slate-700">MRP Engine</p>
+                        <p class="text-xs text-slate-500">Strict ranking</p>
+                    </div>
+                    <div class="flex-1 min-w-[130px] rounded-2xl border border-slate-200 bg-slate-50 p-4 text-center">
+                        <p class="text-2xl font-black text-slate-600 mono mb-1">05</p>
+                        <p class="text-sm font-bold text-slate-700">TOPSIS Engine</p>
+                        <p class="text-xs text-slate-500">Closeness to ideal</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- S3 DATABASE -->
+            <section id="s3" class="glass rounded-3xl p-8 shadow-xl shadow-slate-200/40">
+                <div class="flex items-center gap-3 mb-6">
+                    <span
+                        class="w-8 h-8 rounded-xl bg-amber-500 flex items-center justify-center text-white font-black text-sm">3</span>
+                    <h2 class="text-2xl font-black text-slate-900">Database Management Module</h2>
+                </div>
+                <p class="text-sm text-slate-500 italic mb-6">Where your data lives before being analysed</p>
+
+                <h3 class="text-lg font-bold text-slate-800 mb-3">3.1 Action vs. Functional Unit: they are not the same
+                </h3>
+                <p class="text-slate-700 leading-relaxed mb-4">Let us see the difference with an example:</p>
+
+                <div class="overflow-x-auto rounded-2xl border border-slate-200 shadow-lg bg-white my-6">
+                    <table class="w-full text-sm min-w-[500px]">
+                        <thead>
+                            <tr>
+                                <th
+                                    class="px-5 py-3 text-left text-xs font-black text-teal-700 uppercase tracking-widest border-b border-slate-200 bg-teal-50">
+                                    ACTION</th>
+                                <th
+                                    class="px-5 py-3 text-left text-xs font-black text-violet-700 uppercase tracking-widest border-b border-slate-200 bg-violet-50">
+                                    FUNCTIONAL UNIT</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr>
+                                <td class="px-5 py-3 text-slate-700">The name of the project or scenario you wish to
+                                    evaluate.</td>
+                                <td class="px-5 py-3 text-slate-700">The reference magnitude against which impacts are
+                                    compared.</td>
+                            </tr>
+                            <tr class="bg-slate-50/50">
+                                <td class="px-5 py-3 text-slate-600 mono text-xs">"Municipal Waste Management 2025"</td>
+                                <td class="px-5 py-3 text-slate-600 mono text-xs">"kg CO₂ equivalent per tonne of waste
+                                    treated"</td>
+                            </tr>
+                            <tr>
+                                <td class="px-5 py-3 text-slate-600 mono text-xs">"Sustainable Urban Mobility Plan"</td>
+                                <td class="px-5 py-3 text-slate-600 mono text-xs">"grams of NOx emitted per
+                                    passenger-kilometre"</td>
+                            </tr>
+                            <tr class="bg-slate-50/50">
+                                <td class="px-5 py-3 text-slate-700">It is the logical container: it groups all its
+                                    alternatives.</td>
+                                <td class="px-5 py-3 text-slate-700">It defines the quantitative framework: allows
+                                    comparing different alternatives in the same units.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-5 py-3 font-semibold text-teal-700">Mandatory. Without it there is nothing
+                                    to analyse.</td>
+                                <td class="px-5 py-3 text-slate-600">Optional. But without it, results are not
+                                    comparable across Actions.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 class="text-lg font-bold text-slate-800 mb-3 mt-8">3.2 EX-ANTE and EX-POST: the baseline and its
+                    challengers</h3>
+                <p class="text-slate-700 leading-relaxed mb-4">Each Action needs at least one alternative of each type
+                    for the engines to work.</p>
+
+                <div class="overflow-x-auto rounded-2xl border border-slate-200 shadow-lg bg-white my-6">
+                    <table class="w-full text-sm min-w-[500px]">
+                        <thead>
+                            <tr>
+                                <th
+                                    class="px-5 py-3 text-left text-xs font-black text-amber-700 uppercase tracking-widest border-b border-slate-200 bg-amber-50">
+                                    EX-ANTE ALTERNATIVE</th>
+                                <th
+                                    class="px-5 py-3 text-left text-xs font-black text-teal-700 uppercase tracking-widest border-b border-slate-200 bg-teal-50">
+                                    EX-POST ALTERNATIVES</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="px-5 py-4 text-slate-700 align-top">
+                                    <p class="font-bold mb-2">The baseline.</p>
+                                    <p class="mb-2">It does not have to be the worst solution. It can be:</p>
+                                    <ul class="list-disc list-inside space-y-1 text-slate-600 text-sm">
+                                        <li>The current conventional practice in the sector.</li>
+                                        <li>The legal or regulatory standard in force.</li>
+                                        <li>The already-implemented solution you wish to improve.</li>
+                                    </ul>
+                                    <p class="mt-3 text-sm text-amber-700 font-medium">Its function is to serve as
+                                        reference for calculating percentage changes in EX-POST, not to be evaluated as
+                                        an optimal candidate.</p>
+                                </td>
+                                <td class="px-5 py-4 text-slate-700 align-top">
+                                    <p class="font-bold mb-2">The candidate alternatives.</p>
+                                    <p class="mb-2">They are the intervention scenarios that compete with each other.
+                                        They can be:</p>
+                                    <ul class="list-disc list-inside space-y-1 text-slate-600 text-sm">
+                                        <li>New technologies or management methodologies.</li>
+                                        <li>Alternative public policies.</li>
+                                        <li>Modifications to the current process.</li>
+                                    </ul>
+                                    <p class="mt-3 text-sm text-teal-700 font-medium">Their results may be worse than
+                                        EX-ANTE in some pillar. That is valid and the engine will reflect it in the
+                                        ranking without automatically discarding them.</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 class="text-lg font-bold text-slate-800 mb-4 mt-8">3.3 The data fields</h3>
+                <div class="overflow-x-auto rounded-2xl border border-slate-200 shadow-lg bg-white my-6">
+                    <table class="w-full text-sm min-w-[600px]">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Field</th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Type</th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    What you enter</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3 font-semibold">Name</td>
+                                <td class="px-4 py-3"><span
+                                        class="badge-slate rounded-full px-2 py-0.5 text-xs">Text</span></td>
+                                <td class="px-4 py-3 text-slate-600">Descriptive name of the alternative.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3 font-semibold">Environmental Impact</td>
+                                <td class="px-4 py-3"><span
+                                        class="badge-slate rounded-full px-2 py-0.5 text-xs">Numeric</span></td>
+                                <td class="px-4 py-3 text-slate-600">Value of negative environmental impact. Lower
+                                    value, better position.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3 font-semibold">Social Impact</td>
+                                <td class="px-4 py-3"><span
+                                        class="badge-slate rounded-full px-2 py-0.5 text-xs">Numeric</span></td>
+                                <td class="px-4 py-3 text-slate-600">Value of negative social impact. Lower value,
+                                    better position.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3 font-semibold">Economic Impact</td>
+                                <td class="px-4 py-3"><span
+                                        class="badge-slate rounded-full px-2 py-0.5 text-xs">Numeric</span></td>
+                                <td class="px-4 py-3 text-slate-600">Cost or economic burden. Lower value, better
+                                    position.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3 font-semibold">Sustainability</td>
+                                <td class="px-4 py-3"><span
+                                        class="badge-slate rounded-full px-2 py-0.5 text-xs">Text/Num.</span></td>
+                                <td class="px-4 py-3 text-slate-600">Empirical index of real or observed effectiveness
+                                    (0–100). Enter <span class="mono font-bold">"NS"</span> if you do not have the data.
+                                    Does not affect CC or SS calculation.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="border-l-4 border-teal-500 bg-teal-50 rounded-r-2xl p-4 mb-8">
+                    <p class="text-xs font-black text-teal-700 uppercase tracking-widest mb-1"> NOTE: The Sustainability
+                        index</p>
+                    <p class="text-sm text-teal-800">Sustainability is the only field that does not participate in the
+                        mathematical calculation of the engines. Its mission is to apply a second pragmatic filter: an
+                        alternative can be perfect on paper (high SS or CC) but have demonstrated disappointing real
+                        effectiveness. This field captures that empirical information.</p>
+                </div>
+
+                <h3 class="text-lg font-bold text-slate-800 mb-4">3.4 How to enter data step by step</h3>
+                <div class="space-y-3">
+                    <div class="flex items-start gap-4 bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+                        <span
+                            class="step-num rounded-xl bg-teal-600 flex items-center justify-center text-white font-black text-sm flex-shrink-0">1</span>
+                        <p class="text-slate-700 pt-1">Access the Database module.</p>
+                    </div>
+                    <div class="flex items-start gap-4 bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+                        <span
+                            class="step-num rounded-xl bg-teal-600 flex items-center justify-center text-white font-black text-sm flex-shrink-0">2</span>
+                        <p class="text-slate-700 pt-1">Press "New Action", enter the name and Functional Unit, and save.
+                        </p>
+                    </div>
+                    <div class="flex items-start gap-4 bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+                        <span
+                            class="step-num rounded-xl bg-violet-600 flex items-center justify-center text-white font-black text-sm flex-shrink-0">3</span>
+                        <p class="text-slate-700 pt-1">Select the Action in the dropdown.</p>
+                    </div>
+                    <div class="flex items-start gap-4 bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+                        <span
+                            class="step-num rounded-xl bg-violet-600 flex items-center justify-center text-white font-black text-sm flex-shrink-0">4</span>
+                        <p class="text-slate-700 pt-1">Create the EX-ANTE alternative: type "EX-ANTE", name, three
+                            impacts and Sustainability.</p>
+                    </div>
+                    <div class="flex items-start gap-4 bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+                        <span
+                            class="step-num rounded-xl bg-amber-500 flex items-center justify-center text-white font-black text-sm flex-shrink-0">5</span>
+                        <p class="text-slate-700 pt-1">Create each EX-POST alternative: type "EX-POST", name, three
+                            impacts and Sustainability.</p>
+                    </div>
+                    <div class="flex items-start gap-4 bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+                        <span
+                            class="step-num rounded-xl bg-slate-600 flex items-center justify-center text-white font-black text-sm flex-shrink-0">6</span>
+                        <p class="text-slate-700 pt-1">Verify in the alternatives table that all records are correct.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- S4 MRP ENGINE -->
+            <section id="s4" class="glass rounded-3xl p-8 shadow-xl shadow-slate-200/40">
+                <div class="flex items-center gap-3 mb-6">
+                    <span
+                        class="w-8 h-8 rounded-xl bg-violet-600 flex items-center justify-center text-white font-black text-sm">4</span>
+                    <h2 class="text-2xl font-black text-slate-900">MRP Engine</h2>
+                </div>
+                <p class="text-sm text-slate-500 italic mb-6">Strong Sustainability with absolute quality scale</p>
+
+                <h3 class="text-lg font-bold text-slate-800 mb-3">4.1 The Alpha scale: from unacceptable to ideal</h3>
+                <p class="text-slate-700 leading-relaxed mb-6">Before calculating anything, the engine divides the
+                    distribution of values for each criterion into five quality levels using percentiles. We call this
+                    map of quality the Alpha scale.</p>
+
+                <div class="flex flex-wrap gap-2 mb-6">
+                    <div class="alpha-card rounded-2xl border-2 border-red-300 bg-red-50 p-4 text-center">
+                        <p class="text-2xl font-black text-red-600 mono">0.0</p>
+                        <p class="text-xs font-black text-red-700 uppercase tracking-wide mt-1">UNACCEPTABLE</p>
+                        <p class="text-xs text-red-500 mt-1">P0 of the sample</p>
+                    </div>
+                    <div class="alpha-card rounded-2xl border-2 border-amber-300 bg-amber-50 p-4 text-center">
+                        <p class="text-2xl font-black text-amber-600 mono">1.0</p>
+                        <p class="text-xs font-black text-amber-700 uppercase tracking-wide mt-1">MINIMUM</p>
+                        <p class="text-xs text-amber-500 mt-1">P25 of the sample</p>
+                    </div>
+                    <div class="alpha-card rounded-2xl border-2 border-yellow-300 bg-yellow-50 p-4 text-center">
+                        <p class="text-2xl font-black text-yellow-700 mono">2.5</p>
+                        <p class="text-xs font-black text-yellow-700 uppercase tracking-wide mt-1">STANDARD</p>
+                        <p class="text-xs text-yellow-600 mt-1">P50 of the sample</p>
+                    </div>
+                    <div class="alpha-card rounded-2xl border-2 border-green-300 bg-green-50 p-4 text-center">
+                        <p class="text-2xl font-black text-green-600 mono">3.0</p>
+                        <p class="text-xs font-black text-green-700 uppercase tracking-wide mt-1">HIGH</p>
+                        <p class="text-xs text-green-500 mt-1">P75 of the sample</p>
+                    </div>
+                    <div class="alpha-card rounded-2xl border-2 border-teal-300 bg-teal-50 p-4 text-center">
+                        <p class="text-2xl font-black text-teal-600 mono">4.0</p>
+                        <p class="text-xs font-black text-teal-700 uppercase tracking-wide mt-1">IDEAL</p>
+                        <p class="text-xs text-teal-500 mt-1">P100 of the sample</p>
+                    </div>
+                </div>
+
+                <p class="text-slate-700 leading-relaxed mb-8">When you enter a raw value, the engine interpolates it
+                    between those five thresholds and obtains its "semantic achievement": a number between 0 and 4 that
+                    says exactly at what quality level that alternative sits in that pillar.</p>
+
+                <h3 class="text-lg font-bold text-slate-800 mb-3">4.2 The Leontief Operator: the minimum decides
+                    everything</h3>
+                <p class="text-slate-700 leading-relaxed mb-4">Once the three semantic achievements are calculated, the
+                    engine applies the Leontief Operator to obtain the Sustainability Score (SS):</p>
+
+                <div class="formula-block rounded-2xl p-6 text-center shadow-inner mb-4">
+                    <p class="text-green-400 mono text-lg font-bold">SS = min { s(Environmental), s(Social), s(Economic)
+                        }</p>
+                </div>
+
+                <p class="text-slate-700 leading-relaxed mb-6">The result is the minimum of the three. There is no
+                    average, no weighting that will save a lagging pillar. That is the non-compensatory mechanism in
+                    action.</p>
+
+                <div class="overflow-x-auto rounded-2xl border border-slate-200 shadow-lg bg-white my-6">
+                    <table class="w-full text-sm min-w-[500px]">
+                        <thead>
+                            <tr>
+                                <th
+                                    class="px-4 py-3 text-center text-xs font-black text-green-700 uppercase tracking-widest border-b border-slate-200 bg-green-50">
+                                    Alternative A</th>
+                                <th
+                                    class="px-4 py-3 text-center text-xs font-black text-amber-700 uppercase tracking-widest border-b border-slate-200 bg-amber-50">
+                                    Alternative B</th>
+                                <th
+                                    class="px-4 py-3 text-center text-xs font-black text-red-700 uppercase tracking-widest border-b border-slate-200 bg-red-50">
+                                    Alternative C</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr>
+                                <td class="px-4 py-3 text-center mono text-xs">Env: 3.2 &nbsp; Soc: 3.1 &nbsp; Eco: 2.9
+                                </td>
+                                <td class="px-4 py-3 text-center mono text-xs">Env: 3.8 &nbsp; Soc: 0.8 &nbsp; Eco: 3.5
+                                </td>
+                                <td class="px-4 py-3 text-center mono text-xs">Env: 1.5 &nbsp; Soc: 1.2 &nbsp; Eco: 0.4
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-3 text-center bg-green-100"><span
+                                        class="mono font-black text-green-700">SS = 2.9</span></td>
+                                <td class="px-4 py-3 text-center bg-amber-100"><span
+                                        class="mono font-black text-amber-700">SS = 0.8</span></td>
+                                <td class="px-4 py-3 text-center bg-red-100"><span
+                                        class="mono font-black text-red-700">SS = 0.4</span></td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-3 text-center text-sm text-green-700"><span
+                                        class="badge-green rounded-full px-2 py-0.5 text-xs font-bold">VIABLE</span> —
+                                    exceeds the Veto Line in all three pillars.</td>
+                                <td class="px-4 py-3 text-center text-sm text-amber-700"><span
+                                        class="badge-rose rounded-full px-2 py-0.5 text-xs font-bold">VETOED</span> — a
+                                    single Social pillar with achievement 0.8 sinks the result, despite achievements of
+                                    3.8 and 3.5.</td>
+                                <td class="px-4 py-3 text-center text-sm text-red-700"><span
+                                        class="badge-rose rounded-full px-2 py-0.5 text-xs font-bold">VETOED</span> —
+                                    all three pillars are below. The limiting factor is Economic with 0.4.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 class="text-lg font-bold text-slate-800 mb-3 mt-8">4.3 The Veto Line</h3>
+                <p class="text-slate-700 leading-relaxed mb-4">The Veto Line is the minimum threshold of SS that an
+                    alternative must reach to be declared Viable. It is configured in the engine's Control Panel:</p>
+
+                <div class="overflow-x-auto rounded-2xl border border-slate-200 shadow-lg bg-white my-6">
+                    <table class="w-full text-sm min-w-[500px]">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Level</th>
+                                <th
+                                    class="px-4 py-3 text-center text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Minimum SS Value</th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    What it requires</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3"><span
+                                        class="badge-slate rounded-full px-2 py-0.5 text-xs font-bold">alfa-0 —
+                                        Permissive</span></td>
+                                <td class="px-4 py-3 text-center mono font-bold">0.0</td>
+                                <td class="px-4 py-3 text-slate-600">No veto. All alternatives pass, regardless of
+                                    performance.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/60 bg-teal-50/30">
+                                <td class="px-4 py-3"><span
+                                        class="badge-teal rounded-full px-2 py-0.5 text-xs font-bold">alfa-1 — Standard
+                                        (default)</span></td>
+                                <td class="px-4 py-3 text-center mono font-bold">1.0</td>
+                                <td class="px-4 py-3 text-slate-600">The alternative must exceed the lower quartile of
+                                    the sample in all three pillars. Recommended level.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3"><span
+                                        class="badge-purple rounded-full px-2 py-0.5 text-xs font-bold">alfa-2 —
+                                        Stringent</span></td>
+                                <td class="px-4 py-3 text-center mono font-bold">2.5</td>
+                                <td class="px-4 py-3 text-slate-600">The alternative must exceed the median in all three
+                                    pillars. Only the best of the sample pass.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3"><span
+                                        class="badge-rose rounded-full px-2 py-0.5 text-xs font-bold">alfa-3 — Very
+                                        Stringent</span></td>
+                                <td class="px-4 py-3 text-center mono font-bold">3.0</td>
+                                <td class="px-4 py-3 text-slate-600">The alternative must exceed the upper quartile in
+                                    all three pillars.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3"><span
+                                        class="badge-amber rounded-full px-2 py-0.5 text-xs font-bold">alfa-4 —
+                                        Ideal</span></td>
+                                <td class="px-4 py-3 text-center mono font-bold">4.0</td>
+                                <td class="px-4 py-3 text-slate-600">Seeks excellent alternatives.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 class="text-lg font-bold text-slate-800 mb-3 mt-8">4.4 Q Threshold Manager</h3>
+                <p class="text-slate-700 leading-relaxed mb-4">The engine calculates and exposes the sample percentiles
+                    through the Q Threshold Manager panel. This panel provides complete transparency over the parametric
+                    configuration of each axis and allows advanced adjustments.</p>
+
+                <div class="overflow-x-auto rounded-2xl border border-slate-200 shadow-lg bg-white my-6">
+                    <table class="w-full text-sm min-w-[600px]">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Pillar</th>
+                                <th
+                                    class="px-4 py-3 text-center text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Q0 (P0 — min)</th>
+                                <th
+                                    class="px-4 py-3 text-center text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Q1 (P25)</th>
+                                <th
+                                    class="px-4 py-3 text-center text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Q2 (P50)</th>
+                                <th
+                                    class="px-4 py-3 text-center text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Q3 (P75)</th>
+                                <th
+                                    class="px-4 py-3 text-center text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Q4 (P100 — max)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3"><span
+                                        class="badge-teal rounded-full px-2 py-0.5 text-xs font-bold">Environmental</span>
+                                </td>
+                                <td class="px-4 py-3 text-center mono text-xs">68.38</td>
+                                <td class="px-4 py-3 text-center mono text-xs">21.39</td>
+                                <td class="px-4 py-3 text-center mono text-xs">3.64</td>
+                                <td class="px-4 py-3 text-center mono text-xs">1.28</td>
+                                <td class="px-4 py-3 text-center mono text-xs font-bold text-teal-700">0.44</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3"><span
+                                        class="badge-purple rounded-full px-2 py-0.5 text-xs font-bold">Social</span>
+                                </td>
+                                <td class="px-4 py-3 text-center mono text-xs">960,377.53</td>
+                                <td class="px-4 py-3 text-center mono text-xs">298,037.45</td>
+                                <td class="px-4 py-3 text-center mono text-xs">45,655.58</td>
+                                <td class="px-4 py-3 text-center mono text-xs">11,378.82</td>
+                                <td class="px-4 py-3 text-center mono text-xs font-bold text-teal-700">3,354.11</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3"><span
+                                        class="badge-amber rounded-full px-2 py-0.5 text-xs font-bold">Economic</span>
+                                </td>
+                                <td class="px-4 py-3 text-center mono text-xs">5,920.13</td>
+                                <td class="px-4 py-3 text-center mono text-xs">1,803.75</td>
+                                <td class="px-4 py-3 text-center mono text-xs">350.97</td>
+                                <td class="px-4 py-3 text-center mono text-xs">260.31</td>
+                                <td class="px-4 py-3 text-center mono text-xs font-bold text-teal-700">230.31</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 class="text-lg font-bold text-slate-800 mb-4 mt-8">4.5 Reading the two results tables</h3>
+
+                <h4 class="font-bold text-slate-700 mb-3">Table 1: Prioritisation Ranking</h4>
+                <div class="overflow-x-auto rounded-2xl border border-slate-200 shadow-lg bg-white my-4">
+                    <table class="w-full text-sm min-w-[500px]">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Column</th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    What it tells you</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3 font-semibold mono text-xs"># (Position)</td>
+                                <td class="px-4 py-3 text-slate-600">The alternative with the highest SS occupies the
+                                    first place. Vetoed alternatives appear at the end, separated.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3 font-semibold mono text-xs">Type</td>
+                                <td class="px-4 py-3 text-slate-600">EX-ANTE or EX-POST. The baseline always appears as
+                                    reference.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3 font-semibold mono text-xs">Env / Soc / Eco (raw)</td>
+                                <td class="px-4 py-3 text-slate-600">The raw values you entered. Useful for verifying
+                                    that data is correct.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3 font-semibold mono text-xs">Variation vs EX-ANTE</td>
+                                <td class="px-4 py-3 text-slate-600">How much each pillar has changed relative to the
+                                    baseline. Green = improvement (impact reduction). Red = worsening.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3 font-semibold mono text-xs">Achievements</td>
+                                <td class="px-4 py-3 text-slate-600">The semantic achievements of each pillar on the
+                                    Alpha scale [0–4]. The lowest of the three is the Limiting Criterion.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3 font-semibold mono text-xs">SS</td>
+                                <td class="px-4 py-3 text-slate-600">The Sustainability Score: the minimum of the three
+                                    achievements. Higher SS = better position.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3 font-semibold mono text-xs">Verdict</td>
+                                <td class="px-4 py-3 text-slate-600"><span
+                                        class="badge-green rounded-full px-2 py-0.5 text-xs font-bold">VIABLE</span> if
+                                    SS exceeds the Veto Line. <span
+                                        class="badge-red rounded-full px-2 py-0.5 text-xs font-bold">VETOED</span> if
+                                    not.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="font-bold text-slate-700 mb-3 mt-6">Table 2: Cross-Sustainability Viability</h4>
+                <p class="text-slate-700 leading-relaxed mb-4">This second table applies the dual filter: mathematical +
+                    empirical. An alternative is only <span
+                        class="badge-green rounded-full px-2 py-0.5 text-xs font-bold">ACCEPTED</span> if it passes
+                    both.</p>
+                <div class="overflow-x-auto rounded-2xl border border-slate-200 shadow-lg bg-white my-4">
+                    <table class="w-full text-sm min-w-[500px]">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Column</th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    What it tells you</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3 font-semibold mono text-xs">Score SS</td>
+                                <td class="px-4 py-3 text-slate-600">The engine's mathematical score.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3 font-semibold mono text-xs">Mathematical Viability</td>
+                                <td class="px-4 py-3 text-slate-600">Result of the first filter: passes or does not pass
+                                    the Veto Line.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3 font-semibold mono text-xs">Limiting Criterion</td>
+                                <td class="px-4 py-3 text-slate-600">In case of veto, the pillar with lowest
+                                    Achievement. The dimension that needs improvement.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3 font-semibold mono text-xs">Sustainability Index</td>
+                                <td class="px-4 py-3 text-slate-600">The empirical value you entered. "NS" if not
+                                    specified.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3 font-semibold mono text-xs">Sustainability Verdict</td>
+                                <td class="px-4 py-3 text-slate-600"><span
+                                        class="badge-green rounded-full px-2 py-0.5 text-xs font-bold">ACCEPTED</span>
+                                    if the index is greater than the minimum required. <span
+                                        class="badge-red rounded-full px-2 py-0.5 text-xs font-bold">REJECTED</span> if
+                                    not.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- S5 TOPSIS ENGINE -->
+            <section id="s5" class="glass rounded-3xl p-8 shadow-xl shadow-slate-200/40">
+                <div class="flex items-center gap-3 mb-6">
+                    <span
+                        class="w-8 h-8 rounded-xl bg-slate-700 flex items-center justify-center text-white font-black text-sm">5</span>
+                    <h2 class="text-2xl font-black text-slate-900">TOPSIS Engine</h2>
+                </div>
+                <p class="text-sm text-slate-500 italic mb-6">Which one approaches the ideal most closely and moves
+                    furthest from the worst</p>
+
+                <p class="text-slate-700 leading-relaxed mb-4">If the MRP Engine asks "At what level of absolute quality
+                    is this alternative?", the TOPSIS Engine asks something different: "Of all the available options,
+                    which one maximises its distance from the worst possible scenario and minimises its distance from
+                    the best?" It is a relative perspective, not absolute.</p>
+                <p class="text-slate-700 leading-relaxed mb-8">To measure those distances, TOPSIS uses the Chebyshev
+                    norm (L-infinity): instead of calculating an averaged distance (as Euclidean distance would), it
+                    measures only the maximum gap. If an alternative is very far from the ideal in a single criterion,
+                    that maximum gap penalises the entire result, even if the other two criteria are perfect.</p>
+
+                <h3 class="text-lg font-bold text-slate-800 mb-4">5.1 The two ideals the engine calculates</h3>
+                <div class="overflow-x-auto rounded-2xl border border-slate-200 shadow-lg bg-white my-6">
+                    <table class="w-full text-sm min-w-[500px]">
+                        <thead>
+                            <tr>
+                                <th
+                                    class="px-5 py-3 text-left text-xs font-black text-green-700 uppercase tracking-widest border-b border-slate-200 bg-green-50">
+                                    A⁺ : Positive Ideal</th>
+                                <th
+                                    class="px-5 py-3 text-left text-xs font-black text-red-700 uppercase tracking-widest border-b border-slate-200 bg-red-50">
+                                    A⁻ : Negative Ideal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="px-5 py-4 text-slate-700 align-top">
+                                    <p class="font-bold mb-1">The best possible scenario.</p>
+                                    <p>Constructed by taking the best weighted value of each criterion from the entire
+                                        sample. An alternative identical to A⁺ would have D⁺ = 0.</p>
+                                </td>
+                                <td class="px-5 py-4 text-slate-700 align-top">
+                                    <p class="font-bold mb-1">The worst possible scenario.</p>
+                                    <p>Constructed by taking the worst weighted value of each criterion from the entire
+                                        sample. An alternative identical to A⁻ would have D⁻ = 0 and CC = 0%.</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 class="text-lg font-bold text-slate-800 mb-3 mt-6">5.2 The D⁺ and D⁻ distances</h3>
+                <p class="text-slate-700 leading-relaxed mb-4">For each alternative the engine calculates two Chebyshev
+                    distances:</p>
+                <div class="overflow-x-auto rounded-2xl border border-slate-200 shadow-lg bg-white my-6">
+                    <table class="w-full text-sm min-w-[600px]">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Distance</th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Formula</th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    What it measures</th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    How to read it</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3 font-black text-red-600 mono">D⁺</td>
+                                <td class="px-4 py-3 mono text-xs">max|vij - vj⁺|</td>
+                                <td class="px-4 py-3 text-slate-600">The maximum gap between the alternative and the
+                                    positive ideal.</td>
+                                <td class="px-4 py-3 text-slate-600">The lower, the better. D⁺ = 0 would mean coinciding
+                                    exactly with the best possible scenario in all criteria.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3 font-black text-green-600 mono">D⁻</td>
+                                <td class="px-4 py-3 mono text-xs">min|vij - vj⁻|</td>
+                                <td class="px-4 py-3 text-slate-600">The minimum gap between the alternative and the
+                                    negative ideal.</td>
+                                <td class="px-4 py-3 text-slate-600">The higher, the better. It indicates that even in
+                                    the criterion most similar to the worst scenario, it still maintains distance.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 class="text-lg font-bold text-slate-800 mb-3 mt-6">5.3 The Closeness Coefficient (CC%)</h3>
+                <p class="text-slate-700 leading-relaxed mb-4">The CC integrates D⁺ and D⁻ into a single indicator
+                    expressing the relative position of the alternative between the positive ideal and negative ideal:
+                </p>
+
+                <div class="formula-block rounded-2xl p-6 text-center shadow-inner mb-6">
+                    <p class="text-green-400 mono text-xl font-bold">CC = D⁻ / (D⁺ + D⁻)</p>
+                </div>
+
+                <div class="overflow-x-auto rounded-2xl border border-slate-200 shadow-lg bg-white my-6">
+                    <table class="w-full text-sm min-w-[500px]">
+                        <thead>
+                            <tr>
+                                <th
+                                    class="px-4 py-3 text-center text-xs font-black text-red-700 uppercase tracking-widest border-b border-slate-200 bg-red-50">
+                                    CC = 0%</th>
+                                <th
+                                    class="px-4 py-3 text-center text-xs font-black text-slate-600 uppercase tracking-widest border-b border-slate-200 bg-slate-50">
+                                    Analysis Zone</th>
+                                <th
+                                    class="px-4 py-3 text-center text-xs font-black text-green-700 uppercase tracking-widest border-b border-slate-200 bg-green-50">
+                                    CC = 100%</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="px-4 py-4 text-center text-sm text-red-700">Coincides with the worst possible
+                                    scenario.</td>
+                                <td class="px-4 py-4 text-center text-sm text-slate-600">Most real alternatives sit
+                                    here. The acceptance threshold (default: 50%) separates the VIABLE from the
+                                    REJECTED.</td>
+                                <td class="px-4 py-4 text-center text-sm text-green-700">Coincides with the best
+                                    possible scenario.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 class="text-lg font-bold text-slate-800 mb-4 mt-6">5.4 The three tabs of the TOPSIS Engine</h3>
+
+                <div class="space-y-4">
+                    <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                        <h4 class="font-black text-teal-700 mb-2">Global Ranking</h4>
+                        <p class="text-slate-600 text-sm">The main view. Shows the complete ranking of all alternatives
+                            in the active Action, with D⁺, D⁻ and CC%, using CRITIC weights calculated on the entire
+                            sample.</p>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                        <h4 class="font-black text-violet-700 mb-2">Sandbox Mode (New Simulation)</h4>
+                        <p class="text-slate-600 text-sm mb-3">To simulate hypothetical scenarios without touching
+                            official data. It works in three steps:</p>
+                        <ol class="list-decimal list-inside space-y-1.5 text-sm text-slate-600 pl-2">
+                            <li>Define the Action (existing or new) and its EX-ANTE baseline.</li>
+                            <li>Select existing EX-POST alternatives and/or add new ones manually.</li>
+                            <li>Run the engine with the "Run TOPSIS Simulation" button. If you want to save the new data
+                                to the official database, press "Save to Cloud Database".</li>
+                        </ol>
+                        <div class="border-l-4 border-amber-500 bg-amber-50 rounded-r-2xl p-3 mt-4">
+                            <p class="text-xs font-black text-amber-700 uppercase tracking-widest mb-1">⚠ WARNING: The
+                                Sandbox is temporary</p>
+                            <p class="text-sm text-amber-800">Sandbox data lives in memory during the session. If you
+                                reload the page without saving, you lose it. The save button appears only when there are
+                                new records that do not exist in the repository.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                        <h4 class="font-black text-slate-700 mb-2">Selectable Ranking (Selectable Ranking)</h4>
+                        <p class="text-slate-600 text-sm">Generates a TOPSIS sub-ranking by manually choosing which
+                            EX-POST alternatives to include. CRITIC weights are recalculated on that subset, which may
+                            change the result relative to the Global Ranking.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- S6 PRACTICAL EXAMPLE -->
+            <section id="s6" class="glass rounded-3xl p-8 shadow-xl shadow-slate-200/40">
+                <div class="flex items-center gap-3 mb-6">
+                    <span
+                        class="w-8 h-8 rounded-xl bg-teal-600 flex items-center justify-center text-white font-black text-sm">6</span>
+                    <h2 class="text-2xl font-black text-slate-900">Complete Practical Example</h2>
+                </div>
+                <p class="text-sm text-slate-500 italic mb-6">From raw data to decision: municipal waste management case
+                </p>
+
+                <div class="border-l-4 border-violet-500 bg-violet-50 rounded-r-2xl p-5 mb-8">
+                    <p class="text-xs font-black text-violet-700 uppercase tracking-widest mb-2">CASE CONTEXT</p>
+                    <p class="text-sm text-violet-900"><strong>Scenario:</strong> A municipality wants to evaluate four
+                        ways of managing its solid urban waste. The current situation (conventional landfill) is the
+                        baseline. Three improvement alternatives are proposed.</p>
+                    <p class="text-sm text-violet-900 mt-2"><strong>Action:</strong> Municipal Waste Management ·
+                        <strong>Functional Unit:</strong> kg CO₂eq / tonne of waste treated
+                    </p>
+                    <p class="text-sm text-violet-900 mt-2"><strong>Pillars:</strong> Environmental (kg CO₂) · Social (€
+                        social cost) · Economic (€ operational)</p>
+                </div>
+
+                <h3 class="text-lg font-bold text-slate-800 mb-3">6.1 Step 1: The input data</h3>
+                <div class="overflow-x-auto rounded-2xl border border-slate-200 shadow-lg bg-white my-6">
+                    <table class="w-full text-sm min-w-[600px]">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Alternative</th>
+                                <th
+                                    class="px-4 py-3 text-center text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Type</th>
+                                <th
+                                    class="px-4 py-3 text-center text-xs font-black text-teal-600 uppercase tracking-widest border-b border-slate-200">
+                                    Environmental</th>
+                                <th
+                                    class="px-4 py-3 text-center text-xs font-black text-violet-600 uppercase tracking-widest border-b border-slate-200">
+                                    Social</th>
+                                <th
+                                    class="px-4 py-3 text-center text-xs font-black text-amber-600 uppercase tracking-widest border-b border-slate-200">
+                                    Economic</th>
+                                <th
+                                    class="px-4 py-3 text-center text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Eff.</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr class="bg-amber-50/50">
+                                <td class="px-4 py-3 font-semibold text-amber-800">Conventional landfill</td>
+                                <td class="px-4 py-3 text-center"><span
+                                        class="badge-amber rounded-full px-2 py-0.5 text-xs font-bold">EX-ANTE</span>
+                                </td>
+                                <td class="px-4 py-3 text-center mono text-xs font-bold text-red-600">68.38</td>
+                                <td class="px-4 py-3 text-center mono text-xs font-bold text-red-600">960,377.53</td>
+                                <td class="px-4 py-3 text-center mono text-xs font-bold text-red-600">5,920.13</td>
+                                <td class="px-4 py-3 text-center mono text-xs">NS</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3 font-semibold">Composting plant</td>
+                                <td class="px-4 py-3 text-center"><span
+                                        class="badge-teal rounded-full px-2 py-0.5 text-xs font-bold">EX-POST</span>
+                                </td>
+                                <td class="px-4 py-3 text-center mono text-xs font-bold text-green-600">0.44</td>
+                                <td class="px-4 py-3 text-center mono text-xs font-bold text-green-600">3,354.11</td>
+                                <td class="px-4 py-3 text-center mono text-xs font-bold text-green-600">230.31</td>
+                                <td class="px-4 py-3 text-center mono text-xs">72</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/60 bg-slate-50/30">
+                                <td class="px-4 py-3 font-semibold">Biogas plant</td>
+                                <td class="px-4 py-3 text-center"><span
+                                        class="badge-teal rounded-full px-2 py-0.5 text-xs font-bold">EX-POST</span>
+                                </td>
+                                <td class="px-4 py-3 text-center mono text-xs font-bold text-green-600">1.56</td>
+                                <td class="px-4 py-3 text-center mono text-xs font-bold text-green-600">14,053.73</td>
+                                <td class="px-4 py-3 text-center mono text-xs font-bold text-green-600">270.31</td>
+                                <td class="px-4 py-3 text-center mono text-xs">85</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3 font-semibold">Incineration w/ recovery</td>
+                                <td class="px-4 py-3 text-center"><span
+                                        class="badge-teal rounded-full px-2 py-0.5 text-xs font-bold">EX-POST</span>
+                                </td>
+                                <td class="px-4 py-3 text-center mono text-xs font-bold text-green-600">5.73</td>
+                                <td class="px-4 py-3 text-center mono text-xs font-bold text-green-600">77,257.43</td>
+                                <td class="px-4 py-3 text-center mono text-xs font-bold text-green-600">431.63</td>
+                                <td class="px-4 py-3 text-center mono text-xs">41</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 class="text-lg font-bold text-slate-800 mb-3 mt-8">6.2 Step 2: MRP Engine in action</h3>
+
+                <h4 class="font-bold text-slate-700 mb-3">The Q thresholds calculated automatically</h4>
+                <div class="overflow-x-auto rounded-2xl border border-slate-200 shadow-lg bg-white my-4">
+                    <table class="w-full text-sm min-w-[600px]">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Pillar</th>
+                                <th
+                                    class="px-4 py-3 text-center text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Q0 (P0 — min)</th>
+                                <th
+                                    class="px-4 py-3 text-center text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Q1 (P25)</th>
+                                <th
+                                    class="px-4 py-3 text-center text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Q2 (P50)</th>
+                                <th
+                                    class="px-4 py-3 text-center text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Q3 (P75)</th>
+                                <th
+                                    class="px-4 py-3 text-center text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Q4 (P100 — max)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr>
+                                <td class="px-4 py-3"><span
+                                        class="badge-teal rounded-full px-2 py-0.5 text-xs font-bold">Environmental</span>
+                                </td>
+                                <td class="px-4 py-3 text-center mono text-xs">68.38</td>
+                                <td class="px-4 py-3 text-center mono text-xs">21.39</td>
+                                <td class="px-4 py-3 text-center mono text-xs">3.64</td>
+                                <td class="px-4 py-3 text-center mono text-xs">1.28</td>
+                                <td class="px-4 py-3 text-center mono text-xs font-bold text-teal-700">0.44</td>
+                            </tr>
+                            <tr class="bg-slate-50/30">
+                                <td class="px-4 py-3"><span
+                                        class="badge-purple rounded-full px-2 py-0.5 text-xs font-bold">Social</span>
+                                </td>
+                                <td class="px-4 py-3 text-center mono text-xs">960,377.53</td>
+                                <td class="px-4 py-3 text-center mono text-xs">298,037.45</td>
+                                <td class="px-4 py-3 text-center mono text-xs">45,655.58</td>
+                                <td class="px-4 py-3 text-center mono text-xs">11,378.82</td>
+                                <td class="px-4 py-3 text-center mono text-xs font-bold text-teal-700">3,354.11</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-3"><span
+                                        class="badge-amber rounded-full px-2 py-0.5 text-xs font-bold">Economic</span>
+                                </td>
+                                <td class="px-4 py-3 text-center mono text-xs">5,920.13</td>
+                                <td class="px-4 py-3 text-center mono text-xs">1,803.75</td>
+                                <td class="px-4 py-3 text-center mono text-xs">350.97</td>
+                                <td class="px-4 py-3 text-center mono text-xs">260.31</td>
+                                <td class="px-4 py-3 text-center mono text-xs font-bold text-teal-700">230.31</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="font-bold text-slate-700 mb-2 mt-6">The semantic achievements and SS of each alternative</h4>
+                <p class="text-slate-600 text-sm mb-4">The engine interpolates each raw value between the Q thresholds
+                    and obtains its semantic achievement. SS is the minimum of the three.</p>
+                <div class="overflow-x-auto rounded-2xl border border-slate-200 shadow-lg bg-white my-4">
+                    <table class="w-full text-sm min-w-[800px]">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th
+                                    class="px-3 py-3 text-left text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Alternative</th>
+                                <th
+                                    class="px-3 py-3 text-center text-xs font-black text-teal-600 uppercase tracking-widest border-b border-slate-200">
+                                    Var.Env</th>
+                                <th
+                                    class="px-3 py-3 text-center text-xs font-black text-violet-600 uppercase tracking-widest border-b border-slate-200">
+                                    Var.Soc</th>
+                                <th
+                                    class="px-3 py-3 text-center text-xs font-black text-amber-600 uppercase tracking-widest border-b border-slate-200">
+                                    Var.Eco</th>
+                                <th
+                                    class="px-3 py-3 text-center text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    s(Env)</th>
+                                <th
+                                    class="px-3 py-3 text-center text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    s(Soc)</th>
+                                <th
+                                    class="px-3 py-3 text-center text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    s(Eco)</th>
+                                <th
+                                    class="px-3 py-3 text-center text-xs font-black text-slate-700 uppercase tracking-widest border-b border-slate-200">
+                                    SS</th>
+                                <th
+                                    class="px-3 py-3 text-center text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Verd.</th>
+                                <th
+                                    class="px-3 py-3 text-center text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Pos.</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr class="bg-green-50/50">
+                                <td class="px-3 py-3 font-semibold text-green-800">Biogas plant</td>
+                                <td class="px-3 py-3 text-center mono text-xs text-green-600 font-bold">-99.4%</td>
+                                <td class="px-3 py-3 text-center mono text-xs text-green-600 font-bold">-99.7%</td>
+                                <td class="px-3 py-3 text-center mono text-xs text-green-600 font-bold">-96.1%</td>
+                                <td class="px-3 py-3 text-center mono text-xs">4.00</td>
+                                <td class="px-3 py-3 text-center mono text-xs">4.00</td>
+                                <td class="px-3 py-3 text-center mono text-xs">4.00</td>
+                                <td class="px-3 py-3 text-center mono font-black text-green-700">4.000</td>
+                                <td class="px-3 py-3 text-center"><span
+                                        class="badge-green rounded-full px-2 py-0.5 text-xs font-bold">VIABLE</span>
+                                </td>
+                                <td class="px-3 py-3 text-center font-black text-teal-700">#1</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-3 py-3 font-semibold">Composting plant</td>
+                                <td class="px-3 py-3 text-center mono text-xs text-green-600">-97.7%</td>
+                                <td class="px-3 py-3 text-center mono text-xs text-green-600">-98.5%</td>
+                                <td class="px-3 py-3 text-center mono text-xs text-green-600">-95.4%</td>
+                                <td class="px-3 py-3 text-center mono text-xs">2.94</td>
+                                <td class="px-3 py-3 text-center mono text-xs">2.96</td>
+                                <td class="px-3 py-3 text-center mono text-xs">2.94</td>
+                                <td class="px-3 py-3 text-center mono font-black text-teal-700">2.941</td>
+                                <td class="px-3 py-3 text-center"><span
+                                        class="badge-green rounded-full px-2 py-0.5 text-xs font-bold">VIABLE</span>
+                                </td>
+                                <td class="px-3 py-3 text-center font-bold">#2</td>
+                            </tr>
+                            <tr class="bg-slate-50/30 hover:bg-slate-50/60">
+                                <td class="px-3 py-3 font-semibold">Incineration w/ recov.</td>
+                                <td class="px-3 py-3 text-center mono text-xs text-green-600">-91.6%</td>
+                                <td class="px-3 py-3 text-center mono text-xs text-green-600">-92.0%</td>
+                                <td class="px-3 py-3 text-center mono text-xs text-green-600">-92.7%</td>
+                                <td class="px-3 py-3 text-center mono text-xs">2.32</td>
+                                <td class="px-3 py-3 text-center mono text-xs">2.312</td>
+                                <td class="px-3 py-3 text-center mono text-xs">2.42</td>
+                                <td class="px-3 py-3 text-center mono font-bold text-slate-600">2.31</td>
+                                <td class="px-3 py-3 text-center"><span
+                                        class="badge-green rounded-full px-2 py-0.5 text-xs font-bold">VIABLE</span>
+                                </td>
+                                <td class="px-3 py-3 text-center font-bold">#3</td>
+                            </tr>
+                            <tr class="bg-red-50/30">
+                                <td class="px-3 py-3 font-semibold text-red-800">Conventional landfill</td>
+                                <td class="px-3 py-3 text-center mono text-xs text-slate-400">---</td>
+                                <td class="px-3 py-3 text-center mono text-xs text-slate-400">---</td>
+                                <td class="px-3 py-3 text-center mono text-xs text-slate-400">---</td>
+                                <td class="px-3 py-3 text-center mono text-xs text-red-600">0.00</td>
+                                <td class="px-3 py-3 text-center mono text-xs text-red-600">0.00</td>
+                                <td class="px-3 py-3 text-center mono text-xs text-red-600">0.00</td>
+                                <td class="px-3 py-3 text-center mono font-black text-red-700">0.00</td>
+                                <td class="px-3 py-3 text-center"><span
+                                        class="badge-red rounded-full px-2 py-0.5 text-xs font-bold">VETOED</span></td>
+                                <td class="px-3 py-3 text-center font-bold text-red-700">#4</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="font-bold text-slate-700 mb-3 mt-6">Cross-Sustainability Viability with minimum
+                    Sustainability of 40%</h4>
+                <div class="overflow-x-auto rounded-2xl border border-slate-200 shadow-lg bg-white my-4">
+                    <table class="w-full text-sm min-w-[600px]">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Alternative</th>
+                                <th
+                                    class="px-4 py-3 text-center text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    SS</th>
+                                <th
+                                    class="px-4 py-3 text-center text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Mathematical Viability</th>
+                                <th
+                                    class="px-4 py-3 text-center text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Limiting Criterion</th>
+                                <th
+                                    class="px-4 py-3 text-center text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Eff.%</th>
+                                <th
+                                    class="px-4 py-3 text-center text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Final Verdict</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr class="bg-green-50/30">
+                                <td class="px-4 py-3 font-semibold text-green-800">Biogas plant</td>
+                                <td class="px-4 py-3 text-center mono font-bold text-green-700">4.000</td>
+                                <td class="px-4 py-3 text-center"><span
+                                        class="badge-green rounded-full px-2 py-0.5 text-xs font-bold">VIABLE</span>
+                                </td>
+                                <td class="px-4 py-3 text-center text-slate-400">----</td>
+                                <td class="px-4 py-3 text-center mono text-xs font-bold">85%</td>
+                                <td class="px-4 py-3 text-center"><span
+                                        class="badge-green rounded-full px-2 py-0.5 text-xs font-bold">ACCEPTED</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-3 font-semibold">Composting plant</td>
+                                <td class="px-4 py-3 text-center mono font-bold text-teal-700">2.941</td>
+                                <td class="px-4 py-3 text-center"><span
+                                        class="badge-green rounded-full px-2 py-0.5 text-xs font-bold">VIABLE</span>
+                                </td>
+                                <td class="px-4 py-3 text-center text-slate-400">----</td>
+                                <td class="px-4 py-3 text-center mono text-xs font-bold">72%</td>
+                                <td class="px-4 py-3 text-center"><span
+                                        class="badge-green rounded-full px-2 py-0.5 text-xs font-bold">ACCEPTED</span>
+                                </td>
+                            </tr>
+                            <tr class="bg-slate-50/30">
+                                <td class="px-4 py-3 font-semibold">Incineration w/ recup.</td>
+                                <td class="px-4 py-3 text-center mono font-bold text-slate-600">2.312</td>
+                                <td class="px-4 py-3 text-center"><span
+                                        class="badge-green rounded-full px-2 py-0.5 text-xs font-bold">VIABLE</span>
+                                </td>
+                                <td class="px-4 py-3 text-center text-slate-400">----</td>
+                                <td class="px-4 py-3 text-center mono text-xs font-bold">41%</td>
+                                <td class="px-4 py-3 text-center"><span
+                                        class="badge-green rounded-full px-2 py-0.5 text-xs font-bold">ACCEPTED</span>
+                                </td>
+                            </tr>
+                            <tr class="bg-red-50/30">
+                                <td class="px-4 py-3 font-semibold text-red-800">Conventional landfill</td>
+                                <td class="px-4 py-3 text-center mono font-black text-red-700">0.00</td>
+                                <td class="px-4 py-3 text-center"><span
+                                        class="badge-red rounded-full px-2 py-0.5 text-xs font-bold">VETOED</span></td>
+                                <td class="px-4 py-3 text-center text-xs text-red-700 font-bold">Economic +
+                                    Environmental + Social</td>
+                                <td class="px-4 py-3 text-center mono text-xs">NS</td>
+                                <td class="px-4 py-3 text-center"><span
+                                        class="badge-red rounded-full px-2 py-0.5 text-xs font-bold">REJECTED</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 class="text-lg font-bold text-slate-800 mb-4 mt-8">6.3 Step 3: TOPSIS Engine in action</h3>
+
+                <h4 class="font-bold text-slate-700 mb-3">The CRITIC weights calculated on this sample</h4>
+                <div class="flex flex-wrap gap-4 mb-6">
+                    <div class="flex-1 min-w-[140px] rounded-2xl bg-teal-600 p-5 text-center shadow-lg">
+                        <p class="text-3xl font-black text-white mono">24.3%</p>
+                        <p class="text-sm font-bold text-teal-100 mt-1">Environmental Weight</p>
+                        <p class="text-xs text-teal-200 mt-0.5">Higher variance in sample</p>
+                    </div>
+                    <div class="flex-1 min-w-[140px] rounded-2xl bg-violet-600 p-5 text-center shadow-lg">
+                        <p class="text-3xl font-black text-white mono">25.7%</p>
+                        <p class="text-sm font-bold text-violet-100 mt-1">Social Weight</p>
+                        <p class="text-xs text-violet-200 mt-0.5">High dispersion between options</p>
+                    </div>
+                    <div class="flex-1 min-w-[140px] rounded-2xl bg-slate-800 p-5 text-center shadow-lg">
+                        <p class="text-3xl font-black text-white mono">50.0%</p>
+                        <p class="text-sm font-bold text-slate-200 mt-1">Economic Weight</p>
+                        <p class="text-xs text-slate-400 mt-0.5">Lower discriminatory power</p>
+                    </div>
+                </div>
+
+                <h4 class="font-bold text-slate-700 mb-3">TOPSIS Ranking: distances and CC%</h4>
+                <div class="overflow-x-auto rounded-2xl border border-slate-200 shadow-lg bg-white my-4">
+                    <table class="w-full text-sm min-w-[700px]">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Alternative</th>
+                                <th
+                                    class="px-4 py-3 text-center text-xs font-black text-teal-600 uppercase tracking-widest border-b border-slate-200">
+                                    Var.Env</th>
+                                <th
+                                    class="px-4 py-3 text-center text-xs font-black text-violet-600 uppercase tracking-widest border-b border-slate-200">
+                                    Var.Soc</th>
+                                <th
+                                    class="px-4 py-3 text-center text-xs font-black text-amber-600 uppercase tracking-widest border-b border-slate-200">
+                                    Var.Eco</th>
+                                <th
+                                    class="px-4 py-3 text-center text-xs font-black text-red-600 uppercase tracking-widest border-b border-slate-200">
+                                    D⁺</th>
+                                <th
+                                    class="px-4 py-3 text-center text-xs font-black text-green-600 uppercase tracking-widest border-b border-slate-200">
+                                    D⁻</th>
+                                <th
+                                    class="px-4 py-3 text-center text-xs font-black text-slate-700 uppercase tracking-widest border-b border-slate-200">
+                                    CC%</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr class="bg-green-50/50">
+                                <td class="px-4 py-3 font-semibold text-green-800">Biogas plant</td>
+                                <td class="px-4 py-3 text-center mono text-xs text-green-600 font-bold">-99.4%</td>
+                                <td class="px-4 py-3 text-center mono text-xs text-green-600 font-bold">-99.7%</td>
+                                <td class="px-4 py-3 text-center mono text-xs text-green-600 font-bold">-99.1%</td>
+                                <td class="px-4 py-3 text-center mono text-xs font-bold">0.00000</td>
+                                <td class="px-4 py-3 text-center mono text-xs font-bold text-green-700">0.24276</td>
+                                <td class="px-4 py-3 text-center"><span
+                                        class="bg-teal-600 text-white rounded-full px-3 py-1 text-xs font-black mono">100%</span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3 font-semibold">Composting plant</td>
+                                <td class="px-4 py-3 text-center mono text-xs text-green-600">-97.7%</td>
+                                <td class="px-4 py-3 text-center mono text-xs text-green-600">-98.5%</td>
+                                <td class="px-4 py-3 text-center mono text-xs text-green-600">-95.4%</td>
+                                <td class="px-4 py-3 text-center mono text-xs">0.00400</td>
+                                <td class="px-4 py-3 text-center mono text-xs">0.23876</td>
+                                <td class="px-4 py-3 text-center mono font-bold text-teal-700">98.35%</td>
+                            </tr>
+                            <tr class="bg-slate-50/30 hover:bg-slate-50/60">
+                                <td class="px-4 py-3 font-semibold">Incineration w/ recup.</td>
+                                <td class="px-4 py-3 text-center mono text-xs text-green-600">-91.6%</td>
+                                <td class="px-4 py-3 text-center mono text-xs text-green-600">-92.0%</td>
+                                <td class="px-4 py-3 text-center mono text-xs text-green-600">-92.7%</td>
+                                <td class="px-4 py-3 text-center mono text-xs">0.01988</td>
+                                <td class="px-4 py-3 text-center mono text-xs">0.22386</td>
+                                <td class="px-4 py-3 text-center mono font-bold text-slate-600">91.84%</td>
+                            </tr>
+                            <tr class="bg-red-50/30">
+                                <td class="px-4 py-3 font-semibold text-red-800">Conventional landfill</td>
+                                <td class="px-4 py-3 text-center mono text-xs text-slate-400">---</td>
+                                <td class="px-4 py-3 text-center mono text-xs text-slate-400">---</td>
+                                <td class="px-4 py-3 text-center mono text-xs text-slate-400">---</td>
+                                <td class="px-4 py-3 text-center mono text-xs font-bold text-red-700">0.49980</td>
+                                <td class="px-4 py-3 text-center mono text-xs font-bold text-red-700">0.00000</td>
+                                <td class="px-4 py-3 text-center"><span
+                                        class="badge-red rounded-full px-2 py-0.5 text-xs font-black mono">0.00%</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- S7 GLOSSARY -->
+            <section id="s7" class="glass rounded-3xl p-8 shadow-xl shadow-slate-200/40">
+                <div class="flex items-center gap-3 mb-6">
+                    <span
+                        class="w-8 h-8 rounded-xl bg-amber-500 flex items-center justify-center text-white font-black text-sm">7</span>
+                    <h2 class="text-2xl font-black text-slate-900">Technical Glossary</h2>
+                </div>
+                <p class="text-sm text-slate-500 italic mb-6">Everything you need to know without leaving the manual</p>
+
+                <div class="overflow-x-auto rounded-2xl border border-slate-200 shadow-lg bg-white">
+                    <table class="w-full text-sm min-w-[700px]">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Term</th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Where it appears</th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Quick definition</th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    Complete definition</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3 font-black mono text-xs">SS</td>
+                                <td class="px-4 py-3"><span
+                                        class="badge-purple rounded-full px-2 py-0.5 text-xs font-bold">MRP
+                                        Engine</span></td>
+                                <td class="px-4 py-3 text-slate-600">The minimum of the three semantic achievements.
+                                </td>
+                                <td class="px-4 py-3 text-slate-600 text-xs">SS = min{s(Env), s(Soc), s(Eco)}. Result of
+                                    the Leontief Operator. Higher SS = better position. If SS &lt; Veto Line, the
+                                    alternative is VETOED.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/60 bg-slate-50/30">
+                                <td class="px-4 py-3 font-black mono text-xs">Achievement</td>
+                                <td class="px-4 py-3"><span
+                                        class="badge-purple rounded-full px-2 py-0.5 text-xs font-bold">MRP
+                                        Engine</span></td>
+                                <td class="px-4 py-3 text-slate-600">A pillar's score on the Alpha scale [0–4].</td>
+                                <td class="px-4 py-3 text-slate-600 text-xs">Result of interpolating the raw value
+                                    between Q thresholds. An achievement of 2.5 means the alternative exceeds half the
+                                    sample in that criterion.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3 font-black mono text-xs">Veto Line</td>
+                                <td class="px-4 py-3"><span
+                                        class="badge-purple rounded-full px-2 py-0.5 text-xs font-bold">MRP
+                                        Engine</span></td>
+                                <td class="px-4 py-3 text-slate-600">The minimum SS threshold to be declared Viable.
+                                </td>
+                                <td class="px-4 py-3 text-slate-600 text-xs">Expressed in Alpha scale units. Default:
+                                    alfa-1 = 1.0 (lower quartile). Configurable in the Control Panel.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/60 bg-slate-50/30">
+                                <td class="px-4 py-3 font-black mono text-xs">Limiting Criterion</td>
+                                <td class="px-4 py-3"><span
+                                        class="badge-purple rounded-full px-2 py-0.5 text-xs font-bold">MRP
+                                        Engine</span></td>
+                                <td class="px-4 py-3 text-slate-600">The pillar with lowest Achievement. The cause of
+                                    the veto.</td>
+                                <td class="px-4 py-3 text-slate-600 text-xs">Identifies which dimension needs
+                                    improvement to exceed the Veto Line. Appears in the Cross-Sustainability table for
+                                    VETOED alternatives.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3 font-black mono text-xs text-red-600">D⁺</td>
+                                <td class="px-4 py-3"><span
+                                        class="badge-teal rounded-full px-2 py-0.5 text-xs font-bold">TOPSIS
+                                        Engine</span></td>
+                                <td class="px-4 py-3 text-slate-600">The maximum gap from the best possible scenario.
+                                </td>
+                                <td class="px-4 py-3 text-slate-600 text-xs">D⁺ = max|vij - vj⁺|. Chebyshev distance.
+                                    Lower is better. D⁺ = 0 would indicate perfect coincidence with positive ideal in
+                                    all criteria.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/60 bg-slate-50/30">
+                                <td class="px-4 py-3 font-black mono text-xs text-green-600">D⁻</td>
+                                <td class="px-4 py-3"><span
+                                        class="badge-teal rounded-full px-2 py-0.5 text-xs font-bold">TOPSIS
+                                        Engine</span></td>
+                                <td class="px-4 py-3 text-slate-600">The minimum gap from the worst possible scenario.
+                                </td>
+                                <td class="px-4 py-3 text-slate-600 text-xs">D⁻ = min|vij - vj⁻|. Higher is better.
+                                    Indicates that even at its weakest criterion, the alternative maintains distance
+                                    from the worst case.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3 font-black mono text-xs">CC%</td>
+                                <td class="px-4 py-3"><span
+                                        class="badge-teal rounded-full px-2 py-0.5 text-xs font-bold">TOPSIS
+                                        Engine</span></td>
+                                <td class="px-4 py-3 text-slate-600">The TOPSIS score. Position between A⁺ and A⁻.</td>
+                                <td class="px-4 py-3 text-slate-600 text-xs">CC = D⁻ / (D⁺ + D⁻). Range [0%, 100%].
+                                    Above configured threshold (default 50%): VIABLE. Below: REJECTED.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/60 bg-slate-50/30">
+                                <td class="px-4 py-3 font-black mono text-xs">CRITIC Weights</td>
+                                <td class="px-4 py-3"><span
+                                        class="badge-slate rounded-full px-2 py-0.5 text-xs font-bold">Both
+                                        engines</span></td>
+                                <td class="px-4 py-3 text-slate-600">The statistical importance of each criterion.</td>
+                                <td class="px-4 py-3 text-slate-600 text-xs">Calculated endogenously by the engine: Wj =
+                                    Cj / sum(Cl), where Cj = sigma-j × sum(1-r-jk). Recalculated when the sample
+                                    changes.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3 font-black mono text-xs">Sustainability</td>
+                                <td class="px-4 py-3"><span
+                                        class="badge-slate rounded-full px-2 py-0.5 text-xs font-bold">Both
+                                        engines</span></td>
+                                <td class="px-4 py-3 text-slate-600">The empirical sustainability index of the
+                                    alternative.</td>
+                                <td class="px-4 py-3 text-slate-600 text-xs">Data entered by the analyst. Does not
+                                    participate in CC or SS calculation. Acts as second filter in the
+                                    Cross-Sustainability table.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/60 bg-slate-50/30">
+                                <td class="px-4 py-3 font-black mono text-xs">Variation vs EX-ANTE</td>
+                                <td class="px-4 py-3"><span
+                                        class="badge-slate rounded-full px-2 py-0.5 text-xs font-bold">Both
+                                        engines</span></td>
+                                <td class="px-4 py-3 text-slate-600">Delta% of each pillar relative to the baseline.
+                                </td>
+                                <td class="px-4 py-3 text-slate-600 text-xs">Delta% = ((EXpost - EXante) / |EXante|) ×
+                                    100. Green: impact reduction (improvement). Red: impact increase (worsening). Same
+                                    for all three pillars.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- S8 FAQs -->
+            <section id="s8" class="glass rounded-3xl p-8 shadow-xl shadow-slate-200/40">
+                <div class="flex items-center gap-3 mb-6">
+                    <span
+                        class="w-8 h-8 rounded-xl bg-rose-600 flex items-center justify-center text-white font-black text-sm">8</span>
+                    <h2 class="text-2xl font-black text-slate-900">Frequently Asked Questions</h2>
+                </div>
+                <p class="text-sm text-slate-500 italic mb-8">Direct answers to the most common questions</p>
+
+                <div class="space-y-6">
+
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="bg-rose-50 border-b border-rose-100 px-6 py-4">
+                            <p class="font-black text-rose-800">Q1: My alternative has 100% Sustainability and is
+                                REJECTED. Is there an error?</p>
+                        </div>
+                        <div class="px-6 py-4">
+                            <p class="text-slate-700 text-sm leading-relaxed">There is no error. The Sustainability
+                                index does not participate in the engine's mathematical calculation. An alternative can
+                                have perfect Sustainability and still be VETOED if any of its three impact pillars falls
+                                below the Veto Line. The MRP Engine applies the Leontief Operator and the TOPSIS Engine
+                                the Chebyshev distance: both penalise the weakest pillar without Sustainability being
+                                able to compensate.</p>
+                            <div class="border-l-4 border-red-500 bg-red-50 rounded-r-xl p-3 mt-3">
+                                <p class="text-xs font-black text-red-700 uppercase tracking-widest mb-1"> CONSTITUTIVE
+                                    RULE: no exceptions</p>
+                                <p class="text-sm text-red-800">Sustainability is the second filter, not the first. For
+                                    an alternative to be ACCEPTED it must first pass the mathematical filter (SS or CC)
+                                    and then the Sustainability filter. If it fails the first, the second is irrelevant.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="bg-amber-50 border-b border-amber-100 px-6 py-4">
+                            <p class="font-black text-amber-800">Q2: The ranking changed when I added a new alternative.
+                                Is this a bug?</p>
+                        </div>
+                        <div class="px-6 py-4">
+                            <p class="text-slate-700 text-sm leading-relaxed">Not a bug: this is the correct functioning
+                                of the CRITIC method. The weight of each criterion is calculated on the variance and
+                                correlations of the entire sample. When you add or remove an alternative, the
+                                statistical distribution changes, the weights change, and therefore the distances and
+                                scores of all alternatives change. If you need to analyse a fixed subset without other
+                                alternatives influencing the weightings, use the Selectable Ranking of the TOPSIS
+                                Engine.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="bg-amber-50 border-b border-amber-100 px-6 py-4">
+                            <p class="font-black text-amber-800">Q3: All my alternatives have CC = 0%. What do I do?</p>
+                        </div>
+                        <div class="px-6 py-4">
+                            <p class="text-slate-700 text-sm leading-relaxed mb-3">This occurs when all alternatives
+                                have some pillar with a zero value, creating a degenerate normalised matrix where the
+                                positive and negative ideals collapse. The engine automatically activates the Resilience
+                                Table: a second-level analysis that omits the Limiting Criterion of each alternative and
+                                reorders the ranking using the remaining two pillars.</p>
+                            <p class="text-slate-700 text-sm leading-relaxed">The first-position alternative in this
+                                table is the least fragile in the set, but it is not a viability declaration. It is a
+                                diagnosis: it tells you which pillar each alternative fails and which resists best the
+                                removal of its weak point.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="bg-violet-50 border-b border-violet-100 px-6 py-4">
+                            <p class="font-black text-violet-800">Q4: MRP says my alternative is Viable, but TOPSIS
+                                Rejects it. Which is correct?</p>
+                        </div>
+                        <div class="px-6 py-4">
+                            <p class="text-slate-700 text-sm leading-relaxed mb-3">Both are correct within their own
+                                frameworks. MRP evaluates absolute performance against sample percentiles: if it exceeds
+                                the lower quartile in all three pillars, it is Viable regardless of how others perform.
+                                TOPSIS evaluates relative performance: if CC% does not reach the acceptance threshold,
+                                it means the alternative is too close to the worst possible scenario relative to the
+                                set.</p>
+                            <p class="text-slate-700 text-sm leading-relaxed">An alternative can be absolutely
+                                acceptable (exceeds minimum quality in MRP) but relatively poor (far from ideal in
+                                TOPSIS). The two results are complementary, not contradictory. The final decision is the
+                                analyst's responsibility.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="bg-teal-50 border-b border-teal-100 px-6 py-4">
+                            <p class="font-black text-teal-800">Q5: The weights in Global Ranking and Selectable Ranking
+                                are different. Why?</p>
+                        </div>
+                        <div class="px-6 py-4">
+                            <p class="text-slate-700 text-sm leading-relaxed">Because the Selectable Ranking
+                                recalculates CRITIC weights exclusively on the subset of alternatives you select. When
+                                you change the sample, the variance and correlations of each criterion change, and
+                                therefore the weights change. This behaviour is intentional: the Selectable Ranking is
+                                precisely designed to analyse homogeneous groups of alternatives without the distorting
+                                effect of very disparate options.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="bg-slate-50 border-b border-slate-200 px-6 py-4">
+                            <p class="font-black text-slate-700">Q6: Can I enter negative values in the impact pillars?
+                            </p>
+                        </div>
+                        <div class="px-6 py-4">
+                            <p class="text-slate-700 text-sm leading-relaxed">Technically the system accepts them, but
+                                the results will not be valid because of the very definition of impacts we work with in
+                                SONYA.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="relative z-10 glass border-t border-white/80 shadow-lg mt-10">
+        <div class="max-w-7xl mx-auto px-6 py-8 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+               
+                <div>
+                    <p class="font-black text-slate-900">SONYA</p>
+                    <p class="text-xs text-slate-500">Engines: CRITIC · MRP · TOPSIS</p>
+                </div>
+            </div>
+            <div class="text-center">
+                <p class="text-xs text-slate-500">Strong Non-Compensatory Sustainability Paradigm</p>
+                <p class="text-xs text-slate-500">Multi-criteria impact assessment for social economy organisations</p>
+            </div>
+            <div class="text-right">
+                <p class="text-xs text-slate-500">Contact</p>
+                <a href="mailto:al397098@uji.es"
+                    class="text-sm font-bold text-teal-600 hover:text-teal-800 transition-colors">al397098@uji.es</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Active nav link on scroll
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    const active = document.querySelector(`.nav-link[href="#${entry.target.id}"]`);
+                    if (active) active.classList.add('active');
+                }
+            });
+        }, { rootMargin: '-20% 0px -60% 0px' });
+        sections.forEach(s => observer.observe(s));
+    </script>
+</body>
+
+</html>

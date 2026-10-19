@@ -1,0 +1,2215 @@
+<!DOCTYPE html>
+<html lang="en-GB" class="light">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SONYA | CRITIC + MRP Engine</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class", theme: {
+                extend: {
+                    colors: {
+                        "primary": "#004655", "primary-container": "#005f73", "on-primary": "#ffffff",
+                        "secondary": "#00696c", "on-secondary": "#ffffff", "secondary-container": "#86f0f3",
+                        "tertiary": "#8b3d97", "on-tertiary": "#ffffff",
+                        "error": "#ba1a1a", "error-container": "#ffdad6", "on-error-container": "#93000a",
+                        "surface": "#f6fafe", "on-surface": "#171c1f",
+                        "surface-container-lowest": "#ffffff", "surface-container-low": "#f0f4f8",
+                        "surface-container": "#eaeef2", "surface-container-high": "#e4e9ed", "surface-container-highest": "#dfe3e7",
+                        "outline": "#6f797c", "outline-variant": "#bfc8cc", "on-surface-variant": "#3f484c"
+                    },
+                    fontFamily: { "headline": ["Manrope", "sans-serif"], "body": ["Inter", "sans-serif"], "mono": ["JetBrains Mono", "monospace"], "label": ["Space Grotesk", "sans-serif"] },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "2xl": "0.75rem", "3xl": "1rem", "full": "9999px" },
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --purple: #8b3d97;
+            --purple-dark: #5d2766;
+            --teal: #00696c;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f6fafe;
+            color: #171c1f;
+            margin: 0;
+        }
+
+        .font-headline {
+            font-family: 'Manrope', sans-serif;
+        }
+
+        .data-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+            line-height: 1;
+        }
+
+        .fill-icon {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .blueprint-grid {
+            background-color: #f6fafe;
+            background-image: radial-gradient(circle, #dfe3e7 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        .watercolor-wash {
+            background: radial-gradient(circle at 50% 30%, rgba(139, 61, 151, 0.04) 0%, transparent 60%);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeUp 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .toast-wrap {
+            position: fixed;
+            top: 76px;
+            right: 24px;
+            z-index: 900;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: white;
+            border: 1px solid rgba(195, 197, 215, 0.4);
+            border-radius: 12px;
+            padding: 12px 16px;
+            box-shadow: 0 12px 32px rgba(25, 28, 30, 0.08);
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            pointer-events: auto;
+            animation: toastIn 0.3s ease;
+        }
+
+        .toast.removing {
+            animation: toastOut 0.3s ease forwards;
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        @keyframes toastOut {
+            to {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+        }
+
+        #loading {
+            position: fixed;
+            inset: 0;
+            z-index: 999;
+            background: rgba(246, 250, 254, 0.88);
+            backdrop-filter: blur(6px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #loading.show {
+            display: flex;
+        }
+
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid #bfc8cc;
+            border-top-color: var(--purple);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #bfc8cc;
+            border-radius: 10px;
+        }
+
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .no-scrollbar {
+            scrollbar-width: none;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-family: 'Manrope', sans-serif;
+            font-weight: 700;
+            font-size: 12px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #3f484c;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .sidebar-link:hover {
+            background: rgba(139, 61, 151, 0.07);
+            color: var(--purple);
+        }
+
+        .sidebar-link.active {
+            background: rgba(139, 61, 151, 0.12);
+            color: var(--purple);
+        }
+
+        .mrp-tab-btn {
+            display: flex;
+            align-items: center;
+            height: 100%;
+            font-family: 'Manrope', sans-serif;
+            font-weight: 700;
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #6f797c;
+            border: none;
+            border-bottom: 2px solid transparent;
+            background: none;
+            cursor: pointer;
+            padding: 0 2px;
+            transition: all 0.2s;
+        }
+
+        .mrp-tab-btn:hover {
+            color: var(--purple);
+        }
+
+        .mrp-tab-btn.tab-active {
+            color: var(--purple);
+            border-bottom-color: var(--purple);
+        }
+
+        .std-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid #bfc8cc;
+            background: white;
+            flex-shrink: 0;
+        }
+
+        .red-dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #ba1a1a;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px rgba(186, 26, 26, 0.18);
+            flex-shrink: 0;
+        }
+
+        .connector {
+            width: 2px;
+            background: #dfe3e7;
+            min-height: 24px;
+            margin: 0 5px;
+            flex-shrink: 0;
+        }
+
+        .badge-ok {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 6px;
+            background: #dcfce7;
+            color: #166534;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            border: 1px solid #bbf7d0;
+        }
+
+        .badge-ko {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 6px;
+            background: #fee2e2;
+            color: #991b1b;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            border: 1px solid #fecaca;
+        }
+
+        .badge-n {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 6px;
+            background: #f1f5f9;
+            color: #475569;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            border: 1px solid #e2e8f0;
+        }
+
+        .badge-ok.lim,
+        .badge-ko.lim,
+        .badge-n.lim {
+            outline: 2px solid #ba1a1a;
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+
+<body class="flex min-h-screen blueprint-grid">
+
+    <div id="loading">
+        <div
+            class="bg-white p-8 rounded-2xl border border-outline-variant/20 shadow-2xl flex flex-col items-center gap-4">
+            <div class="spinner"></div>
+            <p id="spin-msg" class="text-sm font-bold text-on-surface-variant font-headline">Calculating...</p>
+        </div>
+    </div>
+    <div class="toast-wrap" id="toast-wrap"></div>
+
+    <!-- SIDEBAR -->
+    <aside
+        class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 z-40 bg-[#f8faff] border-r border-slate-200 overflow-hidden">
+        <div class="p-6">
+            <div class="flex items-center mb-10 cursor-pointer" onclick="location.href='../index.html'">
+                <img src="../logo_sonya.png" alt="SONYA Logo" class="h-10 w-auto object-contain">
+            </div>
+            <nav class="space-y-1">
+                <a href="../index.html" class="sidebar-link">
+                    <span class="material-symbols-outlined text-xl">grid_view</span>Dashboard
+                </a>
+                <a href="gestion_bbdd.html" class="sidebar-link">
+                    <span class="material-symbols-outlined text-xl">database</span>BBDD
+                </a>
+                <a href="mrp.html" class="sidebar-link active">
+                    <span class="material-symbols-outlined fill-icon text-xl">analytics</span>MRP Engine
+                </a>
+                <a href="topsis.html" class="sidebar-link">
+                    <span class="material-symbols-outlined text-xl">insights</span>TOPSIS Engine
+                </a>
+
+                <div class="h-px w-full bg-slate-200 my-4"></div>
+                <button onclick="logoutApp()"
+                    class="w-full sidebar-link text-left hover:!bg-red-50 hover:!text-red-600 transition-colors">
+                    <span class="material-symbols-outlined text-xl">logout</span> Sign Out
+                </button>
+            </nav>
+            <div class="mt-8 p-5 bg-gradient-to-br from-white to-red-50/40 border border-red-100 rounded-2xl shadow-sm">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="material-symbols-outlined fill-icon text-red-500 text-lg">error</span>
+                    <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-red-500">Veto
+                        Logic</span>
+                </div>
+                <h4 class="font-headline font-bold text-xs text-slate-900 mb-2">Strong Sustainability</h4>
+                <p class="text-[11px] leading-relaxed text-slate-600">Ensures critical indicators are not
+                    compensated. Non-negotiable reserve thresholds. SS = min(s_eco, s_amb, s_soc).</p>
+            </div>
+            <div class="mt-6">
+                <label class="block font-mono text-[9px] uppercase tracking-widest text-outline mb-2">Action</label>
+                <select id="uf-sidebar-sel" onchange="onUFChange(this.value)"
+                    class="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-700 focus:ring-2 focus:ring-[#8b3d97]/20 transition-all cursor-pointer">
+                    <option value="">Loading ACTIONS....</option>
+                </select>
+            </div>
+        </div>
+        <div class="mt-auto p-4 mx-4 mb-4 bg-surface-container rounded-xl border border-outline-variant/20">
+            <p class="font-mono text-[10px] text-outline uppercase tracking-wider mb-1.5">System Status</p>
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-[#8b3d97] animate-pulse"></div>
+                <span class="text-xs font-medium font-headline" id="sidebar-status">Engine Ready</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="md:ml-64 flex-1 flex flex-col min-h-screen">
+        <header
+            class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-outline-variant/30 flex justify-between items-center pr-8 md:pl-[280px] h-16 shadow-sm">
+            <nav class="hidden md:flex gap-4 lg:gap-8 h-16 overflow-x-auto no-scrollbar">
+                <button
+                    class="mrp-tab-btn tab-active h-full border-b-[3px] border-[#8b3d97] text-[#8b3d97] font-bold text-sm tracking-wide px-2 lg:px-4 transition-all whitespace-nowrap"
+                    onclick="switchInnerTab('ranking', this)">Global Ranking</button>
+                <button
+                    class="mrp-tab-btn h-full border-b-[3px] border-transparent text-slate-500 font-semibold text-sm tracking-wide px-2 lg:px-4 transition-all whitespace-nowrap"
+                    onclick="switchInnerTab('simulacion', this)">New Simulation</button>
+                <button
+                    class="mrp-tab-btn h-full border-b-[3px] border-transparent text-slate-500 font-semibold text-sm tracking-wide px-2 lg:px-4 transition-all whitespace-nowrap"
+                    onclick="switchInnerTab('control', this)">Control Panel</button>
+                <button
+                    class="mrp-tab-btn h-full border-b-[3px] border-transparent text-slate-500 font-semibold text-sm tracking-wide px-2 lg:px-4 transition-all whitespace-nowrap"
+                    onclick="switchInnerTab('scenario', this)">Selectable Ranking</button>
+            </nav>
+            <div class="flex items-center gap-3 flex-shrink-0 ml-4">
+                <div id="uf-header-badge"
+                    class="hidden items-center gap-2 px-3 py-1.5 bg-[#8b3d97]/10 rounded-full border border-[#8b3d97]/20">
+                    <span class="material-symbols-outlined text-[#8b3d97] text-sm fill-icon">category</span>
+                    <span class="text-[10px] font-mono font-bold text-[#8b3d97] uppercase tracking-widest"
+                        id="uf-header-label">--</span>
+                </div>
+                <div class="flex items-center gap-2 px-3 py-1.5 bg-green-50 rounded-full border border-green-200">
+                    <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_6px_rgba(34,197,94,0.6)]">
+                    </div>
+                    <span class="text-[10px] font-label font-bold text-green-700 uppercase tracking-widest">Motor
+                        Local</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 mt-24 p-8 lg:p-10 max-w-7xl mx-auto w-full space-y-10 watercolor-wash">
+            <div>
+                <h1
+                    class="text-4xl font-extrabold font-headline tracking-tighter text-slate-900 mb-1 flex items-center gap-1">
+                    <span class="font-medium text-slate-400">Engine</span> <span class="text-[#8b3d97] ml-1">CRITIC +
+                        MRP</span>
+                </h1>
+                <div class="h-1 w-10 bg-[#8b3d97] mt-2 rounded-full opacity-50 mb-3"></div>
+
+                <!-- UF infobar -->
+                <div id="uf-infobar"
+                    class="mt-5 p-4 bg-white rounded-xl border border-outline-variant/20 shadow-sm hidden">
+                    <div class="flex items-center justify-between flex-wrap gap-3">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined fill-icon text-[#8b3d97]">category</span>
+                            <div>
+                                <p class="font-mono text-[9px] uppercase tracking-widest text-outline">Active Action</p>
+                                <p class="font-headline font-bold text-slate-900" id="uf-infobar-label">--</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-6">
+                            <div class="text-center">
+                                <p class="font-mono text-[9px] text-outline uppercase tracking-widest">Unit</p>
+                                <p class="font-bold text-sm text-slate-700 font-headline" id="uf-infobar-unit">--</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="font-mono text-[9px] text-outline uppercase tracking-widest">Alternatives</p>
+                                <p class="font-bold text-sm text-[#8b3d97] font-headline" id="uf-infobar-count">--</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="font-mono text-[9px] text-outline uppercase tracking-widest">Red Line</p>
+                                <p class="font-bold text-sm text-red-600 font-headline" id="uf-lr-display">α=1.0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ████ TAB: RANKING GLOBAL ████ -->
+            <div id="tab-ranking" class="tab-content active space-y-8">
+                <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5" id="m-metrics-container">
+                    <div class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm"><span
+                            class="font-headline text-xs font-bold text-on-surface-variant uppercase tracking-widest">Cargando...</span>
+                    </div>
+                </section>
+
+                <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- CRITIC Weights -->
+                    <div class="bg-surface-container-low p-8 rounded-xl border border-outline-variant/10">
+                        <div class="flex items-center justify-between mb-8">
+                            <h4 class="font-headline font-bold text-xl flex items-center gap-2"><span
+                                    class="material-symbols-outlined text-secondary">balance</span>CRITIC Weights</h4>
+                            <span
+                                class="text-[10px] font-mono bg-white px-2 py-1 rounded border border-outline-variant/20 text-outline font-bold">AUTO-ADJUSTED</span>
+                        </div>
+                        <div class="space-y-6" id="m-weights-container">
+                            <p class="text-sm text-outline">Calculating...</p>
+                        </div>
+                        <div
+                            class="mt-8 p-4 bg-white/60 border-l-4 border-[#8b3d97] rounded text-sm italic text-on-surface-variant">
+                            "Weights calculated via contrast intensity and inter-criteria correlation analysis."</div>
+                    </div>
+                    <!-- Red Line Panel -->
+                    <div class="bg-surface-container-low p-8 rounded-xl border border-outline-variant/10">
+                        <div class="bg-surface-container-low p-8 rounded-xl border border-outline-variant/10">
+                            <div class="flex items-center justify-between mb-8">
+                                <h4 class="font-headline font-bold text-xl flex items-center gap-2"><span
+                                        class="material-symbols-outlined text-error">gavel</span>Active Red Line</h4>
+                                <span
+                                    class="text-[10px] font-mono bg-white px-2 py-1 rounded border border-outline-variant/20 text-outline font-bold">MRP
+                                    VETO LOGIC</span>
+                            </div>
+
+                            <div class="space-y-0" id="redline-visual-panel">
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- Ranking Table -->
+                <section class="bg-white rounded-xl border border-outline-variant/20 shadow-xl overflow-hidden">
+                    <div
+                        class="px-6 py-5 border-b border-outline-variant/10 flex justify-between items-center bg-surface-container-low/40">
+                        <h4 class="font-headline font-bold text-xl">High-Resolution Ranking</h4>
+                        <button onclick="loadM()"
+                            class="p-2 hover:bg-surface-container rounded-lg transition-colors"><span
+                                class="material-symbols-outlined text-sm text-outline">refresh</span></button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr
+                                    class="bg-surface-container-low text-[10px] font-mono font-bold text-outline uppercase tracking-widest border-b border-outline-variant/10">
+                                    <th class="px-4 py-4">#</th>
+                                    <th class="px-4 py-4">Alternative</th>
+                                    <th class="px-4 py-4 text-right">Env (raw)</th>
+                                    <th class="px-4 py-4 text-right">Soc (raw)</th>
+                                    <th class="px-4 py-4 text-right">Eco (raw)</th>
+                                    <th
+                                        class="px-5 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                                        Variation vs EX-ANTE</th>
+                                    <th class="px-4 py-4">SS Score</th>
+                                    <th class="px-4 py-4">Achievements (Env / Soc / Eco)</th>
+                                    <th class="px-4 py-4 text-right">Verdict</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-outline-variant/10" id="m-table-body">
+                                <tr>
+                                    <td colspan="8" class="p-10 text-center text-outline font-headline">Select an
+                                        Action to begin...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="m-veto-note-container"></div>
+                </section>
+
+                <!-- NUEVO: Ranking Viables - Satisfaccion -->
+                <section class="mt-8 bg-white rounded-xl border border-purple-200 shadow-xl overflow-hidden">
+                    <div class="px-6 py-5 border-b border-purple-100 flex justify-between items-center bg-purple-50">
+                        <h4 class="font-headline font-bold text-xl text-purple-900 flex items-center gap-2">
+                            <span class="material-symbols-outlined">how_to_reg</span> Viable Ranking - Effectiveness
+                        </h4>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold text-purple-700">Minimum required:</span>
+                            <span
+                                class="bg-white px-3 py-1 rounded-md border border-purple-200 font-mono font-bold text-sm text-purple-800"
+                                id="display-min-sat">20%</span>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr
+                                    class="bg-purple-50/50 text-[10px] font-mono font-bold text-purple-800 uppercase tracking-widest border-b border-purple-100">
+                                    <th class="px-4 py-4">Alternative</th>
+                                    <th class="px-4 py-4 text-center">SS Score</th>
+                                    <th class="px-4 py-4 text-center">SS Viability</th>
+                                    <th class="px-4 py-4 text-center">Limiting Criterion</th>
+                                    <th class="px-4 py-4 text-center">Effectiveness Index (CASP-12)</th>
+                                    <th class="px-4 py-4 text-right">Effectiveness (EI ≥ τ_EI)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-purple-50" id="m-sat-table-body">
+                                <tr>
+                                    <td colspan="7" class="p-8 text-center text-slate-400 font-headline">Loading
+                                        data...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+
+                <div class="mt-16 border-t border-gray-200 pt-10">
+                    <div class="flex items-center justify-between mb-8">
+                        <div>
+                            <h3 class="text-xl font-serif text-gray-900 tracking-tight">Decision Support System</h3>
+                            <p class="text-sm text-gray-500 mt-1">Multi-criteria optimization engine for strategic
+                                decision-making.</p>
+                        </div>
+
+                        <div
+                            class="flex items-center space-x-4 bg-white px-4 py-2 rounded-full border border-gray-200 shadow-sm">
+                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.15em]">SOGRES
+                                Suggestion</span>
+                            <button id="toggleGP"
+                                class="relative inline-flex h-5 w-10 items-center rounded-full bg-gray-200 transition-all focus:outline-none hover:bg-gray-300">
+                                <span
+                                    class="inline-block h-3 w-3 transform rounded-full bg-white transition-transform translate-x-1 shadow-sm"
+                                    id="toggleDot"></span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="suggestionContainer" class="hidden space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                            <div class="bg-slate-50 border border-slate-200 p-6 rounded-2xl shadow-sm">
+                                <h4 class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">
+                                    Filtering Policy</h4>
+                                <div class="flex items-start space-x-3">
+                                    <div class="mt-1 flex-shrink-0 w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+                                    <p class="text-sm text-slate-700 leading-tight">
+                                        <span class="font-bold">Strict Exclusion:</span> Every action that failed to
+                                        meet the Sustainability (SS) or Effectiveness thresholds has been permanently
+                                        removed from this analysis to ensure absolute compliance.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div
+                                class="bg-gradient-to-br from-purple-600 to-indigo-700 p-6 rounded-2xl shadow-lg shadow-purple-200">
+                                <h4
+                                    class="text-[10px] font-bold text-purple-200 uppercase tracking-widest mb-3 text-opacity-80">
+                                    Methodology</h4>
+                                <p class="text-sm text-white leading-relaxed">
+                                    CRITIC dynamically weights data variance while Goal Programming minimizes deviation
+                                    from the ideal state <span
+                                        class="font-mono bg-white/20 px-1.5 rounded text-white">(SS: 4.0 | Eff:
+                                        100%)</span>.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="relative w-full">
+                            <div class="absolute top-0 left-10 w-72 h-72 bg-purple-400 rounded-full mix-blend-multiply filter blur-[80px] opacity-20 pointer-events-none"></div>
+                            <div class="absolute bottom-0 right-10 w-72 h-72 bg-blue-400 rounded-full mix-blend-multiply filter blur-[80px] opacity-20 pointer-events-none"></div>
+
+                            <div id="gpCardsContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 relative z-10 pt-4 pb-8">
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-simulacion" class="tab-content space-y-12">
+                <section class="space-y-6">
+                    <div class="flex items-center gap-5 mb-2">
+
+                        <div>
+                            <span
+                                class="inline-block px-2 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-md mb-1">Paso
+                                1: Baseline</span>
+                            <h2
+                                class="text-3xl md:text-4xl font-extrabold font-headline tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-primary">
+                                EX-ANTE Scenario Definition</h2>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                        <div
+                            class="lg:col-span-8 bg-surface-container-low p-8 rounded-xl shadow-sm border border-transparent space-y-6">
+                            <div>
+                                <label
+                                    class="block font-mono text-[10px] uppercase tracking-widest text-outline mb-2"></label>
+                                <select id="sim-uf-sel" onchange="onUFChange(this.value)"
+                                    class="w-full bg-white border-0 border-b-2 border-outline focus:border-[#8b3d97] focus:ring-0 font-body text-sm py-3 px-1 transition-colors cursor-pointer">
+                                    <option value="">Loading...</option>
+                                </select>
+                                <div id="m-action-builder-container"
+                                    class="hidden mt-6 p-6 bg-primary/5 rounded-2xl border-2 border-dashed border-primary/20 animate-in fade-in slide-in-from-top-4 duration-300">
+                                    <div class="flex items-center gap-3 mb-6 text-primary">
+                                        <span class="material-symbols-outlined">create_new_folder</span>
+                                        <h3 class="font-headline font-bold text-sm uppercase tracking-wider">
+                                            Configurar
+                                            Nueva Unit Funcional</h3>
+                                    </div>
+
+                                    <div class="space-y-5 mb-0">
+                                        <div>
+                                            <label
+                                                class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Action
+                                                Name</label>
+                                            <input type="text" id="gna-name"
+                                                placeholder="E.g.: New Waste Legislation, Production Process X"
+                                                class="w-full bg-white border border-slate-200 rounded-xl p-3.5 text-sm font-bold text-slate-800 focus:ring-2 focus:ring-[#8b3d97]/30 outline-none transition-all">
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Unit
+                                                de Medida (Opcional)</label>
+                                            <input type="text" id="gna-unit" placeholder="E.g.: Hours, £, kg CO2"
+                                                class="w-full bg-white border border-slate-200 rounded-xl p-3.5 text-sm font-bold text-slate-800 focus:ring-2 focus:ring-[#8b3d97]/30 outline-none transition-all">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <label
+                                    class="block font-mono text-[10px] uppercase tracking-widest text-outline mb-2">Reference
+                                    Action</label>
+                                <select id="m-ante-sel" onchange="onAnteChange(this.value)"
+                                    class="w-full bg-white border-0 border-b-2 border-outline focus:border-[#8b3d97] focus:ring-0 font-body text-sm py-3 px-1 transition-colors cursor-pointer"></select>
+                            </div>
+                            <div id="m-ante-new" class="hidden pt-6 border-t border-slate-100/60">
+                                <h4 class="text-sm font-bold text-primary mb-4 font-headline flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-base">edit_document</span>Parameters
+                                    of
+                                    the New Solution
+                                </h4>
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                    <div class="md:col-span-4"><input type="text" id="m-ante-nom"
+                                            placeholder="Enter a descriptive name for the action..."
+                                            class="w-full bg-white border-none rounded-xl p-3.5 font-body text-sm focus:ring-2 focus:ring-primary/20 transition-shadow">
+                                    </div>
+                                    <div><label
+                                            class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-2">Environmental</label><input
+                                            type="number" id="m-ante-amb" placeholder="Value"
+                                            class="w-full bg-white border-none rounded-xl p-3 pl-4 font-label font-bold focus:ring-2 focus:ring-primary/20">
+                                    </div>
+                                    <div><label
+                                            class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-2">Social</label><input
+                                            type="number" id="m-ante-soc" placeholder="Value"
+                                            class="w-full bg-white border-none rounded-xl p-3 pl-4 font-label font-bold focus:ring-2 focus:ring-primary/20">
+                                    </div>
+                                    <div><label
+                                            class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-2">Economic</label><input
+                                            type="number" id="m-ante-eco" placeholder="Value"
+                                            class="w-full bg-white border-none rounded-xl p-3 pl-4 font-label font-bold focus:ring-2 focus:ring-primary/20">
+                                    </div>
+                                    <!-- NEW: EX-ANTE SATISFACTION -->
+                                    <div><label
+                                            class="block text-[10px] font-bold text-[#8b3d97] uppercase tracking-widest mb-1.5 ml-2">%
+                                            Effectiveness Index (CASP-12)</label><input type="text" id="m-ante-sat"
+                                            placeholder="E.g.: 78, 30.7pts or NS"
+                                            class="w-full bg-purple-50 border-none rounded-xl p-3 pl-4 font-label font-bold focus:ring-2 focus:ring-[#8b3d97]/40 text-[#8b3d97]">
+                                        <p class="text-[9px] text-slate-400 mt-1 ml-2 font-mono">Enter <b>NS</b> if
+                                            unknown</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+                <section class="space-y-6">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mt-12 mb-6 gap-4">
+                        <div class="flex items-center gap-5">
+
+                            <div>
+                                <span
+                                    class="inline-block px-2 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-md mb-1">Step
+                                    2: Projection</span>
+                                <h3
+                                    class="text-3xl md:text-4xl font-extrabold font-headline tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-primary">
+                                    Alternatives EX-POST</h3>
+                            </div>
+                        </div>
+                        <div id="m-expost-existing-container"
+                            class="hidden mb-6 p-5 bg-slate-50 rounded-2xl border border-slate-200">
+                            <p class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-4">Existing
+                                solutions
+                                in the database:</p>
+                            <div id="m-expost-existing-list" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            </div>
+                        </div>
+                        <button onclick="addSimRow()"
+                            class="bg-white border-2 border-slate-200 px-5 py-3 rounded-xl text-sm font-extrabold text-slate-600 hover:text-primary hover:border-primary/50 hover:bg-primary/5 transition-all shadow-sm flex items-center gap-2"><span
+                                class="material-symbols-outlined text-lg">add_circle</span> Add Scenario</button>
+                    </div>
+                    <div id="m-expost-list" class="space-y-3"></div>
+                    <div class="pt-8 flex justify-between items-center border-t border-outline-variant/20">
+                        <div class="hidden lg:block">
+                            <p class="font-mono text-[10px] text-outline uppercase tracking-wider">Engine Protocol
+                            </p>
+                            <p class="font-body text-xs text-on-surface">CRITIC · MRP · Leontief Veto ·
+                                Non-compensatory
+                            </p>
+                        </div>
+                        <button onclick="executeDraftSimulation()"
+                            class="flex items-center gap-4 bg-[#8b3d97] text-white px-16 py-5 rounded-2xl shadow-xl shadow-[#8b3d97]/30 hover:bg-[#7a3486] hover:scale-[1.02] active:scale-95 transition-all font-headline font-black text-lg tracking-tight">
+                            Execute Matrix (Draft
+                            Mode)
+                        </button>
+                    </div>
+                </section>
+
+                <div id="m-sim-res"
+                    class="hidden bg-white rounded-2xl p-8 border border-outline-variant/10 shadow-sm border-t-4 border-t-[#8b3d97]">
+                </div>
+            </div>
+
+
+            <div id="tab-scenario" class="tab-content space-y-8">
+                <section class="bg-white p-8 rounded-2xl border border-outline-variant/20 shadow-sm">
+                    <h3 class="font-headline text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[#8b3d97]">checklist</span> Scenario
+                        Builder
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <label
+                                class="block font-mono text-[10px] uppercase tracking-widest text-outline mb-2">Select
+                                Action</label>
+                            <select id="m-scenario-uf" onchange="onScenarioActionChange(this.value)"
+                                class="w-full bg-slate-50 border-0 border-b-2 border-outline focus:border-[#8b3d97] focus:ring-0 font-body text-sm py-3 transition-colors cursor-pointer"></select>
+                            <div class="mt-6 p-4 bg-purple-50 rounded-xl border border-purple-100">
+                                <p class="text-[10px] font-black text-purple-400 uppercase tracking-widest mb-1">
+                                    Detected
+                                    Baseline</p>
+                                <div id="m-scenario-base-info" class="text-sm font-bold text-purple-900 italic">
+                                    Select an action...</div>
+                            </div>
+                        </div>
+                        <div>
+                            <label
+                                class="block font-mono text-[10px] uppercase tracking-widest text-outline mb-2 text-center">Select
+                                Alternatives to Compare</label>
+                            <div id="m-scenario-expost-list"
+                                class="space-y-2 max-h-60 overflow-y-auto pr-2 no-scrollbar"></div>
+                            <button onclick="generateScenarioRanking()"
+                                class="w-full mt-6 bg-[#8b3d97] text-white py-4 rounded-xl font-headline font-black text-sm shadow-lg hover:bg-[#7a3486] transition-all flex items-center justify-center gap-2">
+                                Generate Specific Ranking
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <div id="m-scenario-results" class="hidden">
+                    <section class="bg-white rounded-2xl border border-outline-variant/20 shadow-xl overflow-hidden">
+                        <div class="px-6 py-5 border-b bg-slate-50 flex justify-between items-center">
+                            <h4 class="font-headline font-bold text-xl text-slate-800">Specific Ranking</h4>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr
+                                        class="bg-slate-50 text-[10px] font-mono font-bold text-outline uppercase tracking-widest border-b">
+                                        <th class="px-4 py-4">#</th>
+                                        <th class="px-4 py-4">Alternativa</th>
+                                        <th class="px-4 py-4 text-right">Env</th>
+                                        <th class="px-4 py-4 text-right">Soc</th>
+                                        <th class="px-4 py-4 text-right">Eco</th>
+                                        <th class="px-4 py-4 text-center">Variation</th>
+                                        <th class="px-4 py-4">SS Score</th>
+                                        <th class="px-4 py-4">Achievements</th>
+                                        <th class="px-4 py-4 text-right">Verdict</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="m-scenario-table-body" class="divide-y"></tbody>
+                            </table>
+                        </div>
+                    </section>
+                    <div id="m-scenario-tiebreak-container"></div>
+
+                    <!-- NEW TABLE: SCENARIO SATISFACTION -->
+                    <section class="mt-8 bg-white rounded-xl border border-purple-200 shadow-xl overflow-hidden">
+                        <div
+                            class="px-6 py-5 border-b border-purple-100 flex justify-between items-center bg-purple-50">
+                            <h4 class="font-headline font-bold text-xl text-purple-900 flex items-center gap-2">
+                                <span class="material-symbols-outlined">how_to_reg</span> Viable Ranking -
+                                Effectiveness
+                            </h4>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-bold text-purple-700">Minimum required:</span>
+                                <span
+                                    class="bg-white px-3 py-1 rounded-md border border-purple-200 font-mono font-bold text-sm text-purple-800"
+                                    id="m-scenario-min-sat">20%</span>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr
+                                        class="bg-purple-50/50 text-[10px] font-mono font-bold text-purple-800 uppercase tracking-widest border-b border-purple-100">
+                                        <th class="px-4 py-4">Alternativa</th>
+                                        <th class="px-4 py-4 text-center">SS Score</th>
+                                        <th class="px-4 py-4 text-center">SS Viability</th>
+                                        <th class="px-4 py-4 text-center">Limiting Criterionn</th>
+                                        <th class="px-4 py-4 text-center">Effectiveness Index (CASP-12)</th>
+                                        <th class="px-4 py-4 text-right">Effectiveness (EI ≥ τ_EI)</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-purple-50" id="m-scenario-sat-table-body">
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+            </div>
+            <!-- ████ TAB: PANEL DE CONTROL ████ -->
+            <div id="tab-control" class="tab-content space-y-8">
+                <div class="grid grid-cols-12 gap-8">
+                    <div
+                        class="col-span-12 lg:col-span-5 bg-white/60 backdrop-blur-md border-l-4 border-[#8b3d97] p-8 rounded-xl shadow-sm">
+                        <h3 class="font-headline text-xl font-bold mb-8 flex items-center gap-2"><span
+                                class="material-symbols-outlined text-[#8b3d97]">tune</span>Alpha Scale</h3>
+                        <div class="space-y-6" id="ctrl-alpha-inputs"></div>
+
+                        <!-- NEW: Satisfaction Input -->
+                        <div class="mt-10 pt-8 border-t border-outline-variant/20">
+                            <h3 class="font-headline text-lg font-bold mb-4 flex items-center gap-2 text-[#8b3d97]">
+                                <span class="material-symbols-outlined">how_to_reg</span>Effectiveness Threshold τ_EI (SHARE CASP-12)
+                            </h3>
+                            <p class="text-xs text-on-surface-variant mb-4">Default = EI of the EX-ANTE baseline (A1) of the active Action. Minimum Effectiveness Index (CASP-12, 0–100 %; rule EI ≥ τ_EI) to
+                                accept a solution.</p>
+                            <div class="flex items-center gap-4">
+                                <input type="number" id="ctrl-min-sat" value="52" min="0" max="100"
+                                    class="w-24 bg-surface-container-low border-none border-b-2 border-[#8b3d97] focus:ring-0 font-mono text-center text-lg font-bold text-[#8b3d97]">
+                                <span class="font-bold text-slate-500 text-sm">% (EI ≥ τ_EI)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-span-12 lg:col-span-7 space-y-6">
+                        <div class="bg-white p-8 rounded-xl shadow-sm border border-outline-variant/20">
+                            <h3 class="font-headline text-xl font-bold mb-2">Red Line Selector</h3>
+                            <p class="text-sm text-on-surface-variant mb-6">Define the level of absolute veto.
+                                Actions
+                                below it will be discarded.</p>
+                            <div id="ctrl-lr-selector"
+                                class="flex items-center gap-1 bg-surface-container rounded-full p-1.5 h-20"></div>
+                            <div
+                                class="mt-6 flex items-center gap-3 p-4 bg-error-container/20 rounded-xl border border-error/10">
+                                <span class="material-symbols-outlined text-error">warning</span>
+                                <p class="text-xs text-on-error-container font-medium" id="ctrl-lr-text">Red line
+                                    configuration active.</p>
+                            </div>
+                        </div>
+                        <div class="bg-white/60 backdrop-blur-md p-8 rounded-xl shadow-sm border-t-2 border-secondary">
+                            <div class="flex justify-between items-start mb-6">
+                                <div>
+                                    <h3 class="font-headline text-xl font-bold">Q Threshold Manager</h3>
+                                    <p class="text-xs text-on-surface-variant font-mono mt-1">Parametric
+                                        configuration
+                                        per axis.</p>
+                                </div>
+                                <button onclick="resetMQ()"
+                                    class="px-4 py-2 bg-white border border-outline-variant/30 text-secondary text-xs font-bold flex items-center gap-2 rounded-lg hover:bg-secondary/5 transition-all active:scale-95"><span
+                                        class="material-symbols-outlined text-sm">refresh</span>Restore
+                                    Data-Driven</button>
+                            </div>
+                            <div class="overflow-x-auto no-scrollbar">
+                                <table class="w-full text-left border-separate border-spacing-y-3">
+                                    <thead>
+                                        <tr
+                                            class="text-[10px] uppercase tracking-widest text-on-surface-variant/70 font-bold font-headline">
+                                            <th class="pb-2 pl-2">Criterion</th>
+                                            <th class="pb-2 text-center">q0 (Worst)</th>
+                                            <th class="pb-2 text-center">q1 (P75)</th>
+                                            <th class="pb-2 text-center">q2 (P50)</th>
+                                            <th class="pb-2 text-center">q3 (P25)</th>
+                                            <th class="pb-2 text-center">q4 (Ideal)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="ctrl-q-inputs"></tbody>
+                                </table>
+                            </div>
+                            <button onclick="applyMConfig()"
+                                class="w-full mt-6 px-8 py-4 bg-[#8b3d97] text-white rounded-xl font-headline font-extrabold tracking-wide shadow-xl shadow-[#8b3d97]/30 transition-all hover:scale-[1.01] active:scale-95">Apply
+                                MRP Configuration</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ████ TAB: MATHEMATICAL DEVELOPMENT ████ -->
+            <div id="tab-math" class="tab-content">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                    <div class="lg:col-span-8 space-y-6">
+                        <h3
+                            class="text-2xl font-extrabold font-headline tracking-tight text-slate-800 flex items-center gap-2 mb-2">
+                            <span class="material-symbols-outlined text-primary">data_object</span>Empirical
+                            Development
+                            of the Session
+                        </h3>
+                        <div id="m-math-container">
+                            <div
+                                class="p-12 text-center text-slate-400 bg-white rounded-xl border border-outline-variant/15 shadow-sm">
+                                <span class="material-symbols-outlined text-5xl mb-4 block">functions</span>
+                                <p class="font-headline font-bold">Carga el Global Ranking para extraer la matriz de
+                                    decision matrix.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-4 sticky top-24">
+                        <div
+                            class="bg-slate-900 rounded-[2rem] border border-slate-800 shadow-2xl p-8 relative overflow-hidden">
+                            <div
+                                class="absolute -right-10 -top-10 w-48 h-48 bg-[#8b3d97]/30 blur-[70px] rounded-full pointer-events-none">
+                            </div>
+                            <div class="relative z-10">
+                                <div
+                                    class="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center border border-white/20 mb-6">
+                                    <span class="material-symbols-outlined text-white text-3xl"
+                                        style="font-variation-settings: 'FILL' 1;">menu_book</span>
+                                </div>
+                                <h3 class="font-headline font-extrabold text-2xl text-white mb-4 tracking-tight">
+                                    Scientific Evidence</h3>
+                                <p class="text-slate-400 font-body text-sm leading-relaxed mb-10">Complete
+                                    mathematical
+                                    demonstration of the MRP algorithm with piecewise interpolation and the Leontief
+                                    Veto operator.</p>
+                                <a href="../presentacion_topsis_vs_mrp/SONYA_MRP_.pdf" target="_blank"
+                                    class="w-full flex items-center justify-center gap-3 bg-white text-slate-900 px-6 py-4 rounded-xl font-bold font-headline transition-all duration-300 hover:bg-purple-50 mb-3">
+                                    <span class="material-symbols-outlined text-error">picture_as_pdf</span>VIEW
+                                    WHITEPAPER PDF
+                                </a>
+                                <a href="../presentacion_topsis_vs_mrp/SONYA_MRP_.pdf" download
+                                    class="w-full flex items-center justify-center gap-2 bg-transparent border-2 border-slate-700 hover:border-slate-500 hover:bg-slate-800 text-white px-6 py-3.5 rounded-xl font-bold font-headline transition-all text-sm">
+                                    Download<span class="material-symbols-outlined text-base">arrow_forward</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/mrp_engine.js"></script>
+
+    <!-- Importamos el conector como módulo de Firebase -->
+    <script type="module">
+        import "./js/logic_connector.js";
+        import { signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { auth } from "./js/firebase-config.js";
+
+        window.logoutApp = function () {
+            signOut(auth).then(() => {
+                window.location.href = '../index.html';
+            });
+        };
+        // ── State ────────────────────────────────────────────────
+        let connector = null;
+        let activeUF = '';
+        let lastResult = null;
+        let simEC = 0;
+        let mrpAlpha = [...window.MRPEngine.ALPHA_DEFAULT];
+        let mrpLR = window.MRPEngine.LR_DEFAULT;
+        let mrpQCustom = null;
+        let mrpMinSat = CASP12.FALLBACK_TAU;   // tau_EI (%): por defecto = EI de la línea base EX-ANTE (A1) de la Acción activa
+        let tauUserOverride = false;            // true si el usuario fija tau_EI a mano (se resetea al cambiar de Acción)
+        function applyBaselineTau(alts) {
+            if (tauUserOverride) return;
+            mrpMinSat = CASP12.defaultTau(alts);
+            const inp = document.getElementById('ctrl-min-sat');
+            if (inp) inp.value = +mrpMinSat.toFixed(2);
+        }
+        let simDraftCount = 0;
+        let currentDraftSimulation = null;
+        let scenarioSelectedEPs = [];
+
+        // ── Helpers UI (Exigidos en el objeto global 'window') ────
+        window.msg = function (txt, type = 'info') {
+            const w = document.getElementById('toast-wrap'), t = document.createElement('div');
+            t.className = 'toast';
+            const c = type === 'err' ? '#ba1a1a' : type === 'ok' ? '#00696c' : '#8b3d97';
+            const ic = type === 'err' ? 'error' : type === 'ok' ? 'check_circle' : 'info';
+            t.innerHTML = `<span class="material-symbols-outlined fill-icon" style="color:${c}">${ic}</span><span style="font-size:13px;font-weight:600;color:#171c1f">${txt}</span>`;
+            w.appendChild(t);
+            setTimeout(() => { t.classList.add('removing'); setTimeout(() => t.remove(), 300); }, 3500);
+        }
+
+        window.spin = function (on, text = 'Calculating...') {
+            document.getElementById('spin-msg').innerText = text;
+            document.getElementById('loading').classList.toggle('show', on);
+        }
+
+        window.switchInnerTab = function (tab, btn) {
+            document.querySelectorAll('.mrp-tab-btn').forEach(b => {
+                b.className = 'mrp-tab-btn h-full border-b-[3px] border-transparent text-slate-500 font-semibold text-sm tracking-wide px-2 lg:px-4 transition-all whitespace-nowrap';
+            });
+            btn.className = 'mrp-tab-btn tab-active h-full border-b-[3px] border-[#8b3d97] text-[#8b3d97] font-bold text-sm tracking-wide px-2 lg:px-4 transition-all whitespace-nowrap';
+            document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            if (tab === 'math') window.buildMath();
+            if (tab === 'control') window.buildMCtrl();
+        }
+
+        const bVerd = ss => ss >= mrpLR
+            ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full border border-green-200"><span class="w-1.5 h-1.5 rounded-full bg-green-600"></span>Viable</span>`
+            : `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-red-100 text-red-700 text-xs font-bold rounded-full border border-red-200"><span class="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse"></span>Vetoed</span>`;
+
+        const fmtS = (val, isLim) => {
+            const cls = isLim ? ' lim' : '';
+            if (val >= 3.99) return `<span class="badge-ok${cls}">${val.toFixed(2)}</span>`;
+            if (val <= 0.01) return `<span class="badge-ko${cls}">${val.toFixed(2)}</span>`;
+            return `<span class="badge-n${cls}">${val.toFixed(2)}</span>`;
+        };
+
+        function getBadge(baseValue, currentValue) {
+            if (!baseValue || !currentValue) return '<span class="text-slate-300">-</span>';
+            const diff = baseValue - currentValue;
+            const pct = Math.abs(((currentValue - baseValue) / baseValue) * 100).toFixed(1);
+            if (diff < 0) return `<span class="bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded text-[10px] inline-block w-14 text-center">+${pct}%</span>`;
+            else if (diff > 0) return `<span class="bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded text-[10px] inline-block w-14 text-center">-${pct}%</span>`;
+            return `<span class="bg-gray-100 text-gray-600 font-bold px-2 py-0.5 rounded text-[10px] inline-block w-14 text-center">=</span>`;
+        }
+
+        // ── Core Async Functions (Firebase Connected) ────────────
+
+        window.populateUFSelectors = async function (ufs, selectedId) {
+            const opts = ufs.map(uf => `<option value="${uf.id}" ${uf.id === selectedId ? 'selected' : ''}>${uf.label}</option>`).join('');
+
+            const sidebarSel = document.getElementById('uf-sidebar-sel');
+            if (sidebarSel) sidebarSel.innerHTML = opts + `<option value="__new__">➕ Create New Action</option>`;
+
+            const simGlobalSel = document.getElementById('sim-uf-sel');
+            if (simGlobalSel) simGlobalSel.innerHTML = `<option value="">-- Select Existing Action --</option><option value="__new__" style="font-weight:bold; color:#8b3d97">➕ Create New Action from Scratch</option>` + opts;
+
+            const scenarioSel = document.getElementById('m-scenario-uf');
+            if (scenarioSel) scenarioSel.innerHTML = `<option value="">-- Select Existing Action --</option>` + opts;
+        }
+
+        window.onUFChange = async function (ufId) {
+            ['uf-sidebar-sel', 'sim-uf-sel'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ufId; });
+
+            const builderAction = document.getElementById('m-action-builder-container');
+            const anteSel = document.getElementById('m-ante-sel');
+            const exPostList = document.getElementById('m-expost-existing-container');
+            const infoBar = document.getElementById('uf-infobar');
+
+            if (ufId === '__new__') {
+                if (infoBar) infoBar.classList.add('hidden');
+                if (builderAction) builderAction.classList.remove('hidden');
+                if (exPostList) exPostList.classList.add('hidden');
+                if (anteSel) {
+                    anteSel.innerHTML = `<option value="__new_base__">Define Initial Baseline</option>`;
+                    anteSel.disabled = true;
+                    window.onAnteChange('__new_base__');
+                }
+                window.switchInnerTab('simulacion', document.querySelectorAll('.mrp-tab-btn')[1]);
+                return;
+            }
+
+            if (!ufId) return;
+            activeUF = ufId;
+            tauUserOverride = false;
+            lastResult = null;
+            mrpQCustom = null;
+            if (builderAction) builderAction.classList.add('hidden');
+            if (exPostList) exPostList.classList.remove('hidden');
+            if (anteSel) anteSel.disabled = false;
+
+            await window.refreshAnteSelect();
+            await window.refreshExPostExistingList(ufId);
+            await window.loadM();
+            window.buildMCtrl();
+            await window.refreshDSS();
+        }
+
+        window.onAnteChange = function (val) {
+            const baselineInputs = document.getElementById('m-ante-new');
+            if (val === '__new_base__') {
+                if (baselineInputs) {
+                    baselineInputs.classList.remove('hidden');
+                    ['m-ante-nom', 'm-ante-amb', 'm-ante-soc', 'm-ante-eco', 'm-ante-sat'].forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.value = '';
+                    });
+                }
+            } else {
+                if (baselineInputs) baselineInputs.classList.add('hidden');
+            }
+        }
+
+        window.refreshAnteSelect = async function () {
+            if (!connector || !activeUF || activeUF === '__new__') return;
+
+            const alts = await connector.getAlternatives(activeUF);
+            const exAntes = alts.filter(a => a.tipo === 'EX-ANTE');
+            const anteSel = document.getElementById('m-ante-sel');
+            if (!anteSel) return;
+
+            if (exAntes.length === 0) {
+                anteSel.innerHTML = '<option value="">-- No EX-ANTE solutions --</option>';
+                document.getElementById('m-ante-new').classList.add('hidden');
+                return;
+            }
+
+            anteSel.innerHTML = exAntes.map(a => `<option value="${a.nombre}">${a.nombre}</option>`).join('');
+            anteSel.value = exAntes[0].nombre;
+            window.onAnteChange(exAntes[0].nombre);
+        }
+
+        window.refreshExPostExistingList = async function (ufId) {
+            const container = document.getElementById('m-expost-existing-container');
+            const list = document.getElementById('m-expost-existing-list');
+
+            if (!ufId || ufId === '__new__') {
+                if (container) container.classList.add('hidden');
+                return;
+            }
+
+            const alts = await connector.getAlternatives(ufId);
+            const exPosts = alts.filter(a => a.tipo === 'EX-POST');
+
+            if (exPosts.length > 0 && container && list) {
+                container.classList.remove('hidden');
+                list.innerHTML = exPosts.map(ep => `
+                    <label class="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-xl cursor-pointer hover:bg-purple-50 transition-all shadow-sm group">
+                        <input type="checkbox" class="sim-expost-db-chk w-4 h-4 rounded border-slate-300 text-[#8b3d97] focus:ring-[#8b3d97]" value="${ep.nombre}" data-json='${JSON.stringify(ep)}'>
+                        <div class="flex flex-col">
+                            <span class="font-bold text-xs text-slate-800">${ep.nombre}</span>
+                            <span class="text-[9px] font-mono text-slate-500">A:${ep.amb} | S:${ep.soc} | E:${ep.eco}</span>
+                        </div>
+                    </label>`).join('');
+            } else if (container && list) {
+                container.classList.add('hidden');
+                list.innerHTML = '';
+            }
+        }
+
+        function renderUFInfobar(uf, count) {
+            document.getElementById('uf-infobar-label').textContent = uf.label;
+            document.getElementById('uf-infobar-unit').textContent = uf.unit;
+            document.getElementById('uf-infobar-count').textContent = count;
+            document.getElementById('uf-lr-display').textContent = `α=${mrpLR.toFixed(1)}`;
+            document.getElementById('uf-infobar').classList.remove('hidden');
+            document.getElementById('uf-header-badge').classList.remove('hidden');
+            document.getElementById('uf-header-badge').classList.add('flex');
+            document.getElementById('uf-header-label').textContent = uf.label;
+        }
+
+        function renderWeights(pesos) {
+            const wColors = { 'Economic': '#004655', 'Environmental': '#00696c', 'Social': '#8b3d97' };
+            document.getElementById('m-weights-container').innerHTML = Object.entries(pesos).map(([k, v]) => `
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm font-mono font-bold uppercase">
+                        <span class="text-on-surface-variant">${k}</span><span style="color:${wColors[k] ?? '#8b3d97'}">${(v * 100).toFixed(1)}%</span>
+                    </div>
+                    <div class="w-full h-3 bg-white rounded-full overflow-hidden">
+                        <div class="h-full rounded-full transition-all duration-700" style="width:${v * 100}%;background:${wColors[k] ?? '#8b3d97'}"></div>
+                    </div>
+                </div>`).join('');
+        }
+
+        function renderRedLineVisual() {
+            const labels = ['Unacceptable', 'Reserve Level', 'Standard', 'High Performance', 'Ideal'];
+            let html = '';
+            const reversedIndices = [4, 3, 2, 1, 0]; // Lo dibujamos de arriba a abajo
+
+            reversedIndices.forEach(i => {
+                const val = mrpAlpha[i];
+                const isVeto = (val === mrpLR); // ¿Es este Alpha la línea roja elegida?
+
+                if (isVeto) {
+                    html += `
+                    <div class="flex items-start gap-3">
+                        <div class="flex flex-col items-center pt-1">
+                            <div class="red-dot"></div>
+                            ${i > 0 ? '<div class="connector h-8"></div>' : ''}
+                        </div>
+                        <div class="flex-1 bg-red-50/60 border border-red-200 rounded-lg px-4 py-3 mb-0">
+                            <div class="flex items-center justify-between"><span
+                                    class="font-headline font-extrabold text-sm text-red-600 uppercase tracking-tight">Alpha
+                                    [${i}] : RED LINE (VETO)</span><span
+                                    class="data-mono text-sm font-bold text-red-600">${val.toFixed(2)}</span>
+                            </div>
+                        </div>
+                    </div>`;
+                } else {
+                    html += `
+                    <div class="flex items-start gap-3">
+                        <div class="flex flex-col items-center pt-1">
+                            <div class="std-dot ${i === 0 ? 'opacity-40' : ''}"></div>
+                            ${i > 0 ? `<div class="connector ${i === 1 ? 'h-8' : 'h-7'}"></div>` : ''}
+                        </div>
+                        <div class="flex-1 pb-5 flex items-center justify-between"><span
+                                class="font-headline font-bold text-sm ${i === 0 ? 'text-slate-300' : 'text-slate-400'}">Alpha [${i}] :
+                                ${labels[i]}</span><span class="data-mono text-[11px] ${i === 0 ? 'text-slate-300' : 'text-slate-400'}">${val.toFixed(2)}</span></div>
+                    </div>`;
+                }
+            });
+
+            const panel = document.getElementById('redline-visual-panel');
+            if (panel) panel.innerHTML = html;
+        }
+
+        window.loadM = async function () {
+            if (!connector || !activeUF) return;
+            spin(true, 'Processing MRP matrix from Cloud...');
+
+            try {
+                const ufs = await connector.getUFs();
+                const ufInfo = ufs.find(u => u.id === activeUF);
+
+                // Pedimos datos frescos de Firestore y normalizamos la satisfacción
+                const rawAlts = await connector.getAlternatives(activeUF);
+                const altsDisponibles = rawAlts.map(alt => ({
+                    ...alt,
+                    satisfaccion: (alt.satisfaccion === undefined || alt.satisfaccion === 'NS' || alt.satisfaccion === '') ? 'NS' : parseFloat(alt.satisfaccion)
+                }));
+
+                applyBaselineTau(altsDisponibles);
+
+                if (!altsDisponibles || altsDisponibles.length < 2) {
+                    document.getElementById('m-table-body').innerHTML = `<tr><td colspan="9" class="p-12 text-center text-outline opacity-40">Awaiting sufficient data in Cloud...</td></tr>`;
+                    spin(false);
+                    return;
+                }
+
+                lastResult = window.MRPEngine.run(altsDisponibles, { alpha: mrpAlpha, qCustom: mrpQCustom, lineaRoja: mrpLR });
+
+                if (ufInfo) renderUFInfobar(ufInfo, altsDisponibles.length);
+                renderWeights(lastResult.pesos);
+                renderRedLineVisual();
+                const d = lastResult.ranking;
+                const ok = d.filter(r => !r.vetada).length;
+                const exAnte = d.find(item => item.tipo === 'EX-ANTE');
+
+                // 1. KPIs
+                document.getElementById('m-metrics-container').innerHTML = `
+                    <div class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm"><p class="text-xs font-mono uppercase text-outline mb-4">Total Alternatives</p><h3 class="text-5xl font-bold font-headline">${d.length}</h3></div>
+                    <div class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm"><p class="text-xs font-mono uppercase text-outline mb-4">Viable (SS ≥ ${mrpLR})</p><h3 class="text-5xl font-bold font-headline text-green-600">${ok}</h3></div>
+                    <div class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm"><p class="text-xs font-mono uppercase text-outline mb-4">Vetoeds (SS < ${mrpLR})</p><h3 class="text-5xl font-bold font-headline text-error">${d.length - ok}</h3></div>
+                    <div class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm"><p class="text-xs font-mono uppercase text-outline mb-4">Best Score (SS)</p><h3 class="text-5xl font-bold font-headline text-[#8b3d97]">${d[0]?.ss?.toFixed(3) || '--'}</h3></div>`;
+
+                // 2. High Resolution Table
+                const tableHTML = d.map((r, i) => `
+                    <tr class="hover:bg-surface-container-low/50 transition-colors group ${r.vetada ? 'bg-error-container/5' : ''}">
+                        <td class="px-4 py-5 font-mono text-sm text-outline">${String(i + 1).padStart(2, '0')}</td>
+                        <td class="px-4 py-5"><div class="font-headline font-bold text-on-surface">${r.accion}</div><div class="text-[9px] font-bold font-mono text-secondary mt-1 tracking-widest uppercase">${r.tipo}</div></td>
+                        <td class="px-4 py-5 text-right"><span class="data-mono text-xs font-bold text-slate-700">${r.amb}</span></td>
+                        <td class="px-4 py-5 text-right"><span class="data-mono text-xs font-bold text-slate-700">${r.soc}</span></td>
+                        <td class="px-4 py-5 text-right"><span class="data-mono text-xs font-bold text-slate-700">${r.eco}</span></td>
+                        <td class="px-5 py-2 text-center align-middle border-l border-r border-outline-variant/10 bg-surface-container-lowest/50">
+                            ${r.tipo === 'EX-ANTE' || !exAnte ? `<span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Baseline</span>` :
+                        `<div class="flex flex-col gap-1 items-center justify-center">
+                                <div class="flex items-center gap-1"><span class="text-[9px] text-slate-400 font-bold">Env:</span> ${getBadge(exAnte.amb, r.amb)}</div>
+                                <div class="flex items-center gap-1"><span class="text-[9px] text-slate-400 font-bold">Soc:</span> ${getBadge(exAnte.soc, r.soc)}</div>
+                                <div class="flex items-center gap-1"><span class="text-[9px] text-slate-400 font-bold">Eco:</span> ${getBadge(exAnte.eco, r.eco)}</div>
+                            </div>`}
+                        </td>
+                        <td class="px-4 py-5 font-mono font-bold text-lg ${r.vetada ? 'text-error' : 'text-[#8b3d97]'}">${r.ss.toFixed(3)}</td>
+                        <td class="px-4 py-5">
+                            <div class="flex items-center justify-end gap-2">
+                                ${fmtS(r.s_amb, r.s_amb === r.ss)}
+                                ${fmtS(r.s_soc, r.s_soc === r.ss)}
+                                ${fmtS(r.s_eco, r.s_eco === r.ss)}
+                            </div>
+                        </td>
+                        <td class="px-4 py-5 text-right">${bVerd(r.ss)}</td>
+                    </tr>`).join('');
+
+                document.getElementById('m-table-body').innerHTML = tableHTML;
+
+                // 3. Second Table Logic (Triple Veto / Resilience)
+                const noteContainer = document.getElementById('m-veto-note-container');
+                const todasVetoeds = d.length >= 2 && d.every(r => r.ss === 0);
+
+                if (todasVetoeds) {
+                    const survivalRanking = d.map(r => {
+                        const logs = [
+                            { val: r.s_amb, label: 'Environmental' },
+                            { val: r.s_soc, label: 'Social' },
+                            { val: r.s_eco, label: 'Economic' }
+                        ];
+                        const pilarCritico = logs.find(l => l.val === 0) || logs[0];
+                        const logsRestantes = logs.filter(l => l !== pilarCritico);
+                        const newScore = logsRestantes.reduce((a, b) => a + b.val, 0) / logsRestantes.length;
+                        return { ...r, ss2: newScore, pilarEliminado: pilarCritico.label, logsRestantes: logsRestantes };
+                    }).sort((a, b) => b.ss2 - a.ss2);
+
+                    const notaHTML = `
+                        <div class="mt-8 p-6 bg-gradient-to-r from-blue-900 to-blue-800 rounded-t-2xl shadow-lg border-b border-blue-700">
+                            <div class="flex items-start gap-4">
+                                <div class="p-2 bg-blue-800/50 rounded-lg">
+                                    <span class="material-symbols-outlined text-blue-300 text-2xl">troubleshoot</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-headline font-black text-white text-base uppercase tracking-widest">Second-Layer Analysis: Technical Tiebreak</h4>
+                                    <p class="text-xs text-blue-200 leading-relaxed mt-1.5 font-medium">All options were vetoed by Strong Sustainability. This ranking shows resilience performance after isolating and omitting each alternative's limiting factor.</p>
+                                </div>
+                            </div>
+                        </div>`;
+
+                    const tabla2HTML = `
+                        <div class="overflow-hidden rounded-b-2xl border-x border-b border-blue-100 bg-white shadow-2xl mb-10">
+                            <table class="w-full text-left text-sm border-collapse">
+                                <thead class="bg-blue-50/80 text-[10px] uppercase font-black text-blue-800 tracking-widest border-b border-blue-100">
+                                    <tr>
+                                        <th class="px-6 py-4 text-center">#</th>
+                                        <th class="px-6 py-4">Alternative (Resilience Analysis)</th>
+                                        <th class="px-6 py-4 text-center">Critical Factor Omitted</th>
+                                        <th class="px-6 py-4 text-right">Survival Score</th>
+                                        <th class="px-6 py-4 text-center">Achievements Restantes</th>
+                                        <th class="px-6 py-4 text-right">Verdict</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-blue-50">
+                                    ${survivalRanking.map((r, i) => {
+                        const icon = r.pilarEliminado === 'Environmental' ? 'eco' : (r.pilarEliminado === 'Social' ? 'groups' : 'payments');
+                        return `
+                                        <tr class="hover:bg-blue-50/40 transition-all group">
+                                            <td class="px-6 py-5 text-center font-mono font-bold text-blue-300 group-hover:text-blue-500">${String(i + 1).padStart(2, '0')}</td>
+                                            <td class="px-6 py-5">
+                                                <div class="font-headline font-extrabold text-slate-800 text-base">${r.accion}</div>
+                                                <div class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">${r.tipo}</div>
+                                            </td>
+                                            <td class="px-6 py-5 text-center">
+                                                <div class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-600 border border-red-100 rounded-lg">
+                                                    <span class="material-symbols-outlined text-[14px]">${icon}</span>
+                                                    <span class="text-[10px] font-black uppercase font-mono tracking-wide line-through decoration-red-500/40">${r.pilarEliminado}</span>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-5 text-right">
+                                                <span class="font-mono font-black text-2xl ${i === 0 ? 'text-blue-600' : 'text-slate-600'} drop-shadow-sm">${r.ss2.toFixed(3)}</span>
+                                            </td>
+                                            <td class="px-6 py-5">
+                                                <div class="flex items-center justify-center gap-2">
+                                                    ${r.logsRestantes.map(l => `<span class="px-2 py-1 bg-slate-100 text-slate-600 border border-slate-200 rounded text-[10px] font-bold font-mono">${l.label.substring(0, 3)}: ${l.val.toFixed(2)}</span>`).join('')}
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-5 text-right">
+                                                ${i === 0
+                                ? `<span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-600 to-blue-500 text-white text-[10px] font-black rounded-lg shadow-md shadow-blue-500/30 uppercase tracking-widest">Recommended</span>`
+                                : `<span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-500 text-[10px] font-black rounded-lg border border-slate-200 uppercase tracking-widest">Secondary</span>`}
+                                            </td>
+                                        </tr>`
+                    }).join('')}
+                                </tbody>
+                            </table>
+                        </div>`;
+                    noteContainer.innerHTML = notaHTML + tabla2HTML;
+                } else {
+                    noteContainer.innerHTML = "";
+                }
+
+                // 4. Satisfaction Table
+                let sourceData = d;
+                if (todasVetoeds) {
+                    sourceData = d.map(r => {
+                        const logs = [{ val: r.s_amb, label: 'Environmental' }, { val: r.s_soc, label: 'Social' }, { val: r.s_eco, label: 'Economic' }];
+                        const pilarCritico = logs.find(l => l.val === 0) || logs[0];
+                        const logsRestantes = logs.filter(l => l !== pilarCritico);
+                        const newScore = logsRestantes.reduce((a, b) => a + b.val, 0) / logsRestantes.length;
+                        return { ...r, ss2: newScore, pilarEliminado: pilarCritico.label };
+                    }).sort((a, b) => b.ss2 - a.ss2);
+                }
+
+                const satTableHTML = sourceData.map((r, i) => {
+                    const orig = altsDisponibles.find(a => a.nombre === r.accion);
+                    const sat = orig ? orig.satisfaccion : 'NS';
+                    const isNS = sat === 'NS';
+
+                    let badgeSS = '';
+                    let limitante = '';
+                    const scoreToShow = todasVetoeds ? r.ss2 : r.ss;
+                    const colorScore = todasVetoeds ? 'text-blue-700' : (r.vetada ? 'text-error' : 'text-[#8b3d97]');
+
+                    if (todasVetoeds) {
+                        badgeSS = i === 0
+                            ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded-full border border-blue-200">Recommended</span>`
+                            : `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded-full border border-slate-200">Secondary</span>`;
+                        limitante = `<span class="text-blue-600 font-bold font-mono text-xs uppercase">Omitido: ${r.pilarEliminado}</span>`;
+                    } else {
+                        badgeSS = r.vetada
+                            ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-red-100 text-red-800 text-xs font-bold rounded-full border border-red-200">Vetoed</span>`
+                            : `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full border border-green-200">Viable</span>`;
+                        if (r.vetada) {
+                            limitante = `<span class="text-error font-bold font-mono text-xs uppercase">${r.pilar_fallido || 'Multiple'}</span>`;
+                        } else {
+                            limitante = `<span class="text-slate-300 font-mono font-bold text-lg">--</span>`;
+                        }
+                    }
+
+                    let badgeSat = '';
+                    let colorSat = '';
+                    let displaySat = '';
+
+                    if (isNS) {
+                        displaySat = 'NS';
+                        colorSat = 'text-yellow-600';
+                        badgeSat = `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-yellow-100 text-yellow-800 text-xs font-bold rounded-full border border-yellow-200"><span class="material-symbols-outlined text-sm">help</span>Pending (NS)</span>`;
+                    } else {
+                        const aprobado = CASP12.passes(sat, mrpMinSat);
+                        displaySat = `${sat}%`;
+                        colorSat = aprobado ? 'text-green-600' : 'text-red-600';
+                        badgeSat = aprobado
+                            ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full border border-green-200"><span class="material-symbols-outlined text-sm">check_circle</span>Accepted (Effective)</span>`
+                            : `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-red-100 text-red-800 text-xs font-bold rounded-full border border-red-200"><span class="material-symbols-outlined text-sm">cancel</span>Rejected (Effective)</span>`;
+                    }
+
+                    return `
+                        <tr class="hover:bg-purple-50/20 transition-colors">
+                            <td class="px-4 py-5"><div class="font-headline font-bold text-slate-800">${r.accion}</div><div class="text-[9px] font-bold font-mono text-slate-400 mt-1 uppercase">${r.tipo}</div></td>
+                            <td class="px-4 py-5 text-center font-mono font-bold text-lg ${colorScore}">${scoreToShow.toFixed(3)}</td>
+                            <td class="px-4 py-5 text-center">${badgeSS}</td>
+                            <td class="px-4 py-5 text-center">${limitante}</td>
+                            <td class="px-4 py-5 text-center"><span class="font-mono font-bold text-xl ${colorSat}">${displaySat}</span></td>
+                            <td class="px-4 py-5 text-right">${badgeSat}</td>
+                        </tr>
+                    `;
+                }).join('');
+
+                const satBody = document.getElementById('m-sat-table-body');
+                if (satBody) satBody.innerHTML = satTableHTML;
+                document.getElementById('display-min-sat').textContent = CASP12.fmtTau(mrpMinSat);
+
+                document.getElementById('sidebar-status').textContent = `${d.length} alt. · RL=${mrpLR}`;
+                msg(`Ranking Cloud MRP Updated`, 'ok');
+
+            } catch (e) {
+                console.error("Error en motor MRP:", e);
+                msg(e.message, 'err');
+            }
+            spin(false);
+        }
+
+        // ── Control Panel ─────────────────────────────────────────
+        window.buildMCtrl = function () {
+            const labels = ['Unacceptable', 'Reserva (Red Line)', 'Standard', 'High Performance', 'Ideal'];
+            document.getElementById('ctrl-alpha-inputs').innerHTML = mrpAlpha.map((a, i) => `
+                <div class="flex items-center justify-between">
+                    <label class="font-label text-sm text-on-surface-variant flex flex-col">
+                        <span class="font-bold ${i === 1 ? 'text-error' : 'text-on-surface'}">Alpha ${i}</span>
+                        <span class="text-[11px] opacity-60">${labels[i]}</span>
+                    </label>
+                    <input type="number" step="0.1" id="ca-${i}" value="${a}" class="w-28 bg-surface-container-low border-none border-b-2 ${i === 1 ? 'border-error' : 'border-outline'} focus:ring-0 focus:border-[#8b3d97] font-mono text-right py-2 px-2 text-sm transition-all"/>
+                </div>`).join('');
+
+            document.getElementById('ctrl-lr-selector').innerHTML = mrpAlpha.map((a, i) => `
+                <button onclick="setRedLine(${a})" class="flex-1 h-full rounded-full flex flex-col items-center justify-center transition-all font-mono text-xs font-bold ${mrpLR === a ? 'bg-error text-white shadow-lg shadow-error/30 ring-4 ring-red-100' : 'hover:bg-white/60 text-outline'}">
+                    A${i}${mrpLR === a ? '<span style="font-size:8px;letter-spacing:0.05em;text-transform:uppercase;font-weight:700;display:block">Veto</span>' : ''}
+                </button>`).join('');
+
+            document.getElementById('ctrl-lr-text').textContent = `Active lock for values below ${mrpLR} (Alpha[${mrpAlpha.indexOf(mrpLR)}]).`;
+
+            const umbrales = lastResult?.umbrales_raw ?? {};
+            const criteriaKeys = [['eco', 'Economic'], ['amb', 'Environmental'], ['soc', 'Social']];
+            document.getElementById('ctrl-q-inputs').innerHTML = criteriaKeys.map(([k, label]) => `
+                <tr>
+                    <td class="bg-slate-100 p-3 rounded-l font-bold text-teal-900 text-sm">${label}</td>
+                    ${[0, 1, 2, 3, 4].map(i => `
+                        <td class="px-2">
+                            <input type="number" step="any" id="cq-${k}-${i}"
+                                value="${umbrales[k]?.[i]?.toFixed ? umbrales[k][i].toFixed(4) : (umbrales[k]?.[i] ?? '')}"
+                                class="w-full bg-slate-50 border-none text-center font-mono text-xs p-2 focus:bg-white focus:ring-1 focus:ring-[#8b3d97] rounded"/>
+                        </td>`).join('')}
+                </tr>`).join('');
+        }
+        // Nueva función para cambiar la línea roja desde el HTML
+        window.setRedLine = function (val) {
+            mrpLR = val;
+            window.buildMCtrl();
+        };
+
+        window.applyMConfig = async function () {
+            mrpAlpha = [0, 1, 2, 3, 4].map(i => parseFloat(document.getElementById(`ca-${i}`).value));
+            if (!mrpAlpha.includes(mrpLR)) mrpLR = mrpAlpha[1];
+            const nq = {};
+            let valid = true;
+            [['eco', 'Economic'], ['amb', 'Environmental'], ['soc', 'Social']].forEach(([k]) => {
+                nq[k] = [0, 1, 2, 3, 4].map(i => { const v = parseFloat(document.getElementById(`cq-${k}-${i}`).value); if (isNaN(v)) valid = false; return v; });
+            });
+            if (!valid) { msg('Invalid Q values found', 'err'); return; }
+            mrpQCustom = nq;
+            const tauIn = parseFloat(document.getElementById('ctrl-min-sat').value);
+            if (Number.isFinite(tauIn)) { mrpMinSat = Math.min(100, Math.max(0, tauIn)); tauUserOverride = true; }
+            msg('MRP Engine Configuration Applied', 'ok');
+            lastResult = null;
+            await window.loadM();
+            await window.refreshDSS(); // <-- AÑADIDO
+        }
+
+        window.resetMQ = async function () {
+            mrpQCustom = null;
+            msg('Percentiles restored to Data-Driven mode', 'info');
+            lastResult = null;
+            await window.loadM();
+            window.buildMCtrl();
+            await window.refreshDSS(); // <-- AÑADIDO
+        }
+
+        // ── Simulation Logic ──────────────────────────────────────
+        window.addSimRow = function () {
+            simDraftCount++;
+            const d = document.createElement('div');
+            d.id = `sim-ep-${simDraftCount}`;
+            d.innerHTML = `
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative border-l-4 border-l-[#8b3d97]/60 hover:border-l-[#8b3d97] transition-colors mb-4">
+                    <button onclick="document.getElementById('sim-ep-${simDraftCount}').remove()" class="absolute top-4 right-4 text-slate-300 hover:text-error transition-colors"><span class="material-symbols-outlined text-xl">cancel</span></button>
+                    <div class="flex items-center gap-2 mb-4"><h4 class="font-headline font-bold text-sm text-slate-800">New Scenario ${simDraftCount}</h4></div>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                        <div class="md:col-span-4"><input type="text" id="sim-ep-nom-${simDraftCount}" placeholder="Description Name..." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-body"></div>
+                        <div><label class="block text-[9px] font-bold text-teal-600 uppercase tracking-widest mb-1 ml-1">Environmental</label><input type="number" step="any" id="sim-ep-amb-${simDraftCount}" placeholder="0.0" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 font-mono text-sm focus:ring-2 focus:ring-[#8b3d97]/20"></div>
+                        <div><label class="block text-[9px] font-bold text-purple-600 uppercase tracking-widest mb-1 ml-1">Social</label><input type="number" step="any" id="sim-ep-soc-${simDraftCount}" placeholder="0.0" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 font-mono text-sm focus:ring-2 focus:ring-[#8b3d97]/20"></div>
+                        <div><label class="block text-[9px] font-bold text-primary uppercase tracking-widest mb-1 ml-1">Economic</label><input type="number" step="any" id="sim-ep-eco-${simDraftCount}" placeholder="0.0" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 font-mono text-sm focus:ring-2 focus:ring-[#8b3d97]/20"></div>
+                        <div><label class="block text-[9px] font-bold text-[#8b3d97] uppercase tracking-widest mb-1 ml-1">Effectiveness Index (CASP-12)</label><input type="text" id="sim-ep-sat-${simDraftCount}" placeholder="E.g.: 78, 30.7pts or NS" title="Escribe NS si no la conoces" class="w-full bg-purple-50 border border-purple-200 text-[#8b3d97] rounded-lg p-2.5 font-mono text-sm focus:ring-2 focus:ring-[#8b3d97]/40"></div>
+                    </div>
+                </div>`;
+            document.getElementById('m-expost-list').appendChild(d);
+        }
+
+        window.executeDraftSimulation = async function () {
+            const ufVal = document.getElementById('sim-uf-sel')?.value;
+            if (!ufVal) { msg('Please select or create an Action first', 'err'); return; }
+
+            const draftData = { actionId: ufVal, allEngineData: [], postData: [] };
+
+            if (ufVal === '__new__') {
+                const manualActionName = document.getElementById('gna-name')?.value.trim();
+                const manualActionUnit = document.getElementById('gna-unit')?.value.trim();
+                if (!manualActionName) { msg('Please enter a name for the new Action', 'err'); return; }
+                draftData.isNewAction = true;
+                draftData.actionLabel = manualActionName;
+                draftData.actionUnit = manualActionUnit || 'Unites';
+            }
+
+            const anteSelect = document.getElementById('m-ante-sel');
+            if (anteSelect && anteSelect.value === '__new_base__') {
+                const manualBaseName = document.getElementById('m-ante-nom')?.value.trim();
+                if (!manualBaseName) { msg('Please enter a name for the baseline solution', 'err'); return; }
+                let satAnteStr = document.getElementById('m-ante-sat')?.value.trim().toUpperCase();
+                draftData.anteData = {
+                    nombre: manualBaseName, tipo: 'EX-ANTE',
+                    amb: parseFloat(document.getElementById('m-ante-amb')?.value) || 0,
+                    soc: parseFloat(document.getElementById('m-ante-soc')?.value) || 0,
+                    eco: parseFloat(document.getElementById('m-ante-eco')?.value) || 0,
+                    satisfaccion: CASP12.parse(satAnteStr),
+                    isNew: true
+                };
+            } else if (anteSelect) {
+                const alts = await connector.getAlternatives(ufVal);
+                const foundBase = alts.find(a => a.nombre === anteSelect.value && a.tipo === 'EX-ANTE');
+                if (foundBase) draftData.anteData = { ...foundBase };
+            }
+
+            if (!draftData.anteData) { msg('Error: EX-ANTE baseline not found', 'err'); return; }
+            draftData.allEngineData.push(draftData.anteData);
+
+            document.querySelectorAll('.sim-expost-db-chk:checked').forEach(chk => {
+                const d = JSON.parse(chk.getAttribute('data-json'));
+                draftData.allEngineData.push(d);
+                draftData.postData.push(d);
+            });
+
+            for (let i = 1; i <= simDraftCount; i++) {
+                const nomInput = document.getElementById(`sim-ep-nom-${i}`);
+                if (nomInput && nomInput.value.trim()) {
+                    let satPostStr = document.getElementById(`sim-ep-sat-${i}`)?.value.trim().toUpperCase();
+                    const item = {
+                        nombre: nomInput.value.trim(), tipo: 'EX-POST',
+                        amb: parseFloat(document.getElementById(`sim-ep-amb-${i}`)?.value) || 0,
+                        soc: parseFloat(document.getElementById(`sim-ep-soc-${i}`)?.value) || 0,
+                        eco: parseFloat(document.getElementById(`sim-ep-eco-${i}`)?.value) || 0,
+                        satisfaccion: CASP12.parse(satPostStr),
+                        isNew: true
+                    };
+                    draftData.allEngineData.push(item);
+                    draftData.postData.push(item);
+                }
+            }
+
+            if (draftData.postData.length === 0) { msg('Please add at least one improvement scenario', 'err'); return; }
+
+            applyBaselineTau(draftData.allEngineData);
+
+            spin(true, 'Running simulation...');
+            try {
+                const res = window.MRPEngine.run(draftData.allEngineData, { alpha: mrpAlpha, qCustom: mrpQCustom, lineaRoja: mrpLR });
+                currentDraftSimulation = draftData;
+                const d = res.ranking;
+                const exAnteRes = d.find(r => r.tipo === 'EX-ANTE') || { amb: 0, soc: 0, eco: 0 };
+
+                // ... Main Draft Matrix ...
+                let html = `
+                <div class="bg-yellow-50 text-yellow-800 p-3 text-center text-[10px] font-black border-b border-yellow-200 uppercase tracking-widest rounded-t-2xl">⚠️ Draft Mode Results</div>
+                <div class="px-6 py-5 border-b border-outline-variant/10 flex justify-between items-center bg-surface-container-low/40">
+                    <h4 class="font-headline font-bold text-xl">High-Resolution Ranking</h4>
+                </div>
+                <div class="overflow-x-auto bg-white">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-surface-container-low text-[10px] font-mono font-bold text-outline uppercase tracking-widest border-b border-outline-variant/10">
+                                <th class="px-4 py-4">#</th><th class="px-4 py-4">Alternativa</th><th class="px-4 py-4 text-right">Env (raw)</th><th class="px-4 py-4 text-right">Soc (raw)</th><th class="px-4 py-4 text-right">Eco (raw)</th><th class="px-5 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Variation vs EX-ANTE</th><th class="px-4 py-4">SS Score</th><th class="px-4 py-4">Achievements (Env / Soc / Eco)</th><th class="px-4 py-4 text-right">Verdict</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-outline-variant/10">`;
+
+                d.forEach((r, i) => {
+                    html += `
+                    <tr class="hover:bg-surface-container-low/50 transition-colors group ${r.vetada ? 'bg-error-container/5' : ''}">
+                        <td class="px-4 py-5 font-mono text-sm text-outline">${String(i + 1).padStart(2, '0')}</td>
+                        <td class="px-4 py-5"><div class="font-headline font-bold text-on-surface">${r.accion}</div><div class="text-[9px] font-bold font-mono text-secondary mt-1 tracking-widest uppercase">${r.tipo}</div></td>
+                        <td class="px-4 py-5 text-right"><span class="data-mono text-xs font-bold text-slate-700">${r.amb}</span></td>
+                        <td class="px-4 py-5 text-right"><span class="data-mono text-xs font-bold text-slate-700">${r.soc}</span></td>
+                        <td class="px-4 py-5 text-right"><span class="data-mono text-xs font-bold text-slate-700">${r.eco}</span></td>
+                        <td class="px-5 py-2 text-center align-middle border-l border-r border-outline-variant/10 bg-surface-container-lowest/50">
+                            ${r.tipo === 'EX-ANTE' || !exAnteRes ? `<span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Baseline</span>` :
+                            `<div class="flex flex-col gap-1 items-center justify-center">
+                                <div class="flex items-center gap-1"><span class="text-[9px] text-slate-400 font-bold">Env:</span> ${getBadge(exAnteRes.amb, r.amb)}</div>
+                                <div class="flex items-center gap-1"><span class="text-[9px] text-slate-400 font-bold">Soc:</span> ${getBadge(exAnteRes.soc, r.soc)}</div>
+                                <div class="flex items-center gap-1"><span class="text-[9px] text-slate-400 font-bold">Eco:</span> ${getBadge(exAnteRes.eco, r.eco)}</div>
+                            </div>`}
+                        </td>
+                        <td class="px-4 py-5 font-mono font-bold text-lg ${r.vetada ? 'text-error' : 'text-[#8b3d97]'}">${r.ss.toFixed(3)}</td>
+                        <td class="px-4 py-5">
+                            <div class="flex items-center justify-end gap-2">${fmtS(r.s_amb, r.s_amb === r.ss)}${fmtS(r.s_soc, r.s_soc === r.ss)}${fmtS(r.s_eco, r.s_eco === r.ss)}</div>
+                        </td>
+                        <td class="px-4 py-5 text-right">${bVerd(r.ss)}</td>
+                    </tr>`;
+                });
+                html += `</tbody></table></div>`;
+
+                // ... Draft Satisfaction Table ...
+                html += `
+                <div class="mt-8 bg-white border-t border-purple-200">
+                    <div class="px-6 py-5 border-b border-purple-100 flex justify-between items-center bg-purple-50">
+                        <h4 class="font-headline font-bold text-xl text-purple-900 flex items-center gap-2"><span class="material-symbols-outlined">how_to_reg</span> Viable Ranking - Effectiveness</h4>
+                        <div class="flex items-center gap-2"><span class="text-xs font-bold text-purple-700">Minimum required:</span><span class="bg-white px-3 py-1 rounded-md border border-purple-200 font-mono font-bold text-sm text-purple-800">${CASP12.fmtTau(mrpMinSat)}</span></div>
+                    </div>
+                    <div class="overflow-x-auto"><table class="w-full text-left border-collapse">
+                        <thead><tr class="bg-purple-50/50 text-[10px] font-mono font-bold text-purple-800 uppercase tracking-widest border-b border-purple-100"><th class="px-4 py-4">Alternativa</th><th class="px-4 py-4 text-center">SS Score</th><th class="px-4 py-4 text-center">SS Viability</th><th class="px-4 py-4 text-center">Limiting Criterionn</th><th class="px-4 py-4 text-center">Effectiveness Index (CASP-12)</th><th class="px-4 py-4 text-right">Effectiveness (EI ≥ τ_EI)</th></tr></thead>
+                        <tbody class="divide-y divide-purple-50">`;
+
+                const todasVetoeds = d.length >= 2 && d.every(r => r.ss === 0);
+                let sourceData = d;
+                if (todasVetoeds) {
+                    sourceData = d.map(r => {
+                        const logs = [{ val: r.s_amb, label: 'Environmental' }, { val: r.s_soc, label: 'Social' }, { val: r.s_eco, label: 'Economic' }];
+                        const pilarCritico = logs.find(l => l.val === 0) || logs[0];
+                        const logsRestantes = logs.filter(l => l !== pilarCritico);
+                        const newScore = logsRestantes.reduce((a, b) => a + b.val, 0) / logsRestantes.length;
+                        return { ...r, ss2: newScore, pilarEliminado: pilarCritico.label };
+                    }).sort((a, b) => b.ss2 - a.ss2);
+                }
+
+                sourceData.forEach((r, i) => {
+                    const orig = draftData.allEngineData.find(a => a.nombre === r.accion);
+                    const sat = orig ? orig.satisfaccion : 'NS';
+                    const isNS = sat === 'NS';
+
+                    let badgeSS = r.vetada ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-red-100 text-red-800 text-xs font-bold rounded-full border border-red-200">Vetoed</span>` : `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full border border-green-200">Viable</span>`;
+                    let limitante = r.vetada ? `<span class="text-error font-bold font-mono text-xs uppercase">${r.pilar_fallido || 'Multiple'}</span>` : `<span class="text-slate-300 font-mono font-bold text-lg">--</span>`;
+                    const scoreToShow = todasVetoeds ? r.ss2 : r.ss;
+                    const colorScore = todasVetoeds ? 'text-blue-700' : (r.vetada ? 'text-error' : 'text-[#8b3d97]');
+
+                    if (todasVetoeds) {
+                        badgeSS = i === 0 ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded-full border border-blue-200">Recommended</span>` : `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded-full border border-slate-200">Secondary</span>`;
+                        limitante = `<span class="text-blue-600 font-bold font-mono text-xs uppercase">Omitido: ${r.pilarEliminado}</span>`;
+                    }
+
+                    let badgeSat = isNS ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-yellow-100 text-yellow-800 text-xs font-bold rounded-full border border-yellow-200">Pending (NS)</span>` : ((CASP12.passes(sat, mrpMinSat)) ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full border border-green-200">Accepted (Effective)</span>` : `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-red-100 text-red-800 text-xs font-bold rounded-full border border-red-200">Rejected (Effective)</span>`);
+                    let displaySat = isNS ? 'NS' : sat + '%';
+                    let colorSat = isNS ? 'text-yellow-600' : ((CASP12.passes(sat, mrpMinSat)) ? 'text-green-600' : 'text-red-600');
+
+                    html += `<tr class="hover:bg-purple-50/20 transition-colors"><td class="px-4 py-5"><div class="font-headline font-bold text-slate-800">${r.accion}</div><div class="text-[9px] font-bold font-mono text-slate-400 mt-1 uppercase">${r.tipo}</div></td><td class="px-4 py-5 text-center font-mono font-bold text-lg ${colorScore}">${scoreToShow.toFixed(3)}</td><td class="px-4 py-5 text-center">${badgeSS}</td><td class="px-4 py-5 text-center">${limitante}</td><td class="px-4 py-5 text-center"><span class="font-mono font-bold text-xl ${colorSat}">${displaySat}</span></td><td class="px-4 py-5 text-right">${badgeSat}</td></tr>`;
+                });
+                html += `</tbody></table></div></div>`;
+
+                // Botón Guardar Nube
+                html += `<div class="p-6 bg-slate-900 rounded-b-2xl flex justify-between items-center"><span class="text-white text-xs">If you are happy with the results, save them to the Cloud.</span><button onclick="persistDraftSimulation()" class="bg-white text-slate-900 px-8 py-2 rounded-xl font-black text-xs hover:bg-purple-50">Save to Cloud Database</button></div>`;
+
+                const resBox = document.getElementById('m-sim-res');
+                resBox.innerHTML = html;
+                resBox.classList.remove('hidden');
+                resBox.scrollIntoView({ behavior: 'smooth' });
+
+            } catch (e) { msg(e.message, 'err'); }
+            spin(false);
+        }
+
+        window.persistDraftSimulation = async function () {
+            if (!currentDraftSimulation) return;
+            spin(true, 'Saving to Cloud Database...');
+
+            try {
+                let targetId = currentDraftSimulation.actionId;
+                if (currentDraftSimulation.isNewAction) {
+                    const newAction = await connector.addUF({ label: currentDraftSimulation.actionLabel, unit: currentDraftSimulation.actionUnit });
+                    targetId = newAction.id;
+                }
+
+                if (currentDraftSimulation.anteData && currentDraftSimulation.anteData.isNew) {
+                    await connector.addAlternative(targetId, currentDraftSimulation.anteData);
+                }
+                if (currentDraftSimulation.postData) {
+                    for (const post of currentDraftSimulation.postData) {
+                        if (post.isNew) await connector.addAlternative(targetId, post);
+                    }
+                }
+
+                msg('Simulation saved securely to Cloud!', 'ok');
+                setTimeout(() => location.reload(), 1500);
+            } catch (e) {
+                msg('Save error: ' + e.message, 'err');
+                spin(false);
+            }
+        }
+
+        // ── Scenario Selectable Logic ─────────────────────────────
+        window.onScenarioActionChange = async function (val) {
+            if (!val || !connector) return;
+
+            scenarioSelectedEPs = [];
+            const container = document.getElementById('m-scenario-expost-list');
+            const infoDiv = document.getElementById('m-scenario-base-info');
+            document.getElementById('m-scenario-results').classList.add('hidden');
+
+            const alts = await connector.getAlternatives(val);
+            const exAnte = alts.find(a => a.tipo === 'EX-ANTE');
+
+            infoDiv.innerHTML = exAnte
+                ? `${exAnte.nombre} <span class="text-[10px] opacity-50 font-mono">(A:${exAnte.amb} S:${exAnte.soc} E:${exAnte.eco})</span>`
+                : '<span class="text-error">No EX-ANTE baseline for this action.</span>';
+
+            const exPosts = alts.filter(a => a.tipo === 'EX-POST');
+            container.innerHTML = exPosts.map(ep => `
+                <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-purple-50 border border-transparent hover:border-purple-200 transition-all group">
+                    <input type="checkbox" onchange="toggleScenarioAlt('${ep.nombre}', this.checked)" class="w-4 h-4 rounded border-slate-300 text-[#8b3d97]">
+                    <div class="flex flex-col">
+                        <span class="text-sm font-bold text-slate-700">${ep.nombre}</span>
+                        <span class="text-[9px] font-mono text-slate-400">A:${ep.amb} | S:${ep.soc} | E:${ep.eco}</span>
+                    </div>
+                </label>
+            `).join('');
+        }
+
+        window.toggleScenarioAlt = function (nombre, isChecked) {
+            if (isChecked) {
+                if (!scenarioSelectedEPs.includes(nombre)) scenarioSelectedEPs.push(nombre);
+            } else {
+                scenarioSelectedEPs = scenarioSelectedEPs.filter(n => n !== nombre);
+            }
+        }
+
+        window.generateScenarioRanking = async function () {
+            const actionName = document.getElementById('m-scenario-uf').value;
+            if (!actionName) { msg('Please select an Action first', 'err'); return; }
+            if (scenarioSelectedEPs.length === 0) { msg('Please tick at least one EX-POST alternative', 'err'); return; }
+
+            spin(true, 'Recalculating weights with selected data...');
+
+            try {
+                const alts = await connector.getAlternatives(actionName);
+                const exAnte = alts.find(a => a.tipo === 'EX-ANTE');
+                if (!exAnte) throw new Error("An EX-ANTE baseline solution is required for comparison.");
+
+                const subset = [exAnte];
+                scenarioSelectedEPs.forEach(epName => {
+                    const found = alts.find(a => a.nombre === epName && a.tipo === 'EX-POST');
+                    if (found) subset.push(found);
+                });
+
+                const res = window.MRPEngine.run(subset, { alpha: mrpAlpha, qCustom: mrpQCustom, lineaRoja: mrpLR });
+                const d = res.ranking;
+
+                // 2. Render Main Table
+                const tbody = document.getElementById('m-scenario-table-body');
+                tbody.innerHTML = d.map((r, i) => `
+                    <tr class="${r.vetada ? 'bg-error-container/5' : ''} hover:bg-surface-container-low/50 transition-colors group">
+                        <td class="px-4 py-5 font-mono text-sm text-outline">${String(i + 1).padStart(2, '0')}</td>
+                        <td class="px-4 py-5"><div class="font-headline font-bold text-on-surface">${r.accion}</div><div class="text-[9px] font-bold font-mono text-secondary mt-1 tracking-widest uppercase">${r.tipo}</div></td>
+                        <td class="px-4 py-5 text-right"><span class="data-mono text-xs font-bold text-slate-700">${r.amb?.toLocaleString('en-GB', { useGrouping: false, maximumFractionDigits: 2 }) ?? '--'}</span></td>
+                        <td class="px-4 py-5 text-right"><span class="data-mono text-xs font-bold text-slate-700">${r.soc?.toLocaleString('en-GB', { useGrouping: false, maximumFractionDigits: 2 }) ?? '--'}</span></td>
+                        <td class="px-4 py-5 text-right"><span class="data-mono text-xs font-bold text-slate-700">${r.eco?.toLocaleString('en-GB', { useGrouping: false, maximumFractionDigits: 2 }) ?? '--'}</span></td>
+                        <td class="px-5 py-2 text-center align-middle border-l border-r border-outline-variant/10 bg-surface-container-lowest/50">
+                            ${r.tipo === 'EX-ANTE' ? '<span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Baseline</span>' : `<div class="flex flex-col gap-1.5 items-center justify-center"><div class="flex items-center gap-1"><span class="text-[9px] text-slate-400 w-6 text-right uppercase font-bold">Amb:</span> ${getBadge(exAnte.amb, r.amb)}</div><div class="flex items-center gap-1"><span class="text-[9px] text-slate-400 w-6 text-right uppercase font-bold">Soc:</span> ${getBadge(exAnte.soc, r.soc)}</div><div class="flex items-center gap-1"><span class="text-[9px] text-slate-400 w-6 text-right uppercase font-bold">Eco:</span> ${getBadge(exAnte.eco, r.eco)}</div></div>`}
+                        </td>
+                        <td class="px-4 py-5 font-mono font-bold text-lg ${r.vetada ? 'text-error' : 'text-[#8b3d97]'}">${r.ss.toFixed(3)}</td>
+                        <td class="px-4 py-5"><div class="flex items-center gap-2">${fmtS(r.s_amb, r.s_amb === r.ss)}${fmtS(r.s_soc, r.s_soc === r.ss)}${fmtS(r.s_eco, r.s_eco === r.ss)}</div></td>
+                        <td class="px-4 py-5 text-right">${bVerd(r.ss)}</td>
+                    </tr>`).join('');
+                document.getElementById('m-scenario-results').classList.remove('hidden');
+
+                const tiebreakContainer = document.getElementById('m-scenario-tiebreak-container');
+                const todasVetoeds = d.length >= 2 && d.every(r => r.ss === 0);
+
+                if (todasVetoeds) {
+                    const survival = d.map(r => {
+                        const logs = [{ v: r.s_amb, l: 'Amb' }, { v: r.s_soc, l: 'Soc' }, { v: r.s_eco, l: 'Eco' }];
+                        const clean = logs.filter(l => l.v > 0);
+                        const media = clean.reduce((a, b) => a + b.v, 0) / clean.length;
+                        return { ...r, ss2: media, critico: logs.find(l => l.v === 0)?.l || 'N/A' };
+                    }).sort((a, b) => b.ss2 - a.ss2);
+
+                    tiebreakContainer.innerHTML = `
+                        <div class="mt-8 p-6 bg-blue-50 border-l-4 border-blue-500 rounded-xl">
+                            <h4 class="font-black text-blue-900 text-sm uppercase mb-4">Second-Layer Analysis (Tiebreak)</h4>
+                            <div class="overflow-hidden rounded-xl border border-blue-200 bg-white">
+                                <table class="w-full text-left text-xs"><thead class="bg-blue-600 text-white"><tr><th class="p-3">Alternative</th><th class="p-3 text-center">Omitted Failure</th><th class="p-3 text-right">Resilience Score</th></tr></thead><tbody class="divide-y divide-blue-50">
+                                ${survival.map(r => `<tr><td class="p-3 font-bold">${r.accion}</td><td class="p-3 text-center text-red-500">-${r.critico}</td><td class="p-3 text-right font-black text-blue-700">${r.ss2.toFixed(3)}</td></tr>`).join('')}
+                                </tbody></table>
+                            </div>
+                        </div>`;
+                } else { tiebreakContainer.innerHTML = ""; }
+
+                // Scenario Satisfaction Table
+                let sourceData = d;
+                if (todasVetoeds) {
+                    sourceData = d.map(r => {
+                        const logs = [{ val: r.s_amb, label: 'Environmental' }, { val: r.s_soc, label: 'Social' }, { val: r.s_eco, label: 'Economic' }];
+                        const pilarCritico = logs.find(l => l.val === 0) || logs[0];
+                        return { ...r, ss2: logs.filter(l => l !== pilarCritico).reduce((a, b) => a + b.val, 0) / 2, pilarEliminado: pilarCritico.label };
+                    }).sort((a, b) => b.ss2 - a.ss2);
+                }
+
+                document.getElementById('m-scenario-sat-table-body').innerHTML = sourceData.map((r, i) => {
+                    const orig = subset.find(a => a.nombre === r.accion);
+                    const sat = orig ? orig.satisfaccion : 'NS';
+                    const isNS = sat === 'NS' || sat === undefined;
+
+                    let badgeSS = r.vetada ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-red-100 text-red-800 text-xs font-bold rounded-full border border-red-200">Vetoed</span>` : `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full border border-green-200">Viable</span>`;
+                    let limitante = r.vetada ? `<span class="text-error font-bold font-mono text-xs uppercase">${r.pilar_fallido || 'Multiple'}</span>` : `<span class="text-slate-300 font-mono font-bold text-lg">--</span>`;
+                    const scoreToShow = todasVetoeds ? r.ss2 : r.ss;
+                    const colorScore = todasVetoeds ? 'text-blue-700' : (r.vetada ? 'text-error' : 'text-[#8b3d97]');
+
+                    if (todasVetoeds) {
+                        badgeSS = i === 0 ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded-full border border-blue-200">Recommended</span>` : `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded-full border border-slate-200">Secondary</span>`;
+                        limitante = `<span class="text-blue-600 font-bold font-mono text-xs uppercase">Omitido: ${r.pilarEliminado}</span>`;
+                    }
+
+                    const aprobado = !isNS && CASP12.passes(sat, mrpMinSat);
+                    let badgeSat = isNS ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-yellow-100 text-yellow-800 text-xs font-bold rounded-full border border-yellow-200">Pending (NS)</span>` : (aprobado ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full border border-green-200">Accepted (Effective)</span>` : `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-red-100 text-red-800 text-xs font-bold rounded-full border border-red-200">Rejected (Effective)</span>`);
+
+                    return `<tr class="hover:bg-purple-50/20 transition-colors"><td class="px-4 py-5"><div class="font-headline font-bold text-slate-800">${r.accion}</div><div class="text-[9px] font-bold font-mono text-slate-400 mt-1 uppercase">${r.tipo}</div></td><td class="px-4 py-5 text-center font-mono font-bold text-lg ${colorScore}">${scoreToShow.toFixed(3)}</td><td class="px-4 py-5 text-center">${badgeSS}</td><td class="px-4 py-5 text-center">${limitante}</td><td class="px-4 py-5 text-center"><span class="font-mono font-bold text-xl ${isNS ? 'text-yellow-600' : (aprobado ? 'text-green-600' : 'text-red-600')}">${isNS ? 'NS' : sat + '%'}</span></td><td class="px-4 py-5 text-right">${badgeSat}</td></tr>`;
+                }).join('');
+
+                document.getElementById('m-scenario-min-sat').textContent = CASP12.fmtTau(mrpMinSat);
+                msg('Specific Ranking Generado', 'ok');
+
+            } catch (e) { msg(e.message, 'err'); console.error(e); }
+            spin(false);
+        }
+
+        // ── New Action Modal ─────────────────────────────────────
+        window.openNewActionModal = function () { document.getElementById('global-new-action-modal').classList.remove('hidden'); }
+        window.closeNewActionModal = function () { document.getElementById('global-new-action-modal').classList.add('hidden'); }
+
+        window.confirmNewAction = async function () {
+            const nombre = document.getElementById('gna-name').value.trim();
+            const unit = document.getElementById('gna-unit').value.trim();
+            if (!nombre) { msg('Please enter a name', 'err'); return; }
+
+            spin(true, 'Creando en Firebase...');
+            try {
+                await connector.addUF({ label: nombre, unit: unit || 'Unidades' });
+                msg(`Action "${nombre}" created`, 'ok');
+                window.closeNewActionModal();
+                const ufs = await connector.getUFs();
+                await window.populateUFSelectors(ufs, activeUF);
+            } catch (e) { msg('Error creating Action', 'err'); }
+            spin(false);
+        }
+
+        // ── Math Tab ──────────────────────────────────────────────
+        window.buildMath = function () {
+            if (!lastResult) {
+                document.getElementById('m-math-container').innerHTML = `<div class="p-12 text-center text-slate-400 bg-white rounded-xl border border-outline-variant/15 shadow-sm"><span class="material-symbols-outlined text-5xl mb-4 block">functions</span><p class="font-headline font-bold">Carga primero el Global Ranking.</p></div>`;
+                return;
+            }
+            const r = lastResult;
+            const criteriaLabels = ['Environmental', 'Social', 'Economic'];
+            const criteriaKeys = ['amb', 'soc', 'eco'];
+
+            let qH = '';
+            criteriaKeys.forEach((k, ci) => {
+                const q = r.umbrales_raw?.[k] ?? [];
+                qH += `<tr class="bg-surface-container-low/50 hover:bg-surface-container-low transition-colors">
+                    <td class="py-4 pl-4 font-headline font-bold text-on-surface">${criteriaLabels[ci]}</td>
+                    ${q.map((v, i) => `<td class="py-4 font-mono text-sm text-center ${mrpLR === mrpAlpha[i] ? 'text-error font-bold' : ''}">${v?.toFixed(4) ?? '--'}</td>`).join('')}
+                </tr>`;
+            });
+
+            document.getElementById('m-math-container').innerHTML = `
+                <div class="bg-white rounded-xl p-8 shadow-sm border border-outline-variant/15">
+                    <div class="flex items-center justify-between mb-6 border-b border-outline-variant/20 pb-4">
+                        <h2 class="text-2xl font-bold font-headline text-[#8b3d97]">I. CRITIC Weighting</h2>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        ${Object.entries(r.std ?? {}).map(([k, v]) => `<div class="bg-surface-container-low p-5 rounded-xl border border-outline-variant/15"><p class="text-[10px] font-bold uppercase tracking-widest text-outline font-headline">σ — ${k}</p><p class="data-mono text-xl font-bold text-slate-800 mt-2">${typeof v === 'number' ? v.toFixed(6) : '--'}</p></div>`).join('')}
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl p-8 shadow-sm border border-outline-variant/15 mt-6">
+                    <div class="flex items-center justify-between mb-6 border-b border-outline-variant/20 pb-4">
+                        <h2 class="text-2xl font-bold font-headline text-[#8b3d97]">II. Thresholds</h2>
+                    </div>
+                    <div class="overflow-x-auto"><table class="w-full text-left border-separate border-spacing-y-2"><thead><tr class="text-outline text-xs uppercase tracking-widest font-bold"><th class="pb-4 pl-4 font-label">Criterion</th><th class="pb-4 font-label text-center">q0</th><th class="pb-4 font-label text-center">q1</th><th class="pb-4 font-label text-center">q2</th><th class="pb-4 font-label text-center">q3</th><th class="pb-4 pr-4 font-label text-center">q4</th></tr></thead><tbody>${qH}</tbody></table></div>
+                </div>`;
+        }
+
+
+        // ── MOTOR DE  SUGERENCIA (GOAL PROGRAMMING + CRITIC) ─────────────────────────
+        // Función para refrescar el DSS automáticamente
+        // Función para refrescar el DSS automáticamente
+        window.refreshDSS = async function () {
+            const container = document.getElementById('suggestionContainer');
+            // Si el contenedor no existe o está escondido, no hacemos nada
+            if (!container || container.classList.contains('hidden')) return;
+
+            if (!lastResult || !activeUF) return;
+
+            window.spin(true, 'Updating Decision Support System...');
+            try {
+                // Se conecta directo a la BBDD (solucionado el error de caché)
+                const rawAlts = await connector.getAlternatives(activeUF);
+
+                const combinedData = lastResult.ranking.map(r => {
+                    const orig = rawAlts.find(a => a.nombre === r.accion);
+                    const sat = orig ? orig.satisfaccion : 'NS';
+                    return {
+                        name: r.accion,
+                        ssScore: r.ss,
+                        effectiveness: (sat === 'NS' || sat === '' || sat === undefined) ? 0 : parseFloat(sat)
+                    };
+                });
+
+                const ranking = runSuggestionEngine(combinedData, mrpMinSat, mrpLR);
+                renderGPTable(ranking);
+            } catch (e) {
+                console.error("Error updating DSS:", e);
+            }
+            window.spin(false);
+        };
+        function runSuggestionEngine(data, minEffectiveness, alphaVeto) {
+            let viableActions = data.filter(item =>
+                item.ssScore >= alphaVeto &&
+                CASP12.passes(item.effectiveness, minEffectiveness)
+            );
+
+            if (viableActions.length === 0) return null;
+
+            // Si solo queda una opción, la declaramos "Sole Survivor"
+            if (viableActions.length === 1) {
+                const action = viableActions[0];
+                const zScore = (((4 - action.ssScore) / 4) + (1 - (action.effectiveness / 100))) / 2;
+                return [{
+                    name: action.name,
+                    ssScore: action.ssScore.toFixed(3),
+                    satIndex: action.effectiveness + "%",
+                    zValue: zScore.toFixed(4),
+                    isUnique: true
+                }];
+            }
+
+            const matrix = viableActions.map(a => [a.ssScore, a.effectiveness / 100]);
+            const weights = calculateCriticWeights(matrix);
+
+            const results = viableActions.map((action) => {
+                const ssFall = (4 - action.ssScore) / 4;
+                const eFall = (1 - (action.effectiveness / 100));
+                const zScore = (weights[0] * ssFall) + (weights[1] * eFall);
+
+                return {
+                    name: action.name,
+                    ssScore: action.ssScore.toFixed(3),
+                    satIndex: action.effectiveness + "%",
+                    zValue: zScore.toFixed(4),
+                    isUnique: false
+                };
+            });
+
+            return results.sort((a, b) => a.zValue - b.zValue);
+        }
+
+        function calculateCriticWeights(matrix) {
+            const n = matrix.length;
+            const mins = [Math.min(...matrix.map(r => r[0])), Math.min(...matrix.map(r => r[1]))];
+            const maxs = [Math.max(...matrix.map(r => r[0])), Math.max(...matrix.map(r => r[1]))];
+
+            const normMatrix = matrix.map(r => [
+                (maxs[0] - mins[0]) === 0 ? 1 : (r[0] - mins[0]) / (maxs[0] - mins[0]),
+                (maxs[1] - mins[1]) === 0 ? 1 : (r[1] - mins[1]) / (maxs[1] - mins[1])
+            ]);
+
+            const sigmas = [0, 1].map(col => {
+                const mean = normMatrix.reduce((a, b) => a + b[col], 0) / n;
+                return Math.sqrt(normMatrix.reduce((a, b) => a + Math.pow(b[col] - mean, 2), 0) / n);
+            });
+
+            let r = 0;
+            if (n > 1) {
+                const meanSS = normMatrix.reduce((a, b) => a + b[0], 0) / n;
+                const meanE = normMatrix.reduce((a, b) => a + b[1], 0) / n;
+                const num = normMatrix.reduce((a, b) => a + (b[0] - meanSS) * (b[1] - meanE), 0);
+                const den = Math.sqrt(normMatrix.reduce((a, b) => a + Math.pow(b[0] - meanSS, 2), 0)) * Math.sqrt(normMatrix.reduce((a, b) => a + Math.pow(b[1] - meanE, 2), 0));
+                r = den === 0 ? 0 : num / den;
+            }
+
+            const c = sigmas.map(s => s * (1 - r));
+            const sumC = c[0] + c[1];
+            return sumC === 0 ? [0.5, 0.5] : [c[0] / sumC, c[1] / sumC];
+        }
+
+
+       function renderGPTable(data) {
+            const container = document.getElementById('gpCardsContainer'); 
+            container.innerHTML = "";
+
+            if (!data) {
+                container.innerHTML = `
+                    <div class="col-span-full bg-white/40 backdrop-blur-xl border border-white/60 rounded-3xl p-12 shadow-lg text-center">
+                        <div class="inline-flex items-center justify-center w-16 h-16 border-4 border-white border-t-red-400 rounded-full mb-6 animate-spin shadow-inner"></div>
+                        <h4 class="text-lg font-black text-slate-700 uppercase tracking-widest mb-2">No viable paths identified</h4>
+                        <p class="text-sm text-slate-500">Adjust Veto lines or Effectiveness thresholds to find feasible actions.</p>
+                    </div>`;
+                return;
+            }
+
+            data.forEach((row, index) => {
+                const isWinner = index === 0;
+                const badgeText = row.isUnique ? "Sole Survivor" : "Optimal Choice";
+                
+                const ssPercent = (parseFloat(row.ssScore) / 4) * 100;
+                const satPercent = parseFloat(row.satIndex);
+
+                const cardClasses = isWinner 
+                    ? 'col-span-full bg-gradient-to-br from-white/90 to-white/50 backdrop-blur-2xl border-2 border-white shadow-[0_8px_30px_rgb(147,51,234,0.15)] rounded-[2rem] p-8 md:p-10 transform transition-all duration-500 hover:scale-[1.01] hover:shadow-[0_20px_40px_rgb(147,51,234,0.25)] relative overflow-hidden' 
+                    : 'col-span-1 bg-white/60 backdrop-blur-xl border border-white shadow-xl shadow-slate-200/50 rounded-3xl p-7 transform transition-all duration-300 hover:-translate-y-2 hover:bg-white/80 group';
+
+                container.innerHTML += `
+                    <div class="${cardClasses}">
+                        ${isWinner ? '<div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-purple-200 to-transparent opacity-50 rounded-bl-full pointer-events-none"></div>' : ''}
+                        
+                        <div class="flex flex-col ${isWinner ? 'md:flex-row md:items-start justify-between' : ''} mb-8 relative z-10 gap-5">
+                            <div class="flex items-start space-x-4 w-full">
+                                <div class="${isWinner ? 'bg-gradient-to-br from-purple-600 to-indigo-600 shadow-lg shadow-purple-300 text-white' : 'bg-slate-100 group-hover:bg-purple-200 text-slate-400 group-hover:text-purple-700 transition-all'} w-12 h-12 md:w-14 md:h-14 rounded-2xl flex-shrink-0 flex flex-col items-center justify-center">
+                                    <span class="text-[8px] md:text-[9px] font-bold uppercase tracking-[0.2em] opacity-80 mb-0.5">Rank</span>
+                                    <span class="text-lg md:text-xl font-black leading-none">#${index + 1}</span>
+                                </div>
+                                <div class="flex-1 min-w-0 pr-2">
+                                    ${isWinner ? `<span class="inline-block px-4 py-1.5 bg-purple-100 text-purple-700 text-[10px] font-black uppercase tracking-[0.2em] rounded-full mb-3 border border-purple-200 shadow-sm animate-pulse">${badgeText}</span>` : ''}
+                                    <h4 class="${isWinner ? 'text-xl md:text-2xl text-slate-900' : 'text-base md:text-lg text-slate-700'} font-bold leading-snug break-words">${row.name}</h4>
+                                </div>
+                            </div>
+                            
+                            <div class="flex flex-col ${isWinner ? 'items-start md:items-end' : 'items-start self-start mt-2 md:mt-0'} flex-shrink-0 bg-white/80 p-5 md:px-7 md:py-6 rounded-3xl border-2 border-white shadow-md backdrop-blur-md">
+                                <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-[0.25em] mb-1.5">Z-Score Penalty</span>
+                                <span class="font-mono ${isWinner ? 'text-4xl md:text-5xl font-black text-purple-700 drop-shadow-sm' : 'text-2xl md:text-3xl font-bold text-slate-700'}">${row.zValue}</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 ${isWinner ? 'md:grid-cols-2 gap-8 md:gap-12' : 'gap-6'} relative z-10">
+                            
+                            <div class="group/bar cursor-crosshair">
+                                <div class="flex justify-between items-end mb-2">
+                                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Sustainability (SS)</span>
+                                    <span class="font-mono text-sm font-black text-slate-800">${row.ssScore} <span class="text-slate-400 font-normal">/ 4.0</span></span>
+                                </div>
+                                <div class="h-3 w-full bg-slate-100 rounded-full overflow-hidden shadow-inner">
+                                    <div class="h-full bg-gradient-to-r ${isWinner ? 'from-emerald-400 to-teal-500' : 'from-slate-300 to-slate-400 group-hover/bar:from-emerald-300 group-hover/bar:to-teal-400'} rounded-full transition-all duration-1000 ease-out" style="width: ${ssPercent}%;"></div>
+                                </div>
+                            </div>
+
+                            <div class="group/bar cursor-crosshair">
+                                <div class="flex justify-between items-end mb-2">
+                                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Effectiveness Index (CASP-12)</span>
+                                    <span class="font-mono text-sm font-black text-slate-800">${row.satIndex}</span>
+                                </div>
+                                <div class="h-3 w-full bg-slate-100 rounded-full overflow-hidden shadow-inner">
+                                    <div class="h-full bg-gradient-to-r ${isWinner ? 'from-blue-500 to-indigo-500' : 'from-slate-300 to-slate-400 group-hover/bar:from-blue-400 group-hover/bar:to-indigo-400'} rounded-full transition-all duration-1000 ease-out delay-100" style="width: ${satPercent}%;"></div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        // ── Initialization ─────────────────────────────────────────
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            spin(true, 'Connecting to Cloud Engine...');
+            document.getElementById('toggleGP')?.addEventListener('click', async function () {
+                const dot = document.getElementById('toggleDot');
+                const container = document.getElementById('suggestionContainer');
+                const isEnabled = this.classList.contains('bg-purple-600');
+
+                if (!isEnabled) {
+                    this.classList.replace('bg-gray-200', 'bg-purple-600');
+                    dot.classList.replace('translate-x-1', 'translate-x-6');
+                    container.classList.remove('hidden');
+
+                    
+                    await window.refreshDSS();
+                } else {
+                    this.classList.replace('bg-purple-600', 'bg-gray-200');
+                    dot.classList.replace('translate-x-6', 'translate-x-1');
+                    container.classList.add('hidden');
+                }
+            });
+            // Añadir soporte para Enter en el Modal
+            ['gna-name', 'gna-unit'].forEach(id => {
+                document.getElementById(id)?.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') window.confirmNewAction();
+                });
+            });
+
+            try {
+                connector = await window.SonyaConnector.init();
+                const ufs = await connector.getUFs();
+                if (ufs.length > 0) {
+                    await window.populateUFSelectors(ufs, ufs[0].id);
+                    activeUF = ufs[0].id;
+                    await window.loadM();
+                } else {
+                    await window.populateUFSelectors([], '');
+                }
+                msg(`Connected securely to Cloud Database`, 'ok');
+            } catch (e) {
+                msg(`Initialisation error: ${e.message}`, 'err');
+            }
+            spin(false);
+        });
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SONYA | Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap"
+        rel="stylesheet" />
+    <style>
+        body {
+            background-color: #f7f6f3;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .btn-google {
+            background: #ffffff;
+            color: #1c1917;
+            border: 1px solid #e2ddd8;
+            transition: all 0.25s ease;
+        }
+
+        .btn-google:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-app {
+            background: #1c1917;
+            color: #ffffff;
+            transition: all 0.25s ease;
+        }
+
+        .btn-app:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 25px -5px rgba(28, 25, 23, 0.3);
+        }
+
+        .btn-topsis {
+            background: #00696c;
+            color: #ffffff;
+            transition: all 0.25s ease;
+        }
+
+        .btn-topsis:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 25px -5px rgba(0, 105, 108, 0.3);
+        }
+
+        .hidden-view {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col items-center justify-center relative">
+
+    <div class="flex flex-col items-center mb-10 text-center">
+        <img src="logo_sonya.png" alt="SONYA" class="max-w-[200px] w-full object-contain mb-4 drop-shadow-sm" />
+        <p class="font-mono text-[10px] tracking-[0.22em] uppercase text-stone-400">Cloud Analytical Suite</p>
+    </div>
+
+    <div id="view-login" class="flex flex-col items-center gap-4 w-full max-w-sm hidden-view">
+        <button id="btn-signin"
+            class="btn-google flex items-center justify-center gap-3 w-full py-4 rounded-2xl font-bold">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5">
+            Sign in with Google
+        </button>
+        <p class="text-xs text-stone-400 mt-2 text-center px-4">Sign in to isolate your simulations from those of other
+            SONYA users.</p>
+    </div>
+
+    <div id="view-dashboard" class="flex flex-col gap-4 w-full max-w-sm hidden-view">
+        <div class="flex items-center justify-between px-2 mb-2">
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span class="text-xs font-bold text-stone-600" id="user-name">User</span>
+            </div>
+            <button id="btn-signout" class="text-xs font-bold text-stone-400 hover:text-red-500">Close Session</button>
+        </div>
+
+        <a href="public/mrp.html" class="btn-app rounded-2xl flex flex-col px-7 py-5 shadow-lg group no-underline">
+            <span class="font-mono text-[9px] tracking-[0.25em] uppercase text-stone-400 mb-1">Engine</span>
+            <span class="font-serif text-xl">Enter the MRP Engine</span>
+        </a>
+
+        <a href="public/topsis.html"
+            class="btn-topsis rounded-2xl flex flex-col px-7 py-5 shadow-lg group no-underline">
+            <span class="font-mono text-[9px] tracking-[0.25em] uppercase text-stone-300 mb-1">Engine</span>
+            <span class="font-serif text-xl">Enter the TOPSIS Engine</span>
+        </a>
+
+        <a href="public/gestion_bbdd.html"
+            class="btn-google rounded-2xl flex flex-col px-7 py-5 shadow-sm group no-underline">
+            <span class="font-mono text-[9px] tracking-[0.25em] uppercase text-stone-400 mb-1">Repository</span>
+            <span class="font-serif text-xl font-bold">Manage Private Database</span>
+        </a>
+    </div>
+
+    <script type="module">
+        import { auth, provider } from './public/js/firebase-config.js';
+        import { signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const viewLogin = document.getElementById('view-login');
+        const viewDashboard = document.getElementById('view-dashboard');
+        const userName = document.getElementById('user-name');
+
+        // Escuchar el estado de autenticación en tiempo real
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // Logueado: Mostramos Dashboard
+                viewLogin.classList.add('hidden-view');
+                viewDashboard.classList.remove('hidden-view');
+                userName.textContent = `Hi, ${user.displayName.split(' ')[0]}`;
+            } else {
+                // Deslogueado: Mostramos Login
+                viewDashboard.classList.add('hidden-view');
+                viewLogin.classList.remove('hidden-view');
+            }
+        });
+
+        // Eventos de los botones
+        document.getElementById('btn-signin').addEventListener('click', () => {
+            signInWithPopup(auth, provider).catch(error => console.error("Error login:", error));
+        });
+
+        document.getElementById('btn-signout').addEventListener('click', () => {
+            signOut(auth).catch(error => console.error("Error logout:", error));
+        });
+    </script>
+    <div class="fixed bottom-8 right-8 z-50 group">
+        <div
+            class="absolute bottom-full right-0 mb-4 w-48 bg-white border border-gray-200 rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+            <div class="p-2 space-y-1">
+                <a href="public/manual_en.html" target="_blank"
+                    class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700 rounded-lg transition-colors">
+                    <span class="mr-3">🇬🇧</span>
+                    <span class="font-medium">English Manual</span>
+                </a>
+                <a href="public/manual_es.html" target="_blank"
+                    class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700 rounded-lg transition-colors">
+                    <span class="mr-3">🇪🇸</span>
+                    <span class="font-medium">Manual en Español</span>
+                </a>
+            </div>
+        </div>
+
+        <div
+            class="flex items-center space-x-4 bg-white border border-gray-200 rounded-xl px-5 py-4 shadow-sm group-hover:shadow-md group-hover:border-purple-200 transition-all cursor-pointer">
+            <div class="text-purple-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+                    </path>
+                </svg>
+            </div>
+            <div class="text-left">
+                <p class="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] leading-none mb-1.5">
+                    Documentation</p>
+                <p class="text-sm font-serif text-gray-900 leading-none font-medium">Select Language</p>
+            </div>
+            <div class="text-gray-400 group-hover:rotate-180 transition-transform duration-300">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
