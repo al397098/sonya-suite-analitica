@@ -1,0 +1,26 @@
+{
+  "Microbus": {
+    "Eco": 5920.13,
+    "Amb": 68.38,
+    "Soc": 960377.53,
+    "Tipo": "EX-ANTE"
+  },
+  "Telematico": {
+    "Eco": 431.63,
+    "Amb": 5.73,
+    "Soc": 77257.43,
+    "Tipo": "EX-POST"
+  },
+  "Fruteria local": {
+    "Eco": 0.71,
+    "Amb": 193.53,
+    "Soc": 481.19,
+    "Tipo": "EX-ANTE"
+  },
+  "Fruta España": {
+    "Eco": 0.92,
+    "Amb": 261.46,
+    "Soc": 576.56,
+    "Tipo": "EX-POST"
+  }
+}

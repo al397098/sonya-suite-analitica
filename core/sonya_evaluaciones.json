@@ -1,0 +1,24 @@
+[
+  {
+    "ex_ante": "Inyectable",
+    "sat_ante": 60,
+    "ex_post": "Inyectable Chino",
+    "sat_post": 99,
+    "cc": 0.585786437626905,
+    "eco": 1.3,
+    "amb": 10000.0,
+    "soc": 30000000.0,
+    "veredicto": "✅ APROBADA"
+  },
+  {
+    "ex_ante": "Inyectable",
+    "sat_ante": 60,
+    "ex_post": "Inyectable Chino",
+    "sat_post": 20,
+    "cc": 0.585786437626905,
+    "eco": 1.3,
+    "amb": 10000.0,
+    "soc": 30000000.0,
+    "veredicto": "👻 OCULTA"
+  }
+]
