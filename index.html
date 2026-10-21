@@ -52,6 +52,27 @@
         .hidden-view {
             display: none !important;
         }
+
+        .spinner {
+            width: 28px;
+            height: 28px;
+            border: 3px solid #e2ddd8;
+            border-top-color: #1c1917;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .btn-google:disabled {
+            opacity: 0.6;
+            cursor: wait;
+            transform: none;
+        }
     </style>
 </head>
 
@@ -62,12 +83,19 @@
         <p class="font-mono text-[10px] tracking-[0.22em] uppercase text-stone-400">Cloud Analytical Suite</p>
     </div>
 
+    <div id="view-loading" class="flex flex-col items-center gap-3 w-full max-w-sm" role="status" aria-live="polite">
+        <div class="spinner"></div>
+        <p class="font-mono text-[10px] tracking-[0.22em] uppercase text-stone-400">Checking session…</p>
+    </div>
+
     <div id="view-login" class="flex flex-col items-center gap-4 w-full max-w-sm hidden-view">
         <button id="btn-signin"
             class="btn-google flex items-center justify-center gap-3 w-full py-4 rounded-2xl font-bold">
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5">
             Sign in with Google
         </button>
+        <p id="login-error" role="alert"
+            class="hidden-view text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-center w-full"></p>
         <p class="text-xs text-stone-400 mt-2 text-center px-4">Sign in to isolate your simulations from those of other
             SONYA users.</p>
     </div>
@@ -103,31 +131,61 @@
         import { auth, provider } from './public/js/firebase-config.js';
         import { signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
+        const viewLoading = document.getElementById('view-loading');
         const viewLogin = document.getElementById('view-login');
         const viewDashboard = document.getElementById('view-dashboard');
         const userName = document.getElementById('user-name');
+        const btnSignIn = document.getElementById('btn-signin');
+        const loginError = document.getElementById('login-error');
 
-        // Escuchar el estado de autenticación en tiempo real
+        const AUTH_ERRORS = {
+            'auth/popup-closed-by-user': 'The sign-in window was closed before completing. Please try again.',
+            'auth/cancelled-popup-request': 'Another sign-in attempt is already in progress.',
+            'auth/popup-blocked': 'Your browser blocked the sign-in pop-up. Allow pop-ups for this site and try again.',
+            'auth/network-request-failed': 'Network error. Check your connection and try again.',
+            'auth/unauthorized-domain': 'This domain is not authorised for sign-in. Contact the administrator.'
+        };
+
+        function showView(view) {
+            [viewLoading, viewLogin, viewDashboard].forEach(v => v.classList.add('hidden-view'));
+            view.classList.remove('hidden-view');
+        }
+
+        function showLoginError(message) {
+            loginError.textContent = message;
+            loginError.classList.remove('hidden-view');
+        }
+
+        // Listen to the authentication state in real time
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // Logueado: Mostramos Dashboard
-                viewLogin.classList.add('hidden-view');
-                viewDashboard.classList.remove('hidden-view');
-                userName.textContent = `Hi, ${user.displayName.split(' ')[0]}`;
+                const first = (user.displayName || user.email || 'User').split(/[\s@]/)[0];
+                userName.textContent = `Hi, ${first}`;
+                showView(viewDashboard);
             } else {
-                // Deslogueado: Mostramos Login
-                viewDashboard.classList.add('hidden-view');
-                viewLogin.classList.remove('hidden-view');
+                showView(viewLogin);
+            }
+        }, (error) => {
+            console.error('Auth state error:', error);
+            showView(viewLogin);
+            showLoginError('Could not verify your session. Please try signing in again.');
+        });
+
+        btnSignIn.addEventListener('click', async () => {
+            loginError.classList.add('hidden-view');
+            btnSignIn.disabled = true;
+            try {
+                await signInWithPopup(auth, provider);
+            } catch (error) {
+                console.error('Login error:', error);
+                showLoginError(AUTH_ERRORS[error.code] || 'Sign-in failed. Please try again.');
+            } finally {
+                btnSignIn.disabled = false;
             }
         });
 
-        // Eventos de los botones
-        document.getElementById('btn-signin').addEventListener('click', () => {
-            signInWithPopup(auth, provider).catch(error => console.error("Error login:", error));
-        });
-
         document.getElementById('btn-signout').addEventListener('click', () => {
-            signOut(auth).catch(error => console.error("Error logout:", error));
+            signOut(auth).catch(error => console.error('Logout error:', error));
         });
     </script>
     <div class="fixed bottom-8 right-8 z-50 group">

@@ -355,7 +355,7 @@
                     <span class="material-symbols-outlined text-xl">grid_view</span>Dashboard
                 </a>
                 <a href="gestion_bbdd.html" class="sidebar-link">
-                    <span class="material-symbols-outlined text-xl">database</span>BBDD
+                    <span class="material-symbols-outlined text-xl">database</span>Database
                 </a>
                 <a href="mrp.html" class="sidebar-link active">
                     <span class="material-symbols-outlined fill-icon text-xl">analytics</span>MRP Engine
@@ -425,8 +425,7 @@
                 <div class="flex items-center gap-2 px-3 py-1.5 bg-green-50 rounded-full border border-green-200">
                     <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_6px_rgba(34,197,94,0.6)]">
                     </div>
-                    <span class="text-[10px] font-label font-bold text-green-700 uppercase tracking-widest">Motor
-                        Local</span>
+                    <span class="text-[10px] font-label font-bold text-green-700 uppercase tracking-widest">Cloud Sync</span>
                 </div>
             </div>
         </header>
@@ -473,7 +472,7 @@
             <div id="tab-ranking" class="tab-content active space-y-8">
                 <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5" id="m-metrics-container">
                     <div class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm"><span
-                            class="font-headline text-xs font-bold text-on-surface-variant uppercase tracking-widest">Cargando...</span>
+                            class="font-headline text-xs font-bold text-on-surface-variant uppercase tracking-widest">Loading...</span>
                     </div>
                 </section>
 
@@ -841,7 +840,7 @@
                                     <tr
                                         class="bg-slate-50 text-[10px] font-mono font-bold text-outline uppercase tracking-widest border-b">
                                         <th class="px-4 py-4">#</th>
-                                        <th class="px-4 py-4">Alternativa</th>
+                                        <th class="px-4 py-4">Alternative</th>
                                         <th class="px-4 py-4 text-right">Env</th>
                                         <th class="px-4 py-4 text-right">Soc</th>
                                         <th class="px-4 py-4 text-right">Eco</th>
@@ -877,10 +876,10 @@
                                 <thead>
                                     <tr
                                         class="bg-purple-50/50 text-[10px] font-mono font-bold text-purple-800 uppercase tracking-widest border-b border-purple-100">
-                                        <th class="px-4 py-4">Alternativa</th>
+                                        <th class="px-4 py-4">Alternative</th>
                                         <th class="px-4 py-4 text-center">SS Score</th>
                                         <th class="px-4 py-4 text-center">SS Viability</th>
-                                        <th class="px-4 py-4 text-center">Limiting Criterionn</th>
+                                        <th class="px-4 py-4 text-center">Limiting Criterion</th>
                                         <th class="px-4 py-4 text-center">Effectiveness Index (CASP-12)</th>
                                         <th class="px-4 py-4 text-right">Effectiveness (EI ≥ τ_EI)</th>
                                     </tr>
@@ -1042,8 +1041,8 @@
         let mrpAlpha = [...window.MRPEngine.ALPHA_DEFAULT];
         let mrpLR = window.MRPEngine.LR_DEFAULT;
         let mrpQCustom = null;
-        let mrpMinSat = CASP12.FALLBACK_TAU;   // tau_EI (%): por defecto = EI de la línea base EX-ANTE (A1) de la Acción activa
-        let tauUserOverride = false;            // true si el usuario fija tau_EI a mano (se resetea al cambiar de Acción)
+        let mrpMinSat = CASP12.FALLBACK_TAU;   // tau_EI (%): defaults to the EI of the active Action's EX-ANTE baseline (A1)
+        let tauUserOverride = false;            // true if the user sets tau_EI manually (reset when the Action changes)
         function applyBaselineTau(alts) {
             if (tauUserOverride) return;
             mrpMinSat = CASP12.defaultTau(alts);
@@ -1246,7 +1245,7 @@
 
             reversedIndices.forEach(i => {
                 const val = mrpAlpha[i];
-                const isVeto = (val === mrpLR); // ¿Es este Alpha la línea roja elegida?
+                const isVeto = (val === mrpLR); // Is this alpha the selected red line?
 
                 if (isVeto) {
                     html += `
@@ -1317,7 +1316,7 @@
                 document.getElementById('m-metrics-container').innerHTML = `
                     <div class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm"><p class="text-xs font-mono uppercase text-outline mb-4">Total Alternatives</p><h3 class="text-5xl font-bold font-headline">${d.length}</h3></div>
                     <div class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm"><p class="text-xs font-mono uppercase text-outline mb-4">Viable (SS ≥ ${mrpLR})</p><h3 class="text-5xl font-bold font-headline text-green-600">${ok}</h3></div>
-                    <div class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm"><p class="text-xs font-mono uppercase text-outline mb-4">Vetoeds (SS < ${mrpLR})</p><h3 class="text-5xl font-bold font-headline text-error">${d.length - ok}</h3></div>
+                    <div class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm"><p class="text-xs font-mono uppercase text-outline mb-4">Vetoed (SS < ${mrpLR})</p><h3 class="text-5xl font-bold font-headline text-error">${d.length - ok}</h3></div>
                     <div class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm"><p class="text-xs font-mono uppercase text-outline mb-4">Best Score (SS)</p><h3 class="text-5xl font-bold font-headline text-[#8b3d97]">${d[0]?.ss?.toFixed(3) || '--'}</h3></div>`;
 
                 // 2. High Resolution Table
@@ -1565,7 +1564,7 @@
             msg('MRP Engine Configuration Applied', 'ok');
             lastResult = null;
             await window.loadM();
-            await window.refreshDSS(); // <-- AÑADIDO
+            await window.refreshDSS(); 
         }
 
         window.resetMQ = async function () {
@@ -1574,7 +1573,7 @@
             lastResult = null;
             await window.loadM();
             window.buildMCtrl();
-            await window.refreshDSS(); // <-- AÑADIDO
+            await window.refreshDSS(); 
         }
 
         // ── Simulation Logic ──────────────────────────────────────
@@ -1609,7 +1608,7 @@
                 if (!manualActionName) { msg('Please enter a name for the new Action', 'err'); return; }
                 draftData.isNewAction = true;
                 draftData.actionLabel = manualActionName;
-                draftData.actionUnit = manualActionUnit || 'Unites';
+                draftData.actionUnit = manualActionUnit || 'Units';
             }
 
             const anteSelect = document.getElementById('m-ante-sel');
@@ -1678,7 +1677,7 @@
                     <table class="w-full text-left border-collapse text-sm">
                         <thead>
                             <tr class="bg-surface-container-low text-[10px] font-mono font-bold text-outline uppercase tracking-widest border-b border-outline-variant/10">
-                                <th class="px-4 py-4">#</th><th class="px-4 py-4">Alternativa</th><th class="px-4 py-4 text-right">Env (raw)</th><th class="px-4 py-4 text-right">Soc (raw)</th><th class="px-4 py-4 text-right">Eco (raw)</th><th class="px-5 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Variation vs EX-ANTE</th><th class="px-4 py-4">SS Score</th><th class="px-4 py-4">Achievements (Env / Soc / Eco)</th><th class="px-4 py-4 text-right">Verdict</th>
+                                <th class="px-4 py-4">#</th><th class="px-4 py-4">Alternative</th><th class="px-4 py-4 text-right">Env (raw)</th><th class="px-4 py-4 text-right">Soc (raw)</th><th class="px-4 py-4 text-right">Eco (raw)</th><th class="px-5 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Variation vs EX-ANTE</th><th class="px-4 py-4">SS Score</th><th class="px-4 py-4">Achievements (Env / Soc / Eco)</th><th class="px-4 py-4 text-right">Verdict</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-outline-variant/10">`;
@@ -1716,7 +1715,7 @@
                         <div class="flex items-center gap-2"><span class="text-xs font-bold text-purple-700">Minimum required:</span><span class="bg-white px-3 py-1 rounded-md border border-purple-200 font-mono font-bold text-sm text-purple-800">${CASP12.fmtTau(mrpMinSat)}</span></div>
                     </div>
                     <div class="overflow-x-auto"><table class="w-full text-left border-collapse">
-                        <thead><tr class="bg-purple-50/50 text-[10px] font-mono font-bold text-purple-800 uppercase tracking-widest border-b border-purple-100"><th class="px-4 py-4">Alternativa</th><th class="px-4 py-4 text-center">SS Score</th><th class="px-4 py-4 text-center">SS Viability</th><th class="px-4 py-4 text-center">Limiting Criterionn</th><th class="px-4 py-4 text-center">Effectiveness Index (CASP-12)</th><th class="px-4 py-4 text-right">Effectiveness (EI ≥ τ_EI)</th></tr></thead>
+                        <thead><tr class="bg-purple-50/50 text-[10px] font-mono font-bold text-purple-800 uppercase tracking-widest border-b border-purple-100"><th class="px-4 py-4">Alternative</th><th class="px-4 py-4 text-center">SS Score</th><th class="px-4 py-4 text-center">SS Viability</th><th class="px-4 py-4 text-center">Limiting Criterion</th><th class="px-4 py-4 text-center">Effectiveness Index (CASP-12)</th><th class="px-4 py-4 text-right">Effectiveness (EI ≥ τ_EI)</th></tr></thead>
                         <tbody class="divide-y divide-purple-50">`;
 
                 const todasVetoeds = d.length >= 2 && d.every(r => r.ss === 0);
@@ -1998,7 +1997,7 @@
 
             window.spin(true, 'Updating Decision Support System...');
             try {
-                // Se conecta directo a la BBDD (solucionado el error de caché)
+                // Read straight from the database (avoids stale cache)
                 const rawAlts = await connector.getAlternatives(activeUF);
 
                 const combinedData = lastResult.ranking.map(r => {
@@ -2056,7 +2055,7 @@
                 };
             });
 
-            return results.sort((a, b) => a.zValue - b.zValue);
+            return results.sort((a, b) => parseFloat(a.zValue) - parseFloat(b.zValue));
         }
 
         function calculateCriticWeights(matrix) {

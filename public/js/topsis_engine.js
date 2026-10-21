@@ -23,8 +23,8 @@
  *
  * CRITERIOS SOPORTADOS (leídos de _meta.criteria en database.json
  * o inferidos desde la propiedad `nature` de cada campo):
- *   nature: 'cost'    → Eco, Amb  (minimizar)
- *   nature: 'benefit' → Soc       (maximizar)
+ *   nature: 'cost'    → Eco, Amb, Soc  (minimise: lower raw value = better)
+ *   nature: 'benefit' → generic branch, currently unused by any pillar
  *
  * EXPOSICIÓN GLOBAL:
  *   window.TOPSISEngine.run(data, opts) → resultado completo

@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SONYA | Motor CRITIC + TOPSIS</title>
+    <title>SONYA | CRITIC + TOPSIS Engine</title>
     <link
         href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500&display=swap"
         rel="stylesheet" />
@@ -258,7 +258,7 @@
             border-bottom-color: var(--teal);
         }
 
-        /* Personalización de la barra de desplazamiento */
+        /* Custom scrollbar */
         .custom-scrollbar::-webkit-scrollbar {
             height: 8px;
         }
@@ -313,7 +313,7 @@
                     <span class="material-symbols-outlined text-xl">grid_view</span>Dashboard
                 </a>
                 <a href="gestion_bbdd.html" class="sidebar-link">
-                    <span class="material-symbols-outlined text-xl">database</span>BBDD
+                    <span class="material-symbols-outlined text-xl">database</span>Database
                 </a>
                 <a href="mrp.html" class="sidebar-link">
                     <span class="material-symbols-outlined text-xl">analytics</span>MRP Engine
@@ -394,8 +394,7 @@
                 <div id="engine-badge"
                     class="flex items-center gap-2 px-3 py-1.5 bg-secondary/10 rounded-full border border-secondary/20">
                     <div class="w-2 h-2 rounded-full bg-secondary animate-pulse"></div>
-                    <span class="text-[10px] font-mono font-bold text-secondary uppercase tracking-widest">Motor
-                        Local</span>
+                    <span class="text-[10px] font-mono font-bold text-secondary uppercase tracking-widest">Cloud Sync</span>
                 </div>
             </div>
         </header>
@@ -406,8 +405,7 @@
             <div>
                 <h1
                     class="text-4xl font-extrabold font-headline tracking-tighter text-slate-900 mb-1 flex items-center gap-1">
-                    <span class="font-medium text-slate-400">Motor</span> <span class="text-secondary ml-1">CRITIC +
-                        TOPSIS</span>
+                    <span class="text-secondary ml-1">CRITIC + TOPSIS</span>
                 </h1>
                 <div class="h-1 w-10 bg-secondary mt-2 rounded-full opacity-50 mb-3"></div>
 
@@ -769,7 +767,7 @@
                 <div class="pt-8 flex justify-between items-center border-t border-outline-variant/20">
                     <div class="hidden lg:block">
                         <p class="font-mono text-[10px] text-outline uppercase tracking-wider">Engine Protocol</p>
-                        <p class="font-body text-xs text-on-surface">CRITIC · TOPSIS · Chebyshev L∞ · No-compensatorio
+                        <p class="font-body text-xs text-on-surface">CRITIC · TOPSIS · Chebyshev L∞ · Non-compensatory
                         </p>
                     </div>
                     <button onclick="simRun()"
@@ -811,7 +809,7 @@
                                 Select the Action</label>
                             <select id="t-scenario-uf" onchange="onScenarioActionChange(this.value)"
                                 class="w-full bg-white border-0 border-b-2 border-outline focus:border-secondary focus:ring-0 font-body text-sm py-3 px-1 transition-colors cursor-pointer">
-                                <option value="">Dowloading...</option>
+                                <option value="">Loading...</option>
                             </select>
                         </div>
 
@@ -883,7 +881,7 @@
                     <h3
                         class="text-2xl font-extrabold font-headline tracking-tight text-slate-800 flex items-center gap-2 mb-2">
                         <span class="material-symbols-outlined text-secondary">data_object</span> Desarrollo
-                        Empírico de la Sesión
+                        Session Empirical
                     </h3>
                     <div id="math-container">
                         <div
@@ -953,8 +951,8 @@
         let connector = null;
         let activeUF = '';
         let lastResult = null;
-        let mrpMinSat = CASP12.FALLBACK_TAU;   // tau_EI (%): por defecto = EI de la línea base EX-ANTE (A1) de la Acción activa
-        let tauUserOverride = false;            // true si el usuario mueve el slider (se resetea al cambiar de Acción)
+        let mrpMinSat = CASP12.FALLBACK_TAU;   // tau_EI (%): defaults to the EI of the active Action's EX-ANTE baseline (A1)
+        let tauUserOverride = false;            // true if the user moves the slider (reset when the Action changes)
         function applyBaselineTau(alts) {
             if (tauUserOverride) return;
             mrpMinSat = CASP12.defaultTau(alts);
@@ -978,7 +976,7 @@
             setTimeout(() => { t.classList.add('removing'); setTimeout(() => t.remove(), 300); }, 3500);
         }
 
-        window.spin = function (on, text = 'Calculando...') {
+        window.spin = function (on, text = 'Calculating...') {
             document.getElementById('spin-msg').innerText = text;
             document.getElementById('loading').classList.toggle('show', on);
         }
@@ -1041,7 +1039,7 @@
                 <div class="overflow-hidden rounded-b-2xl border-x border-b border-blue-100 bg-white shadow-2xl mb-10">
                     <table class="w-full text-left text-sm border-collapse">
                         <thead class="bg-blue-50/80 text-[10px] uppercase font-black text-blue-800 tracking-widest border-b border-blue-100">
-                            <tr><th class="px-6 py-4 text-center">#</th><th class="px-6 py-4">Alternativa</th><th class="px-6 py-4 text-center">Omission Factor</th><th class="px-6 py-4 text-right">Supervivencia</th><th class="px-6 py-4 text-center">Logros</th><th class="px-6 py-4 text-right">Veredicto</th></tr>
+                            <tr><th class="px-6 py-4 text-center">#</th><th class="px-6 py-4">Alternative</th><th class="px-6 py-4 text-center">Omission Factor</th><th class="px-6 py-4 text-right">Supervivencia</th><th class="px-6 py-4 text-center">Logros</th><th class="px-6 py-4 text-right">Veredicto</th></tr>
                         </thead>
                         <tbody class="divide-y divide-blue-50">
                             ${survival.map((r, i) => `
@@ -1259,7 +1257,7 @@
                 applyBaselineTau(altsDisponibles);
 
                 if (altsDisponibles.length < 2) {
-                    document.getElementById('ranking-body').innerHTML = `<tr><td colspan="10" class="p-10 text-center text-outline font-headline">Datos insuficientes para el análisis.</td></tr>`;
+                    document.getElementById('ranking-body').innerHTML = `<tr><td colspan="10" class="p-10 text-center text-outline font-headline">Insufficient data for analysis.</td></tr>`;
                     spin(false); return;
                 }
 
@@ -1667,12 +1665,12 @@
 
             if (infoDiv) {
                 if (exAnte) infoDiv.innerHTML = `<span class="font-bold text-slate-700">${exAnte.nombre}</span> <span class="text-xs text-outline ml-2 break-words">(Amb: ${exAnte.amb}, Soc: ${exAnte.soc}, Eco: ${exAnte.eco})</span>`;
-                else infoDiv.innerHTML = `<span class="text-error font-bold">EX-ANTE no encontrado para esta acción.</span>`;
+                else infoDiv.innerHTML = `<span class="text-error font-bold">EX-ANTE baseline not found for this Action.</span>`;
             }
 
             const exPosts = alts.filter(a => a.tipo === 'EX-POST');
             if (exPosts.length === 0) {
-                if (container) container.innerHTML = '<p class="text-sm text-outline p-4 font-headline">No hay alternativas EX-POST para esta acción.</p>';
+                if (container) container.innerHTML = '<p class="text-sm text-outline p-4 font-headline">No EX-POST alternatives for this Action.</p>';
                 return;
             }
 

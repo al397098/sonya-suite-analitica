@@ -9,9 +9,9 @@
  *  2. Umbrales físicos Q = {q0..q4} por criterio
  *     → Auto: percentiles P100/P75/P50/P25/P0 de la muestra
  *     → Manual: qCustom provisto externamente
- *     Convención de dirección:
- *       cost    (eco, amb): q0=peor(máximo raw) → q4=mejor(mínimo raw)
- *       benefit (soc):      q0=peor(mínimo raw) → q4=mejor(máximo raw)
+ *     Direction convention (all three pillars are 'cost': lower raw = better):
+ *       cost (eco, amb, soc): q0=worst (maximum raw) → q4=best (minimum raw)
+ *       (the generic 'benefit' branch is kept in the code but no pillar uses it)
  *  3. Escala semántica α = [0, 1, 2.5, 3, 4]
  *     α1 = 1.0 define la Línea Roja (nivel de reserva técnica)
  *  4. Función de transferencia s(x_ij) por interpolación lineal
@@ -25,9 +25,9 @@
  *  8. Ranking por SS descendente. Veredicto según lineaRoja.
  *
  * CRITERIOS:
- *   eco  → cost    (minimizar; q0=máximo raw, q4=mínimo raw)
- *   amb  → cost    (minimizar; q0=máximo raw, q4=mínimo raw)
- *   soc  → benefit (maximizar; q0=mínimo raw, q4=máximo raw)
+ *   eco  → cost (minimise; q0=max raw, q4=min raw)
+ *   amb  → cost (minimise; q0=max raw, q4=min raw)
+ *   soc  → cost (minimise; q0=max raw, q4=min raw)
  *
  * PESOS CRITIC:
  *   Calculados sobre la matriz raw normalizada (Min-Max),
@@ -89,7 +89,7 @@ const MRPEngine = (() => {
   //   Ordenar ascendente, luego invertir → q0=P100(peor), q4=P0(mejor)
   //   Así q0 > q1 > q2 > q3 > q4  [valores raw decrecientes = mejor]
   //
-  // Para criterios benefit (soc):
+  // For benefit criteria (generic branch; no current pillar uses it):
   //   Ordenar ascendente sin invertir → q0=P0(peor), q4=P100(mejor)
   //   Así q0 < q1 < q2 < q3 < q4  [valores raw crecientes = mejor]
   //
