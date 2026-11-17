@@ -376,9 +376,8 @@
                     <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-red-500">Veto
                         Logic</span>
                 </div>
-                <h4 class="font-headline font-bold text-xs text-slate-900 mb-2">Strong Sustainability</h4>
-                <p class="text-[11px] leading-relaxed text-slate-600">Ensures critical indicators are not
-                    compensated. Non-negotiable reserve thresholds. SS = min(s_eco, s_amb, s_soc).</p>
+                <h4 class="font-headline font-bold text-xs text-slate-900 mb-2">Veto y Ranking</h4>
+                <p class="text-[11px] leading-relaxed text-slate-600">Veto: SS_veto = min_j(ŝ_j) &lt; λ/α4, sin pesos: ningún pilar compensa a otro. Ranking: Leontief geométrico ponderado, SS_rank = α4 · min_j(ŝ_j^(3·w_j)), con pesos CRITIC. No compensatorio, nunca negativo, se reduce a Leontief puro cuando w_j = 1/3.</p>
             </div>
             <div class="mt-6">
                 <label class="block font-mono text-[9px] uppercase tracking-widest text-outline mb-2">Action</label>
@@ -910,9 +909,7 @@
                     <div class="col-span-12 lg:col-span-7 space-y-6">
                         <div class="bg-white p-8 rounded-xl shadow-sm border border-outline-variant/20">
                             <h3 class="font-headline text-xl font-bold mb-2">Red Line Selector</h3>
-                            <p class="text-sm text-on-surface-variant mb-6">Define the level of absolute veto.
-                                Actions
-                                below it will be discarded.</p>
+                            <p class="text-sm text-on-surface-variant mb-6">Define el umbral de veto sobre SS_veto (sin pesos). Acciones por debajo serán descartadas.</p>
                             <div id="ctrl-lr-selector"
                                 class="flex items-center gap-1 bg-surface-container rounded-full p-1.5 h-20"></div>
                             <div
@@ -1073,7 +1070,7 @@
             if (tab === 'control') window.buildMCtrl();
         }
 
-        const bVerd = ss => ss >= mrpLR
+        const bVerd = vetada => !vetada
             ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full border border-green-200"><span class="w-1.5 h-1.5 rounded-full bg-green-600"></span>Viable</span>`
             : `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-red-100 text-red-700 text-xs font-bold rounded-full border border-red-200"><span class="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse"></span>Vetoed</span>`;
 
@@ -1308,8 +1305,8 @@
                 // 1. KPIs
                 document.getElementById('m-metrics-container').innerHTML = `
                     <div class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm"><p class="text-xs font-mono uppercase text-outline mb-4">Total Alternatives</p><h3 class="text-5xl font-bold font-headline">${d.length}</h3></div>
-                    <div class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm"><p class="text-xs font-mono uppercase text-outline mb-4">Viable (SS ≥ ${mrpLR})</p><h3 class="text-5xl font-bold font-headline text-green-600">${ok}</h3></div>
-                    <div class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm"><p class="text-xs font-mono uppercase text-outline mb-4">Vetoed (SS < ${mrpLR})</p><h3 class="text-5xl font-bold font-headline text-error">${d.length - ok}</h3></div>
+                    <div class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm"><p class="text-xs font-mono uppercase text-outline mb-4">Viable (SS_veto ≥ ${mrpLR})</p><h3 class="text-5xl font-bold font-headline text-green-600">${ok}</h3></div>
+                    <div class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm"><p class="text-xs font-mono uppercase text-outline mb-4">Vetoed (SS_veto < ${mrpLR})</p><h3 class="text-5xl font-bold font-headline text-error">${d.length - ok}</h3></div>
                     <div class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm"><p class="text-xs font-mono uppercase text-outline mb-4">Best Score (SS)</p><h3 class="text-5xl font-bold font-headline text-[#8b3d97]">${d[0]?.ss?.toFixed(3) || '--'}</h3></div>`;
 
                 // 2. High Resolution Table
@@ -1331,135 +1328,34 @@
                         <td class="px-4 py-5 font-mono font-bold text-lg ${r.vetada ? 'text-error' : 'text-[#8b3d97]'}">${r.ss.toFixed(3)}</td>
                         <td class="px-4 py-5">
                             <div class="flex items-center justify-end gap-2">
-                                ${fmtS(r.s_amb, r.s_amb === r.ss)}
-                                ${fmtS(r.s_soc, r.s_soc === r.ss)}
-                                ${fmtS(r.s_eco, r.s_eco === r.ss)}
+                                ${fmtS(r.s_amb, r.lim_amb)}
+                                ${fmtS(r.s_soc, r.lim_soc)}
+                                ${fmtS(r.s_eco, r.lim_eco)}
                             </div>
                         </td>
-                        <td class="px-4 py-5 text-right">${bVerd(r.ss)}</td>
+                        <td class="px-4 py-5 text-right">${bVerd(r.vetada)}</td>
                     </tr>`).join('');
 
                 document.getElementById('m-table-body').innerHTML = tableHTML;
 
-                // 3. Second Table Logic (Triple Veto / Resilience)
+                // 3. Clear the obsolete second-layer container.
                 const noteContainer = document.getElementById('m-veto-note-container');
-                const todasVetoeds = d.length >= 2 && d.every(r => r.ss === 0);
-
-                if (todasVetoeds) {
-                    const survivalRanking = d.map(r => {
-                        const logs = [
-                            { val: r.s_amb, label: 'Environmental' },
-                            { val: r.s_soc, label: 'Social' },
-                            { val: r.s_eco, label: 'Economic' }
-                        ];
-                        const pilarCritico = logs.find(l => l.val === 0) || logs[0];
-                        const logsRestantes = logs.filter(l => l !== pilarCritico);
-                        const newScore = logsRestantes.reduce((a, b) => a + b.val, 0) / logsRestantes.length;
-                        return { ...r, ss2: newScore, pilarEliminado: pilarCritico.label, logsRestantes: logsRestantes };
-                    }).sort((a, b) => b.ss2 - a.ss2);
-
-                    const notaHTML = `
-                        <div class="mt-8 p-6 bg-gradient-to-r from-blue-900 to-blue-800 rounded-t-2xl shadow-lg border-b border-blue-700">
-                            <div class="flex items-start gap-4">
-                                <div class="p-2 bg-blue-800/50 rounded-lg">
-                                    <span class="material-symbols-outlined text-blue-300 text-2xl">troubleshoot</span>
-                                </div>
-                                <div>
-                                    <h4 class="font-headline font-black text-white text-base uppercase tracking-widest">Second-Layer Analysis: Technical Tiebreak</h4>
-                                    <p class="text-xs text-blue-200 leading-relaxed mt-1.5 font-medium">All options were vetoed by Strong Sustainability. This ranking shows resilience performance after isolating and omitting each alternative's limiting factor.</p>
-                                </div>
-                            </div>
-                        </div>`;
-
-                    const tabla2HTML = `
-                        <div class="overflow-hidden rounded-b-2xl border-x border-b border-blue-100 bg-white shadow-2xl mb-10">
-                            <table class="w-full text-left text-sm border-collapse">
-                                <thead class="bg-blue-50/80 text-[10px] uppercase font-black text-blue-800 tracking-widest border-b border-blue-100">
-                                    <tr>
-                                        <th class="px-6 py-4 text-center">#</th>
-                                        <th class="px-6 py-4">Alternative (Resilience Analysis)</th>
-                                        <th class="px-6 py-4 text-center">Critical Factor Omitted</th>
-                                        <th class="px-6 py-4 text-right">Survival Score</th>
-                                        <th class="px-6 py-4 text-center">Achievements Restantes</th>
-                                        <th class="px-6 py-4 text-right">Verdict</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-blue-50">
-                                    ${survivalRanking.map((r, i) => {
-                        const icon = r.pilarEliminado === 'Environmental' ? 'eco' : (r.pilarEliminado === 'Social' ? 'groups' : 'payments');
-                        return `
-                                        <tr class="hover:bg-blue-50/40 transition-all group">
-                                            <td class="px-6 py-5 text-center font-mono font-bold text-blue-300 group-hover:text-blue-500">${String(i + 1).padStart(2, '0')}</td>
-                                            <td class="px-6 py-5">
-                                                <div class="font-headline font-extrabold text-slate-800 text-base">${r.accion}</div>
-                                                <div class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">${r.tipo}</div>
-                                            </td>
-                                            <td class="px-6 py-5 text-center">
-                                                <div class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-600 border border-red-100 rounded-lg">
-                                                    <span class="material-symbols-outlined text-[14px]">${icon}</span>
-                                                    <span class="text-[10px] font-black uppercase font-mono tracking-wide line-through decoration-red-500/40">${r.pilarEliminado}</span>
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-5 text-right">
-                                                <span class="font-mono font-black text-2xl ${i === 0 ? 'text-blue-600' : 'text-slate-600'} drop-shadow-sm">${r.ss2.toFixed(3)}</span>
-                                            </td>
-                                            <td class="px-6 py-5">
-                                                <div class="flex items-center justify-center gap-2">
-                                                    ${r.logsRestantes.map(l => `<span class="px-2 py-1 bg-slate-100 text-slate-600 border border-slate-200 rounded text-[10px] font-bold font-mono">${l.label.substring(0, 3)}: ${l.val.toFixed(2)}</span>`).join('')}
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-5 text-right">
-                                                ${i === 0
-                                ? `<span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-600 to-blue-500 text-white text-[10px] font-black rounded-lg shadow-md shadow-blue-500/30 uppercase tracking-widest">Recommended</span>`
-                                : `<span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-500 text-[10px] font-black rounded-lg border border-slate-200 uppercase tracking-widest">Secondary</span>`}
-                                            </td>
-                                        </tr>`
-                    }).join('')}
-                                </tbody>
-                            </table>
-                        </div>`;
-                    noteContainer.innerHTML = notaHTML + tabla2HTML;
-                } else {
-                    noteContainer.innerHTML = "";
-                }
+                if (noteContainer) noteContainer.innerHTML = '';
 
                 // 4. Satisfaction Table
-                let sourceData = d;
-                if (todasVetoeds) {
-                    sourceData = d.map(r => {
-                        const logs = [{ val: r.s_amb, label: 'Environmental' }, { val: r.s_soc, label: 'Social' }, { val: r.s_eco, label: 'Economic' }];
-                        const pilarCritico = logs.find(l => l.val === 0) || logs[0];
-                        const logsRestantes = logs.filter(l => l !== pilarCritico);
-                        const newScore = logsRestantes.reduce((a, b) => a + b.val, 0) / logsRestantes.length;
-                        return { ...r, ss2: newScore, pilarEliminado: pilarCritico.label };
-                    }).sort((a, b) => b.ss2 - a.ss2);
-                }
-
-                const satTableHTML = sourceData.map((r, i) => {
+                const satTableHTML = d.map((r, i) => {
                     const orig = altsDisponibles.find(a => a.nombre === r.accion);
                     const sat = orig ? orig.satisfaccion : 'NS';
                     const isNS = sat === 'NS';
 
-                    let badgeSS = '';
-                    let limitante = '';
-                    const scoreToShow = todasVetoeds ? r.ss2 : r.ss;
-                    const colorScore = todasVetoeds ? 'text-blue-700' : (r.vetada ? 'text-error' : 'text-[#8b3d97]');
-
-                    if (todasVetoeds) {
-                        badgeSS = i === 0
-                            ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded-full border border-blue-200">Recommended</span>`
-                            : `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded-full border border-slate-200">Secondary</span>`;
-                        limitante = `<span class="text-blue-600 font-bold font-mono text-xs uppercase">Omitido: ${r.pilarEliminado}</span>`;
-                    } else {
-                        badgeSS = r.vetada
-                            ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-red-100 text-red-800 text-xs font-bold rounded-full border border-red-200">Vetoed</span>`
-                            : `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full border border-green-200">Viable</span>`;
-                        if (r.vetada) {
-                            limitante = `<span class="text-error font-bold font-mono text-xs uppercase">${r.pilar_fallido || 'Multiple'}</span>`;
-                        } else {
-                            limitante = `<span class="text-slate-300 font-mono font-bold text-lg">--</span>`;
-                        }
-                    }
+                    const scoreToShow = r.ss;
+                    const colorScore = r.vetada ? 'text-error' : 'text-[#8b3d97]';
+                    const badgeSS = r.vetada
+                        ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-red-100 text-red-800 text-xs font-bold rounded-full border border-red-200">Vetoed</span>`
+                        : `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full border border-green-200">Viable</span>`;
+                    const limitante = r.vetada
+                        ? `<span class="text-error font-bold font-mono text-xs uppercase">${r.pilar_fallido || 'Multiple'}</span>`
+                        : `<span class="text-slate-300 font-mono font-bold text-lg">--</span>`;
 
                     let badgeSat = '';
                     let colorSat = '';
@@ -1693,9 +1589,9 @@
                         </td>
                         <td class="px-4 py-5 font-mono font-bold text-lg ${r.vetada ? 'text-error' : 'text-[#8b3d97]'}">${r.ss.toFixed(3)}</td>
                         <td class="px-4 py-5">
-                            <div class="flex items-center justify-end gap-2">${fmtS(r.s_amb, r.s_amb === r.ss)}${fmtS(r.s_soc, r.s_soc === r.ss)}${fmtS(r.s_eco, r.s_eco === r.ss)}</div>
+                            <div class="flex items-center justify-end gap-2">${fmtS(r.s_amb, r.lim_amb)}${fmtS(r.s_soc, r.lim_soc)}${fmtS(r.s_eco, r.lim_eco)}</div>
                         </td>
-                        <td class="px-4 py-5 text-right">${bVerd(r.ss)}</td>
+                        <td class="px-4 py-5 text-right">${bVerd(r.vetada)}</td>
                     </tr>`;
                 });
                 html += `</tbody></table></div>`;
@@ -1711,32 +1607,15 @@
                         <thead><tr class="bg-purple-50/50 text-[10px] font-mono font-bold text-purple-800 uppercase tracking-widest border-b border-purple-100"><th class="px-4 py-4">Alternative</th><th class="px-4 py-4 text-center">SS Score</th><th class="px-4 py-4 text-center">SS Viability</th><th class="px-4 py-4 text-center">Limiting Criterion</th><th class="px-4 py-4 text-center">Effectiveness Index (CASP-12)</th><th class="px-4 py-4 text-right">Effectiveness (EI ≥ τ_EI)</th></tr></thead>
                         <tbody class="divide-y divide-purple-50">`;
 
-                const todasVetoeds = d.length >= 2 && d.every(r => r.ss === 0);
-                let sourceData = d;
-                if (todasVetoeds) {
-                    sourceData = d.map(r => {
-                        const logs = [{ val: r.s_amb, label: 'Environmental' }, { val: r.s_soc, label: 'Social' }, { val: r.s_eco, label: 'Economic' }];
-                        const pilarCritico = logs.find(l => l.val === 0) || logs[0];
-                        const logsRestantes = logs.filter(l => l !== pilarCritico);
-                        const newScore = logsRestantes.reduce((a, b) => a + b.val, 0) / logsRestantes.length;
-                        return { ...r, ss2: newScore, pilarEliminado: pilarCritico.label };
-                    }).sort((a, b) => b.ss2 - a.ss2);
-                }
-
-                sourceData.forEach((r, i) => {
+                d.forEach((r) => {
                     const orig = draftData.allEngineData.find(a => a.nombre === r.accion);
                     const sat = orig ? orig.satisfaccion : 'NS';
                     const isNS = sat === 'NS';
 
                     let badgeSS = r.vetada ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-red-100 text-red-800 text-xs font-bold rounded-full border border-red-200">Vetoed</span>` : `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full border border-green-200">Viable</span>`;
                     let limitante = r.vetada ? `<span class="text-error font-bold font-mono text-xs uppercase">${r.pilar_fallido || 'Multiple'}</span>` : `<span class="text-slate-300 font-mono font-bold text-lg">--</span>`;
-                    const scoreToShow = todasVetoeds ? r.ss2 : r.ss;
-                    const colorScore = todasVetoeds ? 'text-blue-700' : (r.vetada ? 'text-error' : 'text-[#8b3d97]');
-
-                    if (todasVetoeds) {
-                        badgeSS = i === 0 ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded-full border border-blue-200">Recommended</span>` : `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded-full border border-slate-200">Secondary</span>`;
-                        limitante = `<span class="text-blue-600 font-bold font-mono text-xs uppercase">Omitido: ${r.pilarEliminado}</span>`;
-                    }
+                    const scoreToShow = r.ss;
+                    const colorScore = r.vetada ? 'text-error' : 'text-[#8b3d97]';
 
                     let badgeSat = isNS ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-yellow-100 text-yellow-800 text-xs font-bold rounded-full border border-yellow-200">Pending (NS)</span>` : ((CASP12.passes(sat, mrpMinSat)) ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full border border-green-200">Accepted (Effective)</span>` : `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-red-100 text-red-800 text-xs font-bold rounded-full border border-red-200">Rejected (Effective)</span>`);
                     let displaySat = isNS ? 'NS' : sat + '%';
@@ -1856,57 +1735,24 @@
                             ${r.tipo === 'EX-ANTE' ? '<span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Baseline</span>' : `<div class="flex flex-col gap-1.5 items-center justify-center"><div class="flex items-center gap-1"><span class="text-[9px] text-slate-400 w-6 text-right uppercase font-bold">Amb:</span> ${getBadge(exAnte.amb, r.amb)}</div><div class="flex items-center gap-1"><span class="text-[9px] text-slate-400 w-6 text-right uppercase font-bold">Soc:</span> ${getBadge(exAnte.soc, r.soc)}</div><div class="flex items-center gap-1"><span class="text-[9px] text-slate-400 w-6 text-right uppercase font-bold">Eco:</span> ${getBadge(exAnte.eco, r.eco)}</div></div>`}
                         </td>
                         <td class="px-4 py-5 font-mono font-bold text-lg ${r.vetada ? 'text-error' : 'text-[#8b3d97]'}">${r.ss.toFixed(3)}</td>
-                        <td class="px-4 py-5"><div class="flex items-center gap-2">${fmtS(r.s_amb, r.s_amb === r.ss)}${fmtS(r.s_soc, r.s_soc === r.ss)}${fmtS(r.s_eco, r.s_eco === r.ss)}</div></td>
-                        <td class="px-4 py-5 text-right">${bVerd(r.ss)}</td>
+                        <td class="px-4 py-5"><div class="flex items-center gap-2">${fmtS(r.s_amb, r.lim_amb)}${fmtS(r.s_soc, r.lim_soc)}${fmtS(r.s_eco, r.lim_eco)}</div></td>
+                        <td class="px-4 py-5 text-right">${bVerd(r.vetada)}</td>
                     </tr>`).join('');
                 document.getElementById('m-scenario-results').classList.remove('hidden');
 
                 const tiebreakContainer = document.getElementById('m-scenario-tiebreak-container');
-                const todasVetoeds = d.length >= 2 && d.every(r => r.ss === 0);
-
-                if (todasVetoeds) {
-                    const survival = d.map(r => {
-                        const logs = [{ v: r.s_amb, l: 'Amb' }, { v: r.s_soc, l: 'Soc' }, { v: r.s_eco, l: 'Eco' }];
-                        const clean = logs.filter(l => l.v > 0);
-                        const media = clean.reduce((a, b) => a + b.v, 0) / clean.length;
-                        return { ...r, ss2: media, critico: logs.find(l => l.v === 0)?.l || 'N/A' };
-                    }).sort((a, b) => b.ss2 - a.ss2);
-
-                    tiebreakContainer.innerHTML = `
-                        <div class="mt-8 p-6 bg-blue-50 border-l-4 border-blue-500 rounded-xl">
-                            <h4 class="font-black text-blue-900 text-sm uppercase mb-4">Second-Layer Analysis (Tiebreak)</h4>
-                            <div class="overflow-hidden rounded-xl border border-blue-200 bg-white">
-                                <table class="w-full text-left text-xs"><thead class="bg-blue-600 text-white"><tr><th class="p-3">Alternative</th><th class="p-3 text-center">Omitted Failure</th><th class="p-3 text-right">Resilience Score</th></tr></thead><tbody class="divide-y divide-blue-50">
-                                ${survival.map(r => `<tr><td class="p-3 font-bold">${r.accion}</td><td class="p-3 text-center text-red-500">-${r.critico}</td><td class="p-3 text-right font-black text-blue-700">${r.ss2.toFixed(3)}</td></tr>`).join('')}
-                                </tbody></table>
-                            </div>
-                        </div>`;
-                } else { tiebreakContainer.innerHTML = ""; }
+                if (tiebreakContainer) tiebreakContainer.innerHTML = '';
 
                 // Scenario Satisfaction Table
-                let sourceData = d;
-                if (todasVetoeds) {
-                    sourceData = d.map(r => {
-                        const logs = [{ val: r.s_amb, label: 'Environmental' }, { val: r.s_soc, label: 'Social' }, { val: r.s_eco, label: 'Economic' }];
-                        const pilarCritico = logs.find(l => l.val === 0) || logs[0];
-                        return { ...r, ss2: logs.filter(l => l !== pilarCritico).reduce((a, b) => a + b.val, 0) / 2, pilarEliminado: pilarCritico.label };
-                    }).sort((a, b) => b.ss2 - a.ss2);
-                }
-
-                document.getElementById('m-scenario-sat-table-body').innerHTML = sourceData.map((r, i) => {
+                document.getElementById('m-scenario-sat-table-body').innerHTML = d.map(r => {
                     const orig = subset.find(a => a.nombre === r.accion);
                     const sat = orig ? orig.satisfaccion : 'NS';
                     const isNS = sat === 'NS' || sat === undefined;
 
                     let badgeSS = r.vetada ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-red-100 text-red-800 text-xs font-bold rounded-full border border-red-200">Vetoed</span>` : `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full border border-green-200">Viable</span>`;
                     let limitante = r.vetada ? `<span class="text-error font-bold font-mono text-xs uppercase">${r.pilar_fallido || 'Multiple'}</span>` : `<span class="text-slate-300 font-mono font-bold text-lg">--</span>`;
-                    const scoreToShow = todasVetoeds ? r.ss2 : r.ss;
-                    const colorScore = todasVetoeds ? 'text-blue-700' : (r.vetada ? 'text-error' : 'text-[#8b3d97]');
-
-                    if (todasVetoeds) {
-                        badgeSS = i === 0 ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded-full border border-blue-200">Recommended</span>` : `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded-full border border-slate-200">Secondary</span>`;
-                        limitante = `<span class="text-blue-600 font-bold font-mono text-xs uppercase">Omitido: ${r.pilarEliminado}</span>`;
-                    }
+                    const scoreToShow = r.ss;
+                    const colorScore = r.vetada ? 'text-error' : 'text-[#8b3d97]';
 
                     const aprobado = !isNS && CASP12.passes(sat, mrpMinSat);
                     let badgeSat = isNS ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-yellow-100 text-yellow-800 text-xs font-bold rounded-full border border-yellow-200">Pending (NS)</span>` : (aprobado ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full border border-green-200">Accepted (Effective)</span>` : `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-red-100 text-red-800 text-xs font-bold rounded-full border border-red-200">Rejected (Effective)</span>`);
