@@ -2,7 +2,7 @@
  * ============================================================
  * SONYA Suite Analítica v3.0 — mrp_engine.js
  * Motor CRITIC + MRP (Multi-Reference Point)
- * Sostenibilidad Fuerte: Veto de Leontief no-compensatorio.
+ * Sostenibilidad Fuerte: veto Leontief (sin pesos) + ranking Leontief ponderado (pesos CRITIC).
  *
  * PIPELINE (8 pasos, conforme a presentacion_mrp.html):
  *  1. Matriz de decisión X [m × n]
@@ -18,10 +18,12 @@
  *     entre los dos umbrales físicos más cercanos al valor real.
  *     Extrapolación lineal si el valor cae fuera del rango [q0, q4].
  *  5. Matriz de logro S = [s_ij]  con s_ij ∈ ℝ (puede ser < 0)
- *  6. Operador de Leontief:  SS(A_i) = min_j { s_ij }
- *     El criterio más rezagado dicta el resultado. Sin compensación.
- *  7. Condición de Veto:  si SS(A_i) < lineaRoja → VETADA
- *     El veto es estructural: no puede ser superado por otros criterios.
+ *  6. Agregación en dos niveles, con ŝ_j = s_j / α4:
+ *     Nivel 1 (veto, sin pesos):  SS_veto = min_j ŝ_j
+ *     Nivel 2 (ranking, con CRITIC): SS_rank = α4 · min_j max(0, 1 − n·w_j·(1 − ŝ_j)), n = 3
+ *     Para el ranking, ŝ se recorta a [0,1] para que SS_rank ∈ [0, α4].
+ *  7. Condición de Veto:  vetada si SS_veto < lineaRoja / α4 (sobre ŝ sin recortar)
+ *     El veto no usa pesos: ningún pilar puede compensar a otro en el veto.
  *  8. Ranking por SS descendente. Veredicto según lineaRoja.
  *
  * CRITERIOS:
@@ -33,8 +35,8 @@
  *   Calculados sobre la matriz raw normalizada (Min-Max),
  *   siguiendo la misma metodología que topsis_engine.js para
  *   coherencia interna del sistema. Los pesos informan qué
- *   criterio tiene mayor capacidad discriminante, pero NO
- *   participan en la agregación Leontief (que es un min puro).
+ *   criterio tiene mayor capacidad discriminante. Se usan en el ranking
+ *   participan en el veto (min puro, sin pesos) pero sí en el ranking (SS_rank).
  *   Se exponen en el resultado para la tabla de transparencia.
  *
  * EXPOSICIÓN GLOBAL:
@@ -63,6 +65,9 @@ const MRPEngine = (() => {
 
   /** Tolerancia numérica para denominadores nulos. */
   const EPS = 1e-10;
+
+  /** Orden de pilares: coincide con CRITERIA (eco, amb, soc). */
+  const PILLARS = ['Economic', 'Environmental', 'Social'];
 
   // ─── Definición de criterios ─────────────────────────────────
   const CRITERIA = [
@@ -331,37 +336,53 @@ const MRPEngine = (() => {
   }
 
   /**
-   * Operador de Leontief: SS = min(s_eco, s_amb, s_soc)
-   * El mínimo es el cuello de botella estructural del sistema.
+   * Agregación en dos niveles para una alternativa.
+   *
+   * Nivel 1 — Veto (SIN pesos):  SS_veto = min_j ŝ_j, vetada si SS_veto < λ/α4.
+   * Nivel 2 — Ranking (CON pesos CRITIC, n = 3, Σw = 1):
+   *           SS_rank = α4 · min_j max(0, 1 − n·w_j·(1 − ŝ_j)), con ŝ recortada a [0,1].
+   *
+   * Si w_j = 1/n para todo j, SS_rank = SS_veto (reducción a Leontief puro).
+   *
+   * @param {number[]} sRow   [s_eco, s_amb, s_soc] en escala α
+   * @param {number[]} W      pesos CRITIC en el orden de CRITERIA (eco, amb, soc)
+   * @param {number[]} alpha  [α0..α4]
+   * @param {number}   lineaRoja  umbral de veto en escala α
    */
-  function _leontief(s_eco, s_amb, s_soc) {
-    return Math.min(s_eco, s_amb, s_soc);
-  }
+  function _aggregate(sRow, W, alpha, lineaRoja) {
+    const N    = CRITERIA.length;                  // n = 3
+    const aMax = alpha[4] > 0 ? alpha[4] : 1;
+    const clamp01 = x => Math.max(0, Math.min(1, x));
 
-  /**
-   * Identifica el pilar que genera el veto (el que tiene menor s_j).
-   * Si hay empate, lista todos los que alcanzan el mínimo.
-   */
-  function _failingPillar(s_eco, s_amb, s_soc, ss) {
-    const pairs = [
-      { label: 'Economic', val: s_eco },
-      { label: 'Environmental', val: s_amb },
-      { label: 'Social',    val: s_soc }
-    ];
-    const failing = pairs.filter(p => Math.abs(p.val - ss) < EPS);
-    return failing.map(p => p.label).join(' + ');
+    // Nivel 1 — veto, sin pesos, sobre ŝ sin recortar
+    const shRaw   = sRow.map(s => s / aMax);
+    const vetoHat = Math.min(...shRaw);
+    const vetada  = vetoHat < (lineaRoja / aMax);
+    const lim     = shRaw.map(v => v === vetoHat);  // criterio(s) con menor ŝ_j
+
+    // Nivel 2 — ranking, con pesos, sobre ŝ recortada a [0,1]
+    const sh = shRaw.map(clamp01);
+    const f  = sh.map((s, j) => Math.max(0, 1 - N * W[j] * (1 - s)));
+    const ss_rank = Math.min(...f) * aMax;
+
+    return {
+      ss: ss_rank,                                  // SS_rank, escala α
+      ss_veto: vetoHat * aMax,                      // SS_veto, escala α (para mostrar)
+      vetada,
+      lim,
+      binding: PILLARS[f.indexOf(Math.min(...f))],  // criterio que limita el ranking
+      pilar_fallido: vetada ? PILLARS.filter((_, j) => lim[j]).join(' + ') : 'Ninguno'
+    };
   }
 
   // ════════════════════════════════════════════════════════════
   // PASO 8 — Ensamblado del ranking con metadatos de transparencia
   // ════════════════════════════════════════════════════════════
-  function _buildRanking(data, labels, tipos, X, thresholds, alpha, lineaRoja) {
+  function _buildRanking(data, labels, tipos, X, thresholds, alpha, lineaRoja, W) {
     const rows = labels.map((nombre, i) => {
       const rawRow = X[i];
       const { s_eco, s_amb, s_soc } = _achievementVector(rawRow, thresholds, alpha);
-      const ss            = _leontief(s_eco, s_amb, s_soc);
-      const vetada        = ss < lineaRoja;
-      const pilar_fallido = vetada ? _failingPillar(s_eco, s_amb, s_soc, ss) : 'Ninguno';
+      const agg = _aggregate([s_eco, s_amb, s_soc], W, alpha, lineaRoja);
 
       return {
         nombre,
@@ -370,20 +391,24 @@ const MRPEngine = (() => {
         eco        : rawRow[0],
         amb        : rawRow[1],
         soc        : rawRow[2],
-        // Alfas parciales (logros por criterio)
+        // Logros por criterio (escala α)
         s_eco,
         s_amb,
         s_soc,
-        // Alfa final (operador Leontief)
-        ss,
-        // Veredicto
-        vetada,
-        pilar_fallido,
-        veredicto  : vetada ? `VETADA [Pilar: ${pilar_fallido}]` : 'VIABLE'
+        // Agregación
+        ss         : agg.ss,
+        ss_veto    : agg.ss_veto,
+        vetada     : agg.vetada,
+        lim_eco    : agg.lim[0],
+        lim_amb    : agg.lim[1],
+        lim_soc    : agg.lim[2],
+        binding    : agg.binding,
+        pilar_fallido : agg.pilar_fallido,
+        veredicto  : agg.vetada ? `VETADA [Pilar: ${agg.pilar_fallido}]` : 'VIABLE'
       };
     });
 
-    // Ordenar por SS descendente. Alternativas vetadas al final.
+    // Ordenar por SS_rank descendente. Alternativas vetadas al final.
     rows.sort((a, b) => {
       if (a.vetada !== b.vetada) return a.vetada ? 1 : -1;
       return b.ss - a.ss;
@@ -458,7 +483,7 @@ const MRPEngine = (() => {
     CRITERIA.forEach((c, j) => { stdObj[c.key] = stds ? stds[j] : null; });
 
     // ── 3-7. Logro + Leontief + Veto ─────────────────────────
-    const ranking = _buildRanking(data, labels, tipos, X, thresholds, alpha, lineaRoja);
+    const ranking = _buildRanking(data, labels, tipos, X, thresholds, alpha, lineaRoja, W);
 
     // ── Formato de umbrales para UI (array[5] raw por criterio) ─
     const umbralUI = {};
@@ -471,7 +496,7 @@ const MRPEngine = (() => {
       uf_count  : data.length,
       alpha,
       lineaRoja,
-      // Pesos CRITIC (discriminación, no participan en Leontief)
+      // Pesos CRITIC (discriminación; intervienen en SS_rank, no en el veto)
       pesos     : weights,
       critic_C  : C,
       std       : stdObj,

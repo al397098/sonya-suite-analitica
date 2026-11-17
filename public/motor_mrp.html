@@ -364,9 +364,9 @@
                     <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-red-500">Lógica de
                         Veto</span>
                 </div>
-                <h4 class="font-headline font-bold text-xs text-slate-900 mb-2">Sostenibilidad Fuerte</h4>
-                <p class="text-[11px] leading-relaxed text-slate-600">Garantiza que indicadores críticos no sean
-                    compensados por puntuaciones altas, manteniendo umbrales innegociables para el sistema.</p>
+                <h4 class="font-headline font-bold text-xs text-slate-900 mb-2">Veto y Ranking</h4>
+                <p class="text-[11px] leading-relaxed text-slate-600">Veto: SS_veto = min_j(ŝ_j) &lt; λ/α4, sin pesos: ningún pilar compensa a otro.
+                    El ranking usa Leontief ponderado con pesos CRITIC (SS_rank).</p>
             </div>
         </div>
     </aside>
@@ -664,7 +664,7 @@
                     <div class="col-span-12 lg:col-span-7 space-y-6">
                         <div class="bg-white p-8 rounded-xl shadow-sm border border-outline-variant/20">
                             <h3 class="font-headline text-xl font-bold mb-2">Selector de Línea Roja</h3>
-                            <p class="text-sm text-on-surface-variant mb-6">Define el nivel de veto absoluto. Acciones
+                            <p class="text-sm text-on-surface-variant mb-6">Define el umbral de veto sobre SS_veto, sin pesos. Acciones
                                 por debajo serán descartadas.</p>
                             <div id="ctrl-lr-selector"
                                 class="flex items-center gap-1 bg-surface-container rounded-full p-1.5 h-20"></div>
@@ -766,7 +766,7 @@
         ];
 
         // ============================================================
-        // MOTOR MATEMÁTICO LOCAL (CRITIC + MRP · Sostenibilidad Fuerte)
+        // MOTOR MATEMÁTICO LOCAL (CRITIC + MRP · veto Leontief + ranking Leontief ponderado)
         // ============================================================
         const MotorLocal = {
 
@@ -864,8 +864,14 @@
                 return alpha[4] + ((alpha[4] - alpha[3]) / den) * (qv[4] - val);
             },
 
-            // Proceso MRP completo con Sostenibilidad Fuerte (Leontief)
-            procesarMRP(datos, alpha, qCustom) {
+            // Agregación en dos niveles (Leontief ponderado, pesos CRITIC).
+            // ŝ_j = s_j / α4.
+            // Nivel 1 — Veto (SIN pesos): SS_veto = min_j ŝ_j ; vetada si SS_veto < λ/α4.
+            // Nivel 2 — Ranking (CON pesos): SS_rank = α4 · min_j max(0, 1 − n·w_j·(1 − ŝ_j)), n = 3.
+            // Para el ranking, ŝ se recorta a [0,1] para que SS_rank ∈ [0, α4].
+            // El veto usa ŝ sin recortar, de modo que el recorte no altera el veto.
+            // Con w_j = 1/3 para todo j, SS_rank = SS_veto (reducción a Leontief puro).
+            procesarMRP(datos, alpha, qCustom, lineaRoja = 1.0) {
                 let umbrales = {};
                 if (qCustom && Object.keys(qCustom).length) {
                     ['Amb', 'Soc', 'Eco'].forEach(c => { umbrales[c] = qCustom[c].map(v => ({ valor: v })); });
@@ -875,13 +881,43 @@
                     umbrales.Soc = this.getPercentiles(datos.map(d => d.soc), true);
                 }
                 const pesos = this.calcCritic(datos);
+                const w = [pesos.Eco, pesos.Amb, pesos.Soc];   // orden: eco, amb, soc
+                const N = 3;
+                const aMax = alpha[4] > 0 ? alpha[4] : 1;
+                const clamp01 = x => Math.max(0, Math.min(1, x));
+                const LABELS = ['Economic', 'Environmental', 'Social'];
+
                 const ranking = datos.map(d => {
                     const s_eco = this.estandarizar(d.eco, umbrales.Eco, alpha);
                     const s_amb = this.estandarizar(d.amb, umbrales.Amb, alpha);
                     const s_soc = this.estandarizar(d.soc, umbrales.Soc, alpha);
-                    const ss = Math.min(s_eco, s_amb, s_soc); // Agregación Leontief
-                    return { accion: d.nombre, tipo: d.tipo, s_eco, s_amb, s_soc, ss };
-                }).sort((a, b) => b.ss - a.ss);
+
+                    // Nivel 1 — veto, sin pesos y sin recortar
+                    const shRaw   = [s_eco, s_amb, s_soc].map(s => s / aMax);
+                    const vetoHat = Math.min(...shRaw);
+                    const vetada  = vetoHat < (lineaRoja / aMax);
+                    const lim     = shRaw.map(v => v === vetoHat);   // criterio(s) con menor ŝ_j
+
+                    // Nivel 2 — ranking, con pesos y ŝ recortada a [0,1]
+                    const sh = shRaw.map(clamp01);
+                    const f  = sh.map((s, j) => Math.max(0, 1 - N * w[j] * (1 - s)));
+                    const ss_rank = Math.min(...f) * aMax;
+
+                    return {
+                        accion: d.nombre, tipo: d.tipo,
+                        s_eco, s_amb, s_soc,
+                        ss: ss_rank,                        // SS_rank (ranking), escala α
+                        ss_veto: vetoHat * aMax,            // SS_veto (veto), escala α
+                        vetada,
+                        lim_eco: lim[0], lim_amb: lim[1], lim_soc: lim[2],
+                        binding: LABELS[f.indexOf(Math.min(...f))],
+                        pilar_fallido: vetada ? LABELS.filter((_, j) => lim[j]).join(' + ') : 'Ninguno'
+                    };
+                }).sort((a, b) => {
+                    if (a.vetada !== b.vetada) return a.vetada ? 1 : -1;   // vetadas al final
+                    return b.ss - a.ss;
+                });
+
                 return { ranking, pesos, umbrales };
             }
         };
@@ -909,7 +945,8 @@
                 const u = new URL(url, 'http://local');
                 const a = JSON.parse(u.searchParams.get('alpha') || '[0,1,2.5,3,4]');
                 const q = JSON.parse(u.searchParams.get('q') || 'null');
-                return MotorLocal.procesarMRP(DB_LOCAL, a, q || {});
+                const lr = parseFloat(u.searchParams.get('lr') ?? '1');
+                return MotorLocal.procesarMRP(DB_LOCAL, a, q || {}, lr);
             }
 
             if (url.startsWith('/evaluar/mrp')) {
@@ -926,7 +963,7 @@
 
                 const conjunto = [ante, ...posts];
                 // Ejecutamos el motor matemático
-                const resultado = MotorLocal.procesarMRP(conjunto, req.alpha || [0, 1, 2.5, 3, 4], req.q || {}).ranking;
+                const resultado = MotorLocal.procesarMRP(conjunto, req.alpha || [0, 1, 2.5, 3, 4], req.q || {}, req.lr ?? 1).ranking;
 
                 return {
                     resultado: resultado.filter(r => r.tipo === 'EX-POST'),
@@ -980,7 +1017,7 @@
             if (tab === 'math') buildMath();
         }
 
-        const bVerd = ss => ss >= mrpLR
+        const bVerd = vetada => !vetada
             ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full border border-green-200"><span class="w-1.5 h-1.5 rounded-full bg-green-600"></span>Viable</span>`
             : `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-red-100 text-red-700 text-xs font-bold rounded-full border border-red-200"><span class="w-1.5 h-1.5 rounded-full bg-red-600"></span>Veto</span>`;
 
@@ -990,7 +1027,7 @@
                 accC = await api('/acciones');
                 const mP = '?alpha=' + JSON.stringify(mrpAlpha) + '&lr=' + mrpLR + (mrpQ ? '&q=' + JSON.stringify(mrpQ) : '');
                 mC = await api('/ranking/mrp' + mP);
-                const d = mC.ranking, ok = d.filter(x => x.ss >= mrpLR).length;
+                const d = mC.ranking, ok = d.filter(x => !x.vetada).length;
 
                 document.getElementById('m-metrics-container').innerHTML = `
             <div class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm relative overflow-hidden group">
@@ -1001,13 +1038,13 @@
             </div>
             <div class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm relative overflow-hidden group">
               <div class="absolute top-0 right-0 w-24 h-24 bg-green-50 -mr-8 -mt-8 rounded-full group-hover:scale-110 transition-transform duration-500 pointer-events-none"></div>
-              <p class="text-xs font-mono uppercase tracking-widest text-outline mb-4 relative">Viable (SS ≥ ${mrpLR})</p>
+              <p class="text-xs font-mono uppercase tracking-widest text-outline mb-4 relative">Viable (SS_veto ≥ ${mrpLR})</p>
               <h3 class="text-5xl font-bold font-headline text-green-600 relative">${ok}</h3>
               <p class="mt-4 text-[10px] font-mono text-green-600 uppercase relative">Optimal Alignment</p>
             </div>
             <div class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm relative overflow-hidden group">
               <div class="absolute top-0 right-0 w-24 h-24 bg-red-50 -mr-8 -mt-8 rounded-full group-hover:scale-110 transition-transform duration-500 pointer-events-none"></div>
-              <p class="text-xs font-mono uppercase tracking-widest text-outline mb-4 relative">Vetadas (SS &lt; ${mrpLR})</p>
+              <p class="text-xs font-mono uppercase tracking-widest text-outline mb-4 relative">Vetadas (SS_veto &lt; ${mrpLR})</p>
               <h3 class="text-5xl font-bold font-headline text-error relative">${d.length - ok}</h3>
               <p class="mt-4 text-[10px] font-mono text-error uppercase relative">Risk Threshold Breach</p>
             </div>
@@ -1039,21 +1076,21 @@
                 };
 
                 document.getElementById('m-table-body').innerHTML = d.map((r, i) => `
-            <tr class="hover:bg-surface-container-low/50 transition-colors group ${r.ss < mrpLR ? 'bg-error-container/5' : ''}">
+            <tr class="hover:bg-surface-container-low/50 transition-colors group ${r.vetada ? 'bg-error-container/5' : ''}">
               <td class="px-6 py-5 font-mono text-sm text-outline">${String(i + 1).padStart(2, '0')}</td>
               <td class="px-6 py-5">
                 <div class="font-headline font-bold text-on-surface">${r.accion}</div>
                 <div class="text-[9px] font-bold font-mono text-secondary mt-1 tracking-widest uppercase">${r.tipo || ''}</div>
               </td>
-              <td class="px-6 py-5 font-mono font-bold text-lg ${r.ss < mrpLR ? 'text-error' : 'text-[#8b3d97]'}">${r.ss.toFixed(3)}</td>
+              <td class="px-6 py-5 font-mono font-bold text-lg ${r.vetada ? 'text-error' : 'text-[#8b3d97]'}">${r.ss.toFixed(3)}</td>
               <td class="px-6 py-5"><div class="flex items-center gap-2">
-                ${fmtS(r.s_amb, r.s_amb === r.ss)}
-                ${fmtS(r.s_soc, r.s_soc === r.ss)}
-                ${fmtS(r.s_eco, r.s_eco === r.ss)}
+                ${fmtS(r.s_amb, r.lim_amb)}
+                ${fmtS(r.s_soc, r.lim_soc)}
+                ${fmtS(r.s_eco, r.lim_eco)}
               </div></td>
-              <td class="px-6 py-5">${bVerd(r.ss)}</td>
+              <td class="px-6 py-5">${bVerd(r.vetada)}</td>
               <td class="px-6 py-5 text-right">
-                ${r.ss < mrpLR ? `<span class="material-symbols-outlined fill-icon text-error">warning</span>` : `<button class="opacity-0 group-hover:opacity-100 material-symbols-outlined text-outline transition-opacity">open_in_new</button>`}
+                ${r.vetada ? `<span class="material-symbols-outlined fill-icon text-error">warning</span>` : `<button class="opacity-0 group-hover:opacity-100 material-symbols-outlined text-outline transition-opacity">open_in_new</button>`}
               </td>
             </tr>`).join('');
 
@@ -1205,11 +1242,12 @@
                         ante_data: ante_final.nueva ? ante_final : null,
                         ex_posts: eps,
                         alpha: mrpAlpha,
+                        lr: mrpLR,
                         q: mrpQ
                     })
                 });
 
-                const ok = res.resultado.filter(x => x.ss >= mrpLR).length;
+                const ok = res.resultado.filter(x => !x.vetada).length;
 
                 // 3. Dibujar la tabla solicitada
                 rs.innerHTML = `
@@ -1246,9 +1284,9 @@
                           <td class="px-4 py-5 text-center font-mono text-xs">${x.s_amb.toFixed(3)}</td>
                           <td class="px-4 py-5 text-center font-mono text-xs">${x.s_soc.toFixed(3)}</td>
                           <td class="px-4 py-5 text-center font-mono text-xs">${x.s_eco.toFixed(3)}</td>
-                          <td class="px-4 py-5 text-center font-mono font-bold text-lg ${x.ss < mrpLR ? 'text-error' : 'text-secondary'}">${x.ss.toFixed(4)}</td>
+                          <td class="px-4 py-5 text-center font-mono font-bold text-lg ${x.vetada ? 'text-error' : 'text-secondary'}">${x.ss.toFixed(4)}</td>
                           <td class="px-4 py-5 text-center text-[10px] font-bold text-outline uppercase">${cn[mi]}</td>
-                          <td class="px-6 py-5 text-right">${bVerd(x.ss)}</td>
+                          <td class="px-6 py-5 text-right">${bVerd(x.vetada)}</td>
                         </tr>`;
                 }).join('')}
                 </tbody>
@@ -1289,15 +1327,16 @@
         </div>
         <div class="bg-white rounded-xl p-8 shadow-sm border border-outline-variant/15 mt-6">
           <div class="flex items-center justify-between mb-6 border-b border-outline-variant/20 pb-4">
-            <h2 class="text-2xl font-bold font-headline text-[#8b3d97]">II. Sostenibilidad Fuerte (Agregación Leontief)</h2>
-            <div class="bg-slate-900 text-white px-4 py-2 rounded-lg font-mono text-sm">SS_i = min(s_Eco, s_Amb, s_Soc)</div>
+            <h2 class="text-2xl font-bold font-headline text-[#8b3d97]">II. Agregación en dos niveles (Leontief ponderado CRITIC)</h2>
+            <div class="bg-slate-900 text-white px-4 py-2 rounded-lg font-mono text-sm">SS_veto = min_j ŝ_j · SS_rank = α4·min_j[1−3·w_j·(1−ŝ_j)]</div>
           </div>
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             ${mC.ranking.map(r => `
-            <div class="p-4 rounded-lg border-l-4 ${r.ss >= mrpLR ? 'border-[#8b3d97] bg-surface-container' : 'border-error bg-error-container/10'}">
+            <div class="p-4 rounded-lg border-l-4 ${r.vetada ? 'border-error bg-error-container/10' : 'border-[#8b3d97] bg-surface-container'}">
               <p class="text-[10px] text-outline uppercase font-bold mb-1">Acción</p>
               <p class="font-headline font-extrabold text-on-surface text-sm">${r.accion}</p>
-              <div class="mt-2 text-2xl font-mono font-bold ${r.ss >= mrpLR ? 'text-[#8b3d97]' : 'text-error'}">SS ${r.ss.toFixed(2)}</div>
+              <div class="mt-2 text-2xl font-mono font-bold ${r.vetada ? 'text-error' : 'text-[#8b3d97]'}">SS ${r.ss.toFixed(2)}</div>
+              <div class="mt-1 text-[10px] font-mono text-outline">SS_veto ${r.ss_veto.toFixed(2)}</div>
             </div>`).join('')}
           </div>
           <div class="overflow-x-auto"><table class="w-full text-left">
@@ -1307,20 +1346,20 @@
                 <th class="py-3 px-2">Logro s_Amb</th>
                 <th class="py-3 px-2">Logro s_Soc</th>
                 <th class="py-3 px-2">Logro s_Eco</th>
-                <th class="py-3 px-2 text-right">SS Final</th>
+                <th class="py-3 px-2 text-right">SS rank</th>
               </tr>
             </thead>
             <tbody class="font-mono text-xs">
               ${mC.ranking.map(r => `<tr class="border-b border-surface-container/50 hover:bg-surface-container-low/30 transition-colors">
                 <td class="py-3 px-2 font-headline font-bold text-on-surface">${r.accion}</td>
-                <td class="py-3 px-2 ${r.s_amb === r.ss ? 'text-error font-bold underline underline-offset-4' : 'text-slate-500'}">${r.s_amb.toFixed(4)}</td>
-                <td class="py-3 px-2 ${r.s_soc === r.ss ? 'text-error font-bold underline underline-offset-4' : 'text-slate-500'}">${r.s_soc.toFixed(4)}</td>
-                <td class="py-3 px-2 ${r.s_eco === r.ss ? 'text-error font-bold underline underline-offset-4' : 'text-slate-500'}">${r.s_eco.toFixed(4)}</td>
-                <td class="py-3 px-2 text-right font-bold text-sm ${r.ss >= mrpLR ? 'text-[#8b3d97]' : 'text-error'}">${r.ss.toFixed(4)}</td>
+                <td class="py-3 px-2 ${r.lim_amb ? 'text-error font-bold underline underline-offset-4' : 'text-slate-500'}">${r.s_amb.toFixed(4)}</td>
+                <td class="py-3 px-2 ${r.lim_soc ? 'text-error font-bold underline underline-offset-4' : 'text-slate-500'}">${r.s_soc.toFixed(4)}</td>
+                <td class="py-3 px-2 ${r.lim_eco ? 'text-error font-bold underline underline-offset-4' : 'text-slate-500'}">${r.s_eco.toFixed(4)}</td>
+                <td class="py-3 px-2 text-right font-bold text-sm ${r.vetada ? 'text-error' : 'text-[#8b3d97]'}">${r.ss.toFixed(4)}</td>
               </tr>`).join('')}
             </tbody>
           </table></div>
-          <p class="text-xs text-outline mt-6 italic flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-error flex-shrink-0"></span>En rojo subrayado: criterio limitante que dicta el SS por sostenibilidad fuerte.</p>
+          <p class="text-xs text-outline mt-6 italic flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-error flex-shrink-0"></span>En rojo subrayado: criterio con menor ŝ_j (mayor déficit), que fija el SS_veto.</p>
         </div>`;
         }
 
