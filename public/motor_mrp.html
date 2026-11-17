@@ -366,7 +366,7 @@
                 </div>
                 <h4 class="font-headline font-bold text-xs text-slate-900 mb-2">Veto y Ranking</h4>
                 <p class="text-[11px] leading-relaxed text-slate-600">Veto: SS_veto = min_j(ŝ_j) &lt; λ/α4, sin pesos: ningún pilar compensa a otro.
-                    El ranking usa Leontief ponderado con pesos CRITIC (SS_rank).</p>
+                    Leontief geométrico ponderado: el mínimo de los logros elevados a un exponente proporcional al peso CRITIC. No compensatorio, nunca negativo, se reduce a Leontief puro cuando w_j = 1/3.</p>
             </div>
         </div>
     </aside>
@@ -867,7 +867,7 @@
             // Agregación en dos niveles (Leontief ponderado, pesos CRITIC).
             // ŝ_j = s_j / α4.
             // Nivel 1 — Veto (SIN pesos): SS_veto = min_j ŝ_j ; vetada si SS_veto < λ/α4.
-            // Nivel 2 — Ranking (CON pesos): SS_rank = α4 · min_j max(0, 1 − n·w_j·(1 − ŝ_j)), n = 3.
+            // Nivel 2 — Ranking (CON pesos): SS_rank = α4 · min_j ( ŝ_j^(n·w_j) ), n = 3 (Leontief geométrico).
             // Para el ranking, ŝ se recorta a [0,1] para que SS_rank ∈ [0, α4].
             // El veto usa ŝ sin recortar, de modo que el recorte no altera el veto.
             // Con w_j = 1/3 para todo j, SS_rank = SS_veto (reducción a Leontief puro).
@@ -900,7 +900,11 @@
 
                     // Nivel 2 — ranking, con pesos y ŝ recortada a [0,1]
                     const sh = shRaw.map(clamp01);
-                    const f  = sh.map((s, j) => Math.max(0, 1 - N * w[j] * (1 - s)));
+                    // f_j = ŝ_j^(n·w_j). Caso límite w_j = 0: si ŝ_j = 0, f_j = 0; si no, f_j = 1.
+                    const f  = sh.map((s, j) => {
+                        if (w[j] === 0) return s === 0 ? 0 : 1;
+                        return Math.pow(s, N * w[j]);
+                    });
                     const ss_rank = Math.min(...f) * aMax;
 
                     return {
@@ -1327,8 +1331,8 @@
         </div>
         <div class="bg-white rounded-xl p-8 shadow-sm border border-outline-variant/15 mt-6">
           <div class="flex items-center justify-between mb-6 border-b border-outline-variant/20 pb-4">
-            <h2 class="text-2xl font-bold font-headline text-[#8b3d97]">II. Agregación en dos niveles (Leontief ponderado CRITIC)</h2>
-            <div class="bg-slate-900 text-white px-4 py-2 rounded-lg font-mono text-sm">SS_veto = min_j ŝ_j · SS_rank = α4·min_j[1−3·w_j·(1−ŝ_j)]</div>
+            <h2 class="text-2xl font-bold font-headline text-[#8b3d97]">II. Agregación en dos niveles (Leontief geométrico ponderado CRITIC)</h2>
+            <div class="bg-slate-900 text-white px-4 py-2 rounded-lg font-mono text-sm">SS_veto = min_j ŝ_j · SS_rank = α4·min_j(ŝ_j^(3·w_j))</div>
           </div>
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             ${mC.ranking.map(r => `

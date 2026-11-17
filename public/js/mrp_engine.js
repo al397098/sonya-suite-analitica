@@ -2,7 +2,7 @@
  * ============================================================
  * SONYA Suite Analítica v3.0 — mrp_engine.js
  * Motor CRITIC + MRP (Multi-Reference Point)
- * Sostenibilidad Fuerte: veto Leontief (sin pesos) + ranking Leontief ponderado (pesos CRITIC).
+ * Sostenibilidad Fuerte: veto Leontief (sin pesos) + ranking Leontief geométrico ponderado (pesos CRITIC).
  *
  * PIPELINE (8 pasos, conforme a presentacion_mrp.html):
  *  1. Matriz de decisión X [m × n]
@@ -20,7 +20,7 @@
  *  5. Matriz de logro S = [s_ij]  con s_ij ∈ ℝ (puede ser < 0)
  *  6. Agregación en dos niveles, con ŝ_j = s_j / α4:
  *     Nivel 1 (veto, sin pesos):  SS_veto = min_j ŝ_j
- *     Nivel 2 (ranking, con CRITIC): SS_rank = α4 · min_j max(0, 1 − n·w_j·(1 − ŝ_j)), n = 3
+ *     Nivel 2 (ranking, con CRITIC): SS_rank = α4 · min_j ( ŝ_j^(n·w_j) ), n = 3
  *     Para el ranking, ŝ se recorta a [0,1] para que SS_rank ∈ [0, α4].
  *  7. Condición de Veto:  vetada si SS_veto < lineaRoja / α4 (sobre ŝ sin recortar)
  *     El veto no usa pesos: ningún pilar puede compensar a otro en el veto.
@@ -35,8 +35,8 @@
  *   Calculados sobre la matriz raw normalizada (Min-Max),
  *   siguiendo la misma metodología que topsis_engine.js para
  *   coherencia interna del sistema. Los pesos informan qué
- *   criterio tiene mayor capacidad discriminante. Se usan en el ranking
- *   participan en el veto (min puro, sin pesos) pero sí en el ranking (SS_rank).
+ *   criterio tiene mayor capacidad discriminante. Intervienen en el ranking
+ *   (SS_rank), no en el veto (SS_veto, min puro sin pesos).
  *   Se exponen en el resultado para la tabla de transparencia.
  *
  * EXPOSICIÓN GLOBAL:
@@ -339,8 +339,8 @@ const MRPEngine = (() => {
    * Agregación en dos niveles para una alternativa.
    *
    * Nivel 1 — Veto (SIN pesos):  SS_veto = min_j ŝ_j, vetada si SS_veto < λ/α4.
-   * Nivel 2 — Ranking (CON pesos CRITIC, n = 3, Σw = 1):
-   *           SS_rank = α4 · min_j max(0, 1 − n·w_j·(1 − ŝ_j)), con ŝ recortada a [0,1].
+   * Nivel 2 — Ranking (CON pesos CRITIC, n = 3, Σw = 1), Leontief geométrico ponderado:
+   *           SS_rank = α4 · min_j ( ŝ_j^(n·w_j) ), con ŝ recortada a [0,1].
    *
    * Si w_j = 1/n para todo j, SS_rank = SS_veto (reducción a Leontief puro).
    *
@@ -362,7 +362,11 @@ const MRPEngine = (() => {
 
     // Nivel 2 — ranking, con pesos, sobre ŝ recortada a [0,1]
     const sh = shRaw.map(clamp01);
-    const f  = sh.map((s, j) => Math.max(0, 1 - N * W[j] * (1 - s)));
+    // f_j = ŝ_j^(n·w_j). Caso límite w_j = 0: si ŝ_j = 0, f_j = 0; si no, f_j = 1 (no penaliza).
+    const f  = sh.map((s, j) => {
+      if (W[j] === 0) return s === 0 ? 0 : 1;
+      return Math.pow(s, N * W[j]);
+    });
     const ss_rank = Math.min(...f) * aMax;
 
     return {
